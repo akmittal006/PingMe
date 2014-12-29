@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -62,6 +63,9 @@ public class LoginActivity extends Activity {
 		mLoginButton = (Button) findViewById(R.id.loginButton);
 		mFormView = (ScrollView) findViewById(R.id.formView);
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
+		TextView pingLabel = (TextView)findViewById(R.id.textView1);
+		Typeface type = Typeface.createFromAsset(getAssets(),"fonts/LOBSTERTWO-BOLD.OTF");
+		pingLabel.setTypeface(type);
 
 		OnClickListener listener = new OnClickListener() {
 

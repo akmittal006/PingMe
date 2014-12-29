@@ -8,10 +8,10 @@
     <string name="hello_world">Hello world!</string>
     <string name="sign_out">Sign out</string>
     <string name="title_activity_login">LoginActivity</string>
-    <string name="username_hint">Username</string>
+    <string name="username_hint">    Username</string>
     <string name="error_title">Oops! Sorry!</string>
     <string name="email_hint">Email</string>
-    <string name="passsword_hint">Password</string>
+    <string name="passsword_hint">    Password</string>
     <string name="login_button_label">Login</string>
     <string name="signup_text_label">Don\'t have an account? Click to SignUp!</string>
     <string name="login_text_label">Already have an account? Click to Login!</string>
@@ -28,5 +28,9 @@
     <string name="title_activity_search_results">SearchResultsActivity</string>
     <string name="frnd_status_label">+ add freind</string>
     <string name="ping_label">Ping Me</string>
+    <string name="add_friend_dialog_title">Add Friend?</string>
+    <string name="friend_request_sent_label">Friend request sent</string>
+    <string name="friend_request_error_label">Sorry! Friend request not sent!</string>
+    <string name="friend_req_title">Friend Requests</string>
 
 </resources>
