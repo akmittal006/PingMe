@@ -37,6 +37,7 @@ public final class R {
     }
     public static final class id {
         public static final int action_menu_layout=0x7f0a0000;
+        public static final int action_settings=0x7f0a0014;
         public static final int actionbar_notifcation_textview=0x7f0a0002;
         public static final int editTextLayout=0x7f0a0005;
         public static final int emailEditText=0x7f0a000d;
@@ -62,13 +63,15 @@ public final class R {
         public static final int activity_login=0x7f030001;
         public static final int activity_main=0x7f030002;
         public static final int activity_search_results=0x7f030003;
-        public static final int activity_sign_up=0x7f030004;
-        public static final int fragment_main=0x7f030005;
-        public static final int user_item=0x7f030006;
+        public static final int activity_show_frnd_reqs=0x7f030004;
+        public static final int activity_sign_up=0x7f030005;
+        public static final int fragment_main=0x7f030006;
+        public static final int user_item=0x7f030007;
     }
     public static final class menu {
         public static final int options_menu=0x7f090000;
         public static final int search_results=0x7f090001;
+        public static final int show_frnd_reqs=0x7f090002;
     }
     public static final class string {
         public static final int action_settings=0x7f070016;
@@ -96,6 +99,7 @@ public final class R {
         public static final int signup_text_label=0x7f07000c;
         public static final int title_activity_login=0x7f070006;
         public static final int title_activity_search_results=0x7f070018;
+        public static final int title_activity_show_frnd_reqs=0x7f07001f;
         public static final int title_activity_sign_up=0x7f070012;
         public static final int title_activity_user_search=0x7f070015;
         public static final int title_section1=0x7f070001;

@@ -20,9 +20,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ankurmittal.learning.adapters.ParseConstants;
 import com.parse.FindCallback;
@@ -34,7 +38,9 @@ import com.parse.ParseUser;
 public class MainActivity extends Activity implements ActionBar.TabListener {
 	
 	ParseUser currentUser = null;
-	ArrayList<ParseUser> freindRequests;
+	ArrayList<ParseObject> friendRequests;
+	String[] frndReqSenders;
+	int count;
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -52,10 +58,12 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		freindRequests = new ArrayList<ParseUser>();
+		friendRequests = new ArrayList<ParseObject>();
+		loadFriendRequests();
+		
 		currentUser = ParseUser.getCurrentUser();
 		if (currentUser != null) {
 		  // do stuff with the user
@@ -107,14 +115,25 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.options_menu, menu);
-		loadFriendRequests();
-		int count =getFriendRequestCount();
+		
+		count =getFriendRequestCount();
 		if (count > 0) {
 			MenuItem item = menu.findItem(R.id.friend_req);
 		    MenuItemCompat.setActionView(item, R.layout.action_bar_notification);
 		    View view = MenuItemCompat.getActionView(item);
 		    TextView notificationTextView = (TextView)view.findViewById(R.id.actionbar_notifcation_textview);
 		    notificationTextView.setText(count+ "");
+		    ImageButton newItem = (ImageButton)view.findViewById(R.id.frnd_req_button);
+		    newItem.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View arg0) {
+					// TODO Auto-generated method stub
+					Intent intent = new Intent(MainActivity.this, ShowFrndReqs.class);
+					startActivity(intent);
+				}
+			});
+		    //item.setActionView(R.id.friend_req);
 		}
 		
 		// Get the SearchView and set the searchable configuration
@@ -138,15 +157,20 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 				
 				if (e == null) {
 					// We found requests!
-					freindRequests = new ArrayList<ParseUser>();
-				}else {}
+					//frndReqSenders = new String[requests.size()];
+					friendRequests = new ArrayList<ParseObject>(requests);
+					
+					MainActivity.this.invalidateOptionsMenu();
+				}else {
+					Toast.makeText(MainActivity.this, "Network not available!", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 	}
 
 	private int getFriendRequestCount() {
 		
-		return freindRequests.size();
+		return friendRequests.size();
 	}
 
 	@Override
@@ -155,6 +179,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		Toast.makeText(MainActivity.this, "" + item.getItemId(), Toast.LENGTH_LONG).show();
 		if (id == R.id.sign_out) {
 			Intent intent = new Intent(MainActivity.this,
 					LoginActivity.class);
@@ -165,6 +190,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			currentUser = ParseUser.getCurrentUser();
 			return true;
 			
+		}
+		else if (id == R.id.friend_req ) {
+			Toast.makeText(MainActivity.this, "No Friend Requests!", Toast.LENGTH_SHORT).show();
 		}
 		
 		return super.onOptionsItemSelected(item);

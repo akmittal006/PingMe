@@ -32,5 +32,6 @@
     <string name="friend_request_sent_label">Friend request sent</string>
     <string name="friend_request_error_label">Sorry! Friend request not sent!</string>
     <string name="friend_req_title">Friend Requests</string>
+    <string name="title_activity_show_frnd_reqs">Friend Requests</string>
 
 </resources>

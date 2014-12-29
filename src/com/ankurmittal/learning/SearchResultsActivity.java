@@ -65,7 +65,7 @@ public class SearchResultsActivity extends ListActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				ParseObject friendRequest = new ParseObject(ParseConstants.KEY_FRIENDS_REQUEST);
 				friendRequest.put(ParseConstants.KEY_FRND_REQ_RECEIVER, friend.getObjectId());
-				friendRequest.put(ParseConstants.KEY_SENDER_NAME, ParseUser.getCurrentUser().getUsername());
+				friendRequest.put(ParseConstants.KEY_SENDER, ParseUser.getCurrentUser());
 				friendRequest.saveInBackground(new SaveCallback() {
 					
 					@Override
