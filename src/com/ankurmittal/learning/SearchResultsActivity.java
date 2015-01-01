@@ -16,8 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
@@ -36,17 +36,17 @@ public class SearchResultsActivity extends ListActivity {
 	public static final String TAG = SearchResultsActivity.class
 			.getSimpleName();
 	ArrayList<ParseUser> mUsers;
+	ArrayList<String> mRaw;
 	String[] mUsernames;
 	SearchView searchView;
+	ProgressBar mProgBar;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
-		// Get the SearchView and set the search able configuration
-
-		// Do not iconify the widget;expand it by default
-
+		setContentView(R.layout.activity_search_results);
+		mProgBar = (ProgressBar)findViewById(R.id.searchProgressBar);
+		
 		handleIntent(getIntent());
 	}
 
@@ -66,10 +66,12 @@ public class SearchResultsActivity extends ListActivity {
 				ParseObject friendRequest = new ParseObject(ParseConstants.KEY_FRIENDS_REQUEST);
 				friendRequest.put(ParseConstants.KEY_FRND_REQ_RECEIVER, friend.getObjectId());
 				friendRequest.put(ParseConstants.KEY_SENDER, ParseUser.getCurrentUser());
+				friendRequest.put(ParseConstants.KEY_SENDER_NAME, ParseUser.getCurrentUser().getUsername());
 				friendRequest.saveInBackground(new SaveCallback() {
 					
 					@Override
 					public void done(ParseException e) {
+						
 						if (e == null) {
 							//friend request send
 							Toast.makeText(SearchResultsActivity.this, R.string.friend_request_sent_label, Toast.LENGTH_SHORT).show();
@@ -91,6 +93,7 @@ public class SearchResultsActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.search_results, menu);
+		mProgBar = (ProgressBar)findViewById(R.id.searchProgressBar);
 		MenuItem searchItem = menu.findItem(R.id.search);
 		SearchView searchView = (SearchView) MenuItemCompat
 				.getActionView(searchItem);
@@ -104,14 +107,14 @@ public class SearchResultsActivity extends ListActivity {
 
 			@Override
 			public boolean onQueryTextSubmit(String queryText) {
-				setProgressBarIndeterminateVisibility(true);
+				
 				handleQueryText(queryText);
 				return false;
 			}
 
 			@Override
 			public boolean onQueryTextChange(String queryText) {
-				setProgressBarIndeterminateVisibility(true);
+				
 				handleQueryText(queryText);
 				return false;
 			}
@@ -133,6 +136,7 @@ public class SearchResultsActivity extends ListActivity {
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
 			String queryText = intent.getStringExtra(SearchManager.QUERY);
+			
 			handleQueryText(queryText);
 
 			// showResults(query);
@@ -148,20 +152,29 @@ public class SearchResultsActivity extends ListActivity {
 		ParseQuery<ParseUser> users = ParseUser.getQuery();
 
 		users.whereStartsWith("username", queryText);
+		mProgBar.setVisibility(View.VISIBLE);
 
 		users.findInBackground(new FindCallback<ParseUser>() {
 
 			@Override
 			public void done(List<ParseUser> users, ParseException e) {
-				setProgressBarIndeterminateVisibility(false);
+				
+				mProgBar.setVisibility(View.INVISIBLE);
 				if (e == null) {
 					// success, display users
 					Log.d(TAG, "users :" + users.size());
-					mUsers = new ArrayList<ParseUser>(users);
-					mUsernames = new String[mUsers.size()];
+					mUsers = new ArrayList<ParseUser>();
+					mRaw = new ArrayList<String>();
 					for (int i = 0; i < users.size(); i++) {
-						mUsernames[i] = (mUsers.get(i).getUsername());
+						if(users.get(i).getUsername().equals(ParseUser.getCurrentUser().getUsername())){
+							continue;
+						}else {
+							mRaw.add(users.get(i).getUsername());
+							mUsers.add(users.get(i));
+						}
+						
 					}
+					mUsernames = mRaw.toArray(new String[mRaw.size()]);
 					showQueryResults();
 				} else {
 					// there was an error

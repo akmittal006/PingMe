@@ -20,9 +20,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -61,20 +61,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		//getActionBar().hide();
 		friendRequests = new ArrayList<ParseObject>();
-		loadFriendRequests();
+		//loadFriendRequests();
 		
-		currentUser = ParseUser.getCurrentUser();
-		if (currentUser != null) {
-		  // do stuff with the user
-		} else {
-		  // show the signup or login screen
-			Intent intent = new Intent(MainActivity.this,
-					LoginActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-		}
+		
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
@@ -112,6 +103,25 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	}
 
 	@Override
+	protected void onResume() {
+		
+		super.onResume();
+		currentUser = ParseUser.getCurrentUser();
+		if (currentUser != null) {
+		  // do stuff with the user
+			loadFriendRequests();
+		} else {
+		  // show the signup or login screen
+			Intent intent = new Intent(MainActivity.this,
+					LoginActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent);
+		}
+		
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.options_menu, menu);
@@ -128,7 +138,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 				
 				@Override
 				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
+					
 					Intent intent = new Intent(MainActivity.this, ShowFrndReqs.class);
 					startActivity(intent);
 				}
@@ -159,7 +169,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					// We found requests!
 					//frndReqSenders = new String[requests.size()];
 					friendRequests = new ArrayList<ParseObject>(requests);
-					
+					//getActionBar().show();
 					MainActivity.this.invalidateOptionsMenu();
 				}else {
 					Toast.makeText(MainActivity.this, "Network not available!", Toast.LENGTH_SHORT).show();

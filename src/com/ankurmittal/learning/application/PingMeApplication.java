@@ -3,7 +3,6 @@ package com.ankurmittal.learning.application;
 import android.app.Application;
 
 import com.parse.Parse;
-import com.parse.ParseObject;
 
 public class PingMeApplication extends Application {
 	
