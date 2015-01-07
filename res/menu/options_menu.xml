@@ -10,10 +10,12 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/sign_out"/>
+    
      <item android:id="@+id/friend_req"
           android:title="@string/friend_req_title"
-          android:actionLayout="@layout/action_bar_notification"
+          
           android:icon="@drawable/ic_action_add_person"
-          android:showAsAction="always"
+          android:showAsAction="ifRoom"
           />
+     
 </menu>

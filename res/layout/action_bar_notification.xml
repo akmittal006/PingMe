@@ -1,39 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/action_menu_layout"
     android:layout_width="56dp"
     android:layout_height="fill_parent"
-    android:layout_gravity="right"
-    android:layout_margin="0dp"
-    android:padding="0dp" >
-
-
-    <!-- Menu Item Image -->
-    <ImageButton
-        android:id="@+id/frnd_req_button"
-        style="@style/AppTheme"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
+    android:background="#191919"
+     >
+    
+     <!-- Menu Item Image -->
+     <ImageButton
+        android:id="@+id/frnd_req_btn"
+        android:layout_width="56dp"
+        android:layout_height="46dp"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:background="@drawable/action_menu_button"
-        android:clickable="true"
-        android:src="@drawable/ic_action_add_person" />
-
+        android:src="@drawable/ic_action_add_person"
+         />
     <!-- Badge Count -->
 
     <TextView
         android:id="@+id/actionbar_notifcation_textview"
-        android:layout_width="24dp"
+        android:layout_width="22dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_marginLeft="28dp"
+        android:layout_alignParentTop="true"
         android:background="@drawable/rounded_square"
-        android:padding="2dp"
+        android:padding="0dp"
         android:text="99"
         android:textColor="@android:color/white"
         android:textStyle="bold"
         android:textAlignment="center"
-        android:gravity="center" />
+        android:gravity="center" 
+        />
 
     
 

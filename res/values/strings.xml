@@ -34,4 +34,5 @@
     <string name="friend_req_title">Friend Requests</string>
     <string name="title_activity_show_frnd_reqs">Friend Requests</string>
     <string name="accept_label">Accept</string>
+    <string name="frnd_added">Friend added!</string>
 </resources>

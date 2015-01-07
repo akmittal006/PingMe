@@ -133,17 +133,17 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		    View view = MenuItemCompat.getActionView(item);
 		    TextView notificationTextView = (TextView)view.findViewById(R.id.actionbar_notifcation_textview);
 		    notificationTextView.setText(count+ "");
-		    ImageButton newItem = (ImageButton)view.findViewById(R.id.frnd_req_button);
+		    ImageButton newItem = (ImageButton)view.findViewById(R.id.frnd_req_btn);
 		    newItem.setOnClickListener(new OnClickListener() {
 				
 				@Override
 				public void onClick(View arg0) {
 					
-					Intent intent = new Intent(MainActivity.this, ShowFrndReqs.class);
+					Intent intent = new Intent(MainActivity.this, ShowFrndReqsActivity.class);
 					startActivity(intent);
 				}
 			});
-		    //item.setActionView(R.id.friend_req);
+		   
 		}
 		
 		// Get the SearchView and set the searchable configuration
