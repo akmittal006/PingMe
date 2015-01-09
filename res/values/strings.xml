@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">Learning</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
+    <string name="title_inbox_fragment">Inbox</string>
+    <string name="title_friends_fragment">Friends</string>
     <string name="title_section3">Section 3</string>
     <string name="hello_world">Hello world!</string>
     <string name="sign_out">Sign out</string>
@@ -35,4 +35,9 @@
     <string name="title_activity_show_frnd_reqs">Friend Requests</string>
     <string name="accept_label">Accept</string>
     <string name="frnd_added">Friend added!</string>
+    <string name="no_frnd_reqs_label">No Friend requests!</string>
+    <string name="friends_label">Friends</string>
+    <string name="title_chat_list">Chats</string>
+    <string name="title_chat_detail">Chat Detail</string>
+
 </resources>

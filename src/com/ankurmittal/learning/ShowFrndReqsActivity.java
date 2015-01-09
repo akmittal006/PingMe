@@ -22,7 +22,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 public class ShowFrndReqsActivity extends ListActivity {
-	String[] frndReqSenders;
 	ArrayList<ParseUser> mSenders;
 	ArrayList<ParseObject> mReqs;
 	ProgressBar mProgressBar;
@@ -80,18 +79,7 @@ public class ShowFrndReqsActivity extends ListActivity {
 				if (e == null) {
 					// We found requests!
 
-					frndReqSenders = new String[requests.size()];
 					mReqs = new ArrayList<ParseObject>(requests);
-					int i = 0;
-					for (ParseObject request : requests) {
-						Log.d("ERROR:", "" + requests.size());
-						// Toast.makeText(ShowFrndReqs.this, ""+requests.size(),
-						// Toast.LENGTH_SHORT).show();
-						// mSenders.add(request.getParseUser(ParseConstants.KEY_SENDER));
-
-						frndReqSenders[i] = request
-								.getString(ParseConstants.KEY_SENDER_NAME);
-					}
 					displayReqs();
 
 				} else {

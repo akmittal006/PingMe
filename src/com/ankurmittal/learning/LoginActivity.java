@@ -140,7 +140,7 @@ public class LoginActivity extends Activity {
 							if (user != null) {
 								// Hooray! The user is logged in.
 								Intent intent = new Intent(LoginActivity.this,
-										MainActivity.class);
+										ChatListActivity.class);
 								intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 								intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 								startActivity(intent);

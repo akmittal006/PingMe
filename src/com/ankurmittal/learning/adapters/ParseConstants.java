@@ -14,5 +14,7 @@ public class ParseConstants {
 	public static final String KEY_FILE_TYPE = "fileType";
 	public static final String KEY_CREATED_AT = "createdAt";
 	public static final String KEY_SENDER = "RequestSender";
+	public static final String KEY_FRIENDS_REQUEST_ACCEPTS= "RequestAccepts";
+	public static final String KEY_RECEIVER = "RequestAcceptsReceiver";
 
 }

@@ -31,59 +31,93 @@ public final class R {
         public static final int background_ping=0x7f020002;
         public static final int btn_divider=0x7f020003;
         public static final int ic_action_add_person=0x7f020004;
-        public static final int ic_action_search=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int ping_logo=0x7f020007;
-        public static final int rounded_square=0x7f020008;
+        public static final int ic_action_group=0x7f020005;
+        public static final int ic_action_search=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int ping_logo=0x7f020008;
+        public static final int rounded_square=0x7f020009;
+        public static final int rounded_square_pink=0x7f02000a;
     }
     public static final class id {
-        public static final int accept_frnd_req_btn=0x7f0a0016;
-        public static final int action_settings=0x7f0a001c;
+        public static final int accept_frnd_req_btn=0x7f0a001e;
+        public static final int action_settings=0x7f0a0024;
         public static final int actionbar_notifcation_textview=0x7f0a0001;
-        public static final int button1=0x7f0a0010;
-        public static final int button2=0x7f0a0011;
-        public static final int cancel_frnd_req_btn=0x7f0a0015;
-        public static final int editTextLayout=0x7f0a0004;
-        public static final int emailEditText=0x7f0a000d;
-        public static final int formView=0x7f0a0003;
-        public static final int friend_req=0x7f0a001b;
-        public static final int frndReqSenderImageView=0x7f0a0013;
-        public static final int frndReqSenderTextView=0x7f0a0014;
-        public static final int frndStatus=0x7f0a0018;
+        public static final int button1=0x7f0a0013;
+        public static final int button2=0x7f0a0014;
+        public static final int cancel_frnd_req_btn=0x7f0a001d;
+        public static final int chatEditText=0x7f0a0016;
+        public static final int chatListView=0x7f0a0018;
+        public static final int chat_detail_container=0x7f0a0002;
+        public static final int chat_list=0x7f0a0003;
+        public static final int editTextLayout=0x7f0a0006;
+        public static final int emailEditText=0x7f0a000f;
+        public static final int formView=0x7f0a0005;
+        public static final int friend_req=0x7f0a0022;
+        public static final int friends=0x7f0a0023;
+        public static final int friends_container=0x7f0a000d;
+        public static final int frndReqSenderImageView=0x7f0a001b;
+        public static final int frndReqSenderTextView=0x7f0a001c;
+        public static final int frndStatus=0x7f0a001f;
         public static final int frnd_req_btn=0x7f0a0000;
-        public static final int imageView1=0x7f0a000e;
-        public static final int imageView2=0x7f0a000f;
-        public static final int login=0x7f0a0007;
-        public static final int loginButton=0x7f0a0008;
-        public static final int pager=0x7f0a000b;
-        public static final int passwordEditText=0x7f0a0006;
-        public static final int progressBar1=0x7f0a0002;
-        public static final int search=0x7f0a0019;
-        public static final int searchProgressBar=0x7f0a000c;
-        public static final int section_label=0x7f0a0012;
-        public static final int sign_out=0x7f0a001a;
-        public static final int textView1=0x7f0a000a;
-        public static final int userImageView=0x7f0a0017;
-        public static final int usernameEditText=0x7f0a0005;
-        public static final int usernameTextView=0x7f0a0009;
+        public static final int imageView1=0x7f0a0011;
+        public static final int imageView2=0x7f0a0012;
+        public static final int login=0x7f0a0009;
+        public static final int loginButton=0x7f0a000a;
+        public static final int messageTextView=0x7f0a0010;
+        public static final int passwordEditText=0x7f0a0008;
+        public static final int progressBar1=0x7f0a0004;
+        public static final int search=0x7f0a0020;
+        public static final int searchProgressBar=0x7f0a000e;
+        public static final int section_label=0x7f0a0019;
+        public static final int sendButton=0x7f0a0017;
+        public static final int sendMessageLayout=0x7f0a0015;
+        public static final int sign_out=0x7f0a0021;
+        public static final int textView1=0x7f0a000c;
+        public static final int userImageView=0x7f0a001a;
+        public static final int usernameEditText=0x7f0a0007;
+        public static final int usernameTextView=0x7f0a000b;
     }
     public static final class layout {
         public static final int action_bar_notification=0x7f030000;
-        public static final int activity_login=0x7f030001;
-        public static final int activity_main=0x7f030002;
-        public static final int activity_search_results=0x7f030003;
-        public static final int activity_show_frnd_reqs_2=0x7f030004;
-        public static final int activity_sign_up=0x7f030005;
-        public static final int badge_layout=0x7f030006;
-        public static final int custom_dialog=0x7f030007;
-        public static final int fragment_main=0x7f030008;
-        public static final int frnd_req_item=0x7f030009;
-        public static final int user_item=0x7f03000a;
+        public static final int activity_chat_detail=0x7f030001;
+        /** 
+    Layout alias to replace the single-pane version of the layout with a
+    two-pane version on Large screens.
+
+    For more on layout aliases, see:
+    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
+    
+
+    Layout alias to replace the single-pane version of the layout with a
+    two-pane version on Large screens.
+
+    For more on layout aliases, see:
+    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
+    
+         */
+        public static final int activity_chat_list=0x7f030002;
+        public static final int activity_chat_twopane=0x7f030003;
+        public static final int activity_login=0x7f030004;
+        public static final int activity_main=0x7f030005;
+        public static final int activity_search_results=0x7f030006;
+        public static final int activity_show_frnd_reqs_2=0x7f030007;
+        public static final int activity_sign_up=0x7f030008;
+        public static final int badge_layout=0x7f030009;
+        public static final int chat_item_received=0x7f03000a;
+        public static final int chat_item_sent=0x7f03000b;
+        public static final int custom_dialog=0x7f03000c;
+        public static final int fragment_chat_detail=0x7f03000d;
+        public static final int fragment_friends=0x7f03000e;
+        public static final int fragment_main=0x7f03000f;
+        public static final int frnd_item=0x7f030010;
+        public static final int frnd_req_item=0x7f030011;
+        public static final int user_item=0x7f030012;
     }
     public static final class menu {
-        public static final int options_menu=0x7f090000;
-        public static final int search_results=0x7f090001;
-        public static final int show_frnd_reqs=0x7f090002;
+        public static final int main_menu=0x7f090000;
+        public static final int options_menu=0x7f090001;
+        public static final int search_results=0x7f090002;
+        public static final int show_frnd_reqs=0x7f090003;
     }
     public static final class string {
         public static final int accept_label=0x7f070020;
@@ -99,11 +133,13 @@ public final class R {
         public static final int friend_req_title=0x7f07001e;
         public static final int friend_request_error_label=0x7f07001d;
         public static final int friend_request_sent_label=0x7f07001c;
+        public static final int friends_label=0x7f070023;
         public static final int frnd_added=0x7f070021;
         public static final int frnd_status_label=0x7f070019;
         public static final int hello_world=0x7f070004;
         public static final int login_button_label=0x7f07000b;
         public static final int login_text_label=0x7f07000d;
+        public static final int no_frnd_reqs_label=0x7f070022;
         public static final int passsword_hint=0x7f07000a;
         public static final int ping_label=0x7f07001a;
         public static final int search_hint=0x7f070014;
@@ -116,8 +152,10 @@ public final class R {
         public static final int title_activity_show_frnd_reqs=0x7f07001f;
         public static final int title_activity_sign_up=0x7f070012;
         public static final int title_activity_user_search=0x7f070015;
-        public static final int title_section1=0x7f070001;
-        public static final int title_section2=0x7f070002;
+        public static final int title_chat_detail=0x7f070025;
+        public static final int title_chat_list=0x7f070024;
+        public static final int title_friends_fragment=0x7f070002;
+        public static final int title_inbox_fragment=0x7f070001;
         public static final int title_section3=0x7f070003;
         public static final int username_hint=0x7f070007;
     }

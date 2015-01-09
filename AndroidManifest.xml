@@ -24,11 +24,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            
         </activity>
         <activity
             android:name=".LoginActivity"
@@ -66,6 +62,23 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ankurmittal.learning.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ChatListActivity"
+            android:label="@string/title_chat_list" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ChatDetailActivity"
+            android:label="@string/title_chat_detail"
+            android:parentActivityName=".ChatListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ankurmittal.learning.ChatListActivity" />
         </activity>
     </application>
 
