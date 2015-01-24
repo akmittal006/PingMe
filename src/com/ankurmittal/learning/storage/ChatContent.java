@@ -34,5 +34,9 @@ public class ChatContent {
 		ITEMS.add(item);
 		ITEM_MAP.put(item.id, item);
 	}
+	public static void deleteAllItems() {
+		ITEMS.clear();
+		ITEM_MAP.clear();
+	}
 
 }

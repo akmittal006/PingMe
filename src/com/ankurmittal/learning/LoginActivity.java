@@ -1,5 +1,7 @@
 package com.ankurmittal.learning;
 
+import java.util.Arrays;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -10,6 +12,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,8 +24,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.facebook.Request;
+import com.facebook.Request.GraphUserCallback;
+import com.facebook.Response;
+import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseFacebookUtils.Permissions;
 import com.parse.ParseUser;
 
 public class LoginActivity extends Activity {
@@ -30,6 +39,7 @@ public class LoginActivity extends Activity {
 	EditText mUsername;
 	EditText mPassword;
 	Button mLoginButton;
+	Button mFacebookLoginButton;
 	ScrollView mFormView;
 	TextView mSignUpTextView;
 	ProgressBar mProgressBar;
@@ -89,7 +99,59 @@ public class LoginActivity extends Activity {
 				return false;
 			}
 		});
+		//fb login
+		mFacebookLoginButton = (Button)findViewById(R.id.facebookLoginButton);
+		mFacebookLoginButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				ParseFacebookUtils.logIn(Arrays.asList(Permissions.User.ABOUT_ME, Permissions.User.EMAIL, "public_profile"),LoginActivity.this, new LogInCallback() {
+					  @Override
+					  public void done(ParseUser user, ParseException err) {
+					    if (user == null) {
+					      Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+					      
+					    } else if (user.isNew()) {
+					      Log.d("MyApp", "User signed up and logged in through Facebook!");
+					     
+					      
+					      Intent intent = new Intent(LoginActivity.this,
+									ChatListActivity.class);
+							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							startActivity(intent);
+					    } else {
+					      Log.d("MyApp", "User logged in through Facebook!");
+					      
+					      Intent intent = new Intent(LoginActivity.this,
+									ChatListActivity.class);
+							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							startActivity(intent);
+					    }
+					  }
+					});
+				
+			}
+		});
 
+	}
+	private static void getFacebookIdInBackground() {
+		  Request.newMeRequest(ParseFacebookUtils.getSession(), new GraphUserCallback() {
+			
+			@Override
+			public void onCompleted(GraphUser user, Response response) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+			
+		}
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	  super.onActivityResult(requestCode, resultCode, data);
+	  Log.d("On activity result", "callled");
+	  ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
 	}
 
 	// ////////////////ATTEMPT LOGIN//////////////////////////
@@ -107,7 +169,7 @@ public class LoginActivity extends Activity {
 		String username = mUsername.getText().toString();
 		String password = mPassword.getText().toString();
 
-		View focusView = null;
+		View focusView = mUsername;
 
 		// Check for a valid password, if the user entered one.
 		if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {

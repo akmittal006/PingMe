@@ -19,7 +19,12 @@
         android:theme="@style/AppTheme" >
         <meta-data
             android:name="android.app.default_searchable"
-            android:value=".SearchResultsActivity" />
+            android:value=".SearchResultsActivity"
+             />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"
+             />
 
         <activity
             android:name=".MainActivity"
@@ -80,6 +85,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ankurmittal.learning.ChatListActivity" />
         </activity>
+        <activity
+    android:name="com.facebook.LoginActivity"
+    android:label="@string/title_facebook_login" >
+</activity>
     </application>
 
 </manifest>

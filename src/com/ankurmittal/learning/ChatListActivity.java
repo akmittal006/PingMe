@@ -3,19 +3,13 @@ package com.ankurmittal.learning;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ankurmittal.learning.adapters.ParseConstants;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +18,22 @@ import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ankurmittal.learning.storage.ChatContent;
+import com.ankurmittal.learning.storage.FriendsDataSource;
+import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.ankurmittal.learning.util.ParseConstants;
+import com.facebook.AppEventsLogger;
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.model.GraphUser;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 /**
  * An activity representing a list of Chats. This activity has different
@@ -56,6 +66,7 @@ public class ChatListActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_chat_list);
 		friendRequests = new ArrayList<ParseObject>();
+		
 		if (findViewById(R.id.chat_detail_container) != null) {
 			// The detail container view will be present only in the
 			// large-screen layouts (res/values-large and
@@ -69,9 +80,24 @@ public class ChatListActivity extends Activity implements
 					R.id.chat_list)).setActivateOnItemClick(true);
 		}
 		
-		
+	}
 
-		// TODO: If exposing deep links into your app, handle intents here.
+	private void makeMeRequest() {
+		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
+	            new Request.GraphUserCallback() {
+	                @Override
+	                public void onCompleted(GraphUser user, Response response) {
+	                    // handle response
+	                	setTitle(user.getFirstName());
+	                	Log.d("hooooorrayyyy", user.getFirstName());
+	                	ParseUser.getCurrentUser().put("UserId", ParseUser.getCurrentUser().getObjectId());
+	    				ParseUser.getCurrentUser().setUsername(user.getFirstName());
+	    				ParseUser.getCurrentUser().setEmail(user.getProperty("email").toString());
+	    				ParseUser.getCurrentUser().saveInBackground();
+	    				
+	                }
+	            });
+	    request.executeAsync();
 	}
 
 	/**
@@ -103,18 +129,37 @@ public class ChatListActivity extends Activity implements
 	protected void onResume() {
 
 		super.onResume();
+		
 		currentUser = ParseUser.getCurrentUser();
 		if (currentUser != null) {
 			// do stuff with the user
 			loadFriendRequests();
+			ParseUser.getCurrentUser().put("UserId", ParseUser.getCurrentUser().getObjectId());
+			ParseUser.getCurrentUser().saveInBackground();
+			this.setTitle(currentUser.getUsername());
+			ParseFacebookUtils.initialize(R.string.facebook_app_id + "");
+			Session session = ParseFacebookUtils.getSession();
+		    if (session != null && session.isOpened()) {
+		        makeMeRequest();
+		        
+		    }
+			// Logs 'install' and 'app activate' App Events.
+			  AppEventsLogger.activateApp(this);
 		} else {
 			// show the signup or login screen
-			Intent intent = new Intent(ChatListActivity.this, LoginActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
+			Intent intent2 = new Intent(ChatListActivity.this, LoginActivity.class);
+			intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent2);
 		}
 
+	}
+	@Override
+	protected void onPause() {
+	  super.onPause();
+
+	  // Logs 'app deactivate' App Event.
+	  AppEventsLogger.deactivateApp(this);
 	}
 
 	@Override
@@ -196,6 +241,22 @@ public class ChatListActivity extends Activity implements
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.sign_out) {
+			//prompt if they wanna logout
+			//TODO:do smthing
+			//if yes delete frnds database
+			FriendsDataSource mFriendsDataSource = new FriendsDataSource(this);
+			mFriendsDataSource.open();
+			Log.d("DATABASE CHECK",""+ mFriendsDataSource.selectAll().getCount());
+			mFriendsDataSource.deleteAll();
+			Log.d("DATABASE CHECK",""+ mFriendsDataSource.selectAll().getCount());
+			mFriendsDataSource.close();
+			TextMessageDataSource mMessageSource = new TextMessageDataSource(this);
+			mMessageSource.open();
+			Log.d("DATABASE CHECK",""+ mMessageSource.selectAll().getCount());
+			mMessageSource.deleteAll();
+			Log.d("DATABASE CHECK",""+ mMessageSource.selectAll().getCount());
+			mMessageSource.close();
+			ChatContent.deleteAllItems();
 			Intent intent = new Intent(ChatListActivity.this, LoginActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

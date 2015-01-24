@@ -14,10 +14,10 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.ankurmittal.learning.adapters.FriendsAdapter;
-import com.ankurmittal.learning.adapters.ParseConstants;
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
-import com.ankurmittal.learning.storage.TextMessageSource;
+import com.ankurmittal.learning.storage.FriendsDataSource;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -34,7 +34,9 @@ public class FriendsFragment extends ListFragment {
 	protected ParseUser mCurrentUser;	
 	protected ArrayList<ParseUser> mFriends;
 	protected List<ParseObject> mAccepts;
+	protected FriendsAdapter adapter;
 	private Callbacks mCallbacks = sDummyCallbacks;
+	FriendsDataSource mFriendsDataSource;
 	
 	public interface Callbacks {
 		/**
@@ -56,7 +58,7 @@ public class FriendsFragment extends ListFragment {
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_friends,
 				container, false);
-		
+		mFriendsDataSource = new FriendsDataSource(getActivity());
 		//TextView emptyTextView = (TextView)rootView.findViewById(android.R.id.empty);
 		//mGridView.setEmptyView(emptyTextView);
 
@@ -66,6 +68,10 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		//open frnds databse connection
+		
+		mFriends = new ArrayList<ParseUser>();
+		loadFromDatabase();
 		loadAccepts();
 		mCurrentUser = ParseUser.getCurrentUser();
 		mFriendsRelation = mCurrentUser.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
@@ -74,6 +80,27 @@ public class FriendsFragment extends ListFragment {
 		
 		
 	}
+	
+	private void loadFromDatabase(){
+		mFriendsDataSource.open();
+		//check if database has data
+		if(mFriendsDataSource.selectAll().getCount() > 0) {
+			if (getListAdapter() == null) {
+				
+				//mFriends = new ArrayList<ParseUser>(mFriendsDataSource.getAllFriends());
+				
+				mFriends.clear();
+				mFriends.addAll(mFriendsDataSource.getAllFriends());
+				adapter = new FriendsAdapter(getActivity(), mFriends);
+				getListView().setAdapter(adapter);
+			}
+			else {
+				((FriendsAdapter)getListAdapter()).refill(mFriendsDataSource.getAllFriends());
+			}
+		}
+		
+	}
+	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -90,23 +117,30 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onDetach() {
 		super.onDetach();
-
 		// Reset the active callbacks interface to the dummy implementation.
 		mCallbacks = sDummyCallbacks;
 	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		//close frnds database connection
+		
+	}
+
 	@Override
 	public void onListItemClick(ListView l, View v, int i, long id) {
 		super.onListItemClick(l, v, i, id);
-		TextMessageSource  msgSource= new TextMessageSource(mCurrentUser);
-		if (ChatContent.ITEM_MAP.containsKey(mFriends.get(i).getObjectId()) ) {
+		if (ChatContent.ITEM_MAP.containsKey(mFriends.get(i).getString(ParseConstants.KEY_USER_ID)) ) {
 			// Notify the active callbacks interface (the activity, if the
 			// fragment is attached to one) that an item has been selected.
-			mCallbacks.onItemSelected(mFriends.get(i).getObjectId());
+			mCallbacks.onItemSelected(mFriends.get(i).getString(ParseConstants.KEY_USER_ID));
 		}else {
-			ChatContent.addItem(new ChatItem(mFriends.get(i).getObjectId(), mFriends.get(i).getUsername(), msgSource.getMessages()));
-			mCallbacks.onItemSelected(mFriends.get(i).getObjectId());
+			ChatContent.addItem(new ChatItem(mFriends.get(i).getString(ParseConstants.KEY_USER_ID), mFriends.get(i).getUsername()));
+			mCallbacks.onItemSelected(mFriends.get(i).getString(ParseConstants.KEY_USER_ID));
+			
 		}
-		
+		Log.d("Friends fragment item clicked", "" + mFriends.get(i).getString(ParseConstants.KEY_USER_ID));
 	}
 
 	private void loadAccepts() {
@@ -114,21 +148,19 @@ public class FriendsFragment extends ListFragment {
 				ParseConstants.KEY_FRIENDS_REQUEST_ACCEPTS);
 		acceptsQuery.whereEqualTo(ParseConstants.KEY_RECEIVER, ParseUser
 				.getCurrentUser().getObjectId());
-		acceptsQuery.include(ParseConstants.KEY_SENDER);
+		acceptsQuery.include(ParseConstants.KEY_REQUEST_SENDER);
 		acceptsQuery.findInBackground(new FindCallback<ParseObject>() {
 			@Override
 			public void done(List<ParseObject> accepts, ParseException e) {
 				if (e == null) {
 					// We found requests!
-					mFriends = new ArrayList<ParseUser>();
-
 					mAccepts = new ArrayList<ParseObject>(accepts);
+					//if there are reqs accepts then add frnd
 					if(mAccepts.size() > 0) {
 						ParseRelation<ParseUser> friendRel = mCurrentUser.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
 						for(ParseObject accept : mAccepts) {
 							//save at backend
-							friendRel.add(accept.getParseUser(ParseConstants.KEY_SENDER));
-							
+							friendRel.add(accept.getParseUser(ParseConstants.KEY_REQUEST_SENDER));
 							accept.deleteInBackground(new DeleteCallback() {
 								
 								@Override
@@ -164,22 +196,32 @@ public class FriendsFragment extends ListFragment {
 				query.findInBackground(new FindCallback<ParseUser>() {
 					@Override
 					public void done(List<ParseUser> friends, ParseException e) {
-						getActivity().setProgressBarIndeterminateVisibility(false);
-						
+						if (getActivity() != null) {
+							getActivity().setProgressBarIndeterminateVisibility(false);
+						}
 						if (e == null) {
-							
+							mFriends.clear();
 							for(ParseUser friend : friends) {
 								mFriends.add(friend);
-								
+								//add frnds to database
+								mFriendsDataSource.insert(friend);
 							}
 							
-							if (getListAdapter() == null) {
-								FriendsAdapter adapter = new FriendsAdapter(getActivity(), mFriends);
-								getListView().setAdapter(adapter);
+							
+							//load from database
+							mFriendsDataSource.close();
+							if(getActivity() != null ) {
+								if (getListAdapter() == null) {
+									Log.d("Call to frnds adapter", friends.size() + "");
+									 adapter = new FriendsAdapter(getActivity(), mFriends);
+									 
+									getListView().setAdapter(adapter);
+								}
+								else {
+									((FriendsAdapter)getListAdapter()).refill(mFriends);
+								}
 							}
-							else {
-								((FriendsAdapter)getListAdapter()).refill(mFriends);
-							}
+							
 						}
 						else {
 							Log.e(TAG, e.getMessage());
@@ -189,6 +231,7 @@ public class FriendsFragment extends ListFragment {
 								.setPositiveButton(android.R.string.ok, null);
 							AlertDialog dialog = builder.create();
 							dialog.show();
+							mFriendsDataSource.close();
 						}
 					}
 				});

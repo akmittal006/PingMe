@@ -1,14 +1,26 @@
 package com.ankurmittal.learning;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.ListFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
+import com.ankurmittal.learning.storage.TextMessage;
+import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.ankurmittal.learning.util.ParseConstants;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 /**
  * A list fragment representing a list of Chats. This fragment also supports
@@ -67,14 +79,22 @@ public class ChatListFragment extends ListFragment {
 	public ChatListFragment() {
 	}
 
+	private TextMessageDataSource mMessageDataSource;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (ParseUser.getCurrentUser() != null) {
+			// retrieveMessages();
+		}
+
+		mMessageDataSource = new TextMessageDataSource(getActivity());
 
 		// TODO: replace with a real list adapter.
 		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
 				android.R.layout.simple_list_item_activated_1,
 				android.R.id.text1, ChatContent.ITEMS));
+
 	}
 
 	@Override
@@ -87,6 +107,27 @@ public class ChatListFragment extends ListFragment {
 			setActivatedPosition(savedInstanceState
 					.getInt(STATE_ACTIVATED_POSITION));
 		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		// close database connection
+		// mMessageDataSource.close();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		// open database connection
+		mMessageDataSource.open();
+		if (ParseUser.getCurrentUser() != null) {
+			retrieveMessages();
+		}
+
+		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
+				android.R.layout.simple_list_item_activated_1,
+				android.R.id.text1, ChatContent.ITEMS));
 	}
 
 	@Override
@@ -150,4 +191,103 @@ public class ChatListFragment extends ListFragment {
 
 		mActivatedPosition = position;
 	}
+
+	private void retrieveMessages() {
+		ParseQuery<ParseObject> messagesQuery = new ParseQuery<ParseObject>(
+				ParseConstants.TEXT_MESSAGE);
+		messagesQuery.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID,
+				ParseUser.getCurrentUser().get(ParseConstants.KEY_USER_ID));
+		messagesQuery.include(ParseConstants.KEY_MESSAGE_SENDER);
+		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_ID);
+		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_NAME);
+		messagesQuery.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> pTextMessages, ParseException e) {
+
+				if (e == null) {
+					Log.d("Retrieved messages", "NO. :-" + pTextMessages.size());
+					// hurray we received our messages
+					for (ParseObject pTextMessage : pTextMessages) {
+						// create a text message and save it to database
+						TextMessage textmessage = createTextMessage(pTextMessage);
+						mMessageDataSource.insert(textmessage);
+					}
+					sortMessagesFromDatabase();
+					updateView();
+				} else {
+					Log.d("REtrieval errror", "" + e.getMessage());
+				}
+			}
+		});
+	}
+
+	private TextMessage createTextMessage(ParseObject pTextMessage) {
+		TextMessage textMessage = new TextMessage();
+		textMessage.setMessage(pTextMessage
+				.getString(ParseConstants.KEY_MESSAGE));
+		Log.d("list frag ",
+				" " + pTextMessage.getString(ParseConstants.KEY_MESSAGE));
+		textMessage.setMessageId(pTextMessage.getObjectId());
+		textMessage.setReceiverId(pTextMessage
+				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
+		textMessage.setReceiverName(pTextMessage
+				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
+		textMessage.setSenderId(pTextMessage.getParseUser(
+				ParseConstants.KEY_MESSAGE_SENDER).getObjectId());
+		textMessage.setSenderName(pTextMessage.getParseUser(
+				ParseConstants.KEY_MESSAGE_SENDER).getUsername());
+
+		return textMessage;
+	}
+
+	private void sortMessagesFromDatabase() {
+		if (mMessageDataSource.selectAll().getCount() != 0) {
+			ArrayList<TextMessage> allMessages = mMessageDataSource
+					.getAllMessages();
+
+			for (TextMessage message : allMessages) {
+				String id;
+				String content;
+				if (message.getSenderId().equals(ParseUser.getCurrentUser().getObjectId()) ) {
+					id = message.getReceiverId(); // equivalent to item id
+					content = message.getReceiverName();
+				}else {
+					 id = message.getSenderId(); // equivalent to item id
+					 content = message.getSenderName();
+				}
+				
+
+				if (ChatContent.ITEM_MAP.containsKey(id)) {
+					if (mMessageDataSource.isMessageNew(message).getCount() == 0) {
+						// messages from that sender exist
+						ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
+						chatItem.addMessage(message);
+					}
+				} else {
+					// new chat item is created
+					ChatItem chatItem = new ChatItem(id,
+							content);
+					Log.d("chat list", "new chat item created :" + content);
+					chatItem.addMessage(message);
+					ChatContent.addItem(chatItem);
+				}
+			}
+
+		}
+	}
+
+	private void updateView() {
+		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
+				android.R.layout.simple_list_item_activated_1,
+				android.R.id.text1, ChatContent.ITEMS));
+	}
+
+	@Override
+	public void onDestroy() {
+		mMessageDataSource.close();
+		super.onDestroy();
+
+	}
+
 }

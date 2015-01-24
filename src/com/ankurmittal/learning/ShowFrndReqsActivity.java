@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.adapters.FrndReqAdapter;
-import com.ankurmittal.learning.adapters.ParseConstants;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -71,7 +71,7 @@ public class ShowFrndReqsActivity extends ListActivity {
 				ParseConstants.KEY_FRIENDS_REQUEST);
 		query.whereEqualTo(ParseConstants.KEY_FRND_REQ_RECEIVER, ParseUser
 				.getCurrentUser().getObjectId());
-		query.include(ParseConstants.KEY_SENDER);
+		query.include(ParseConstants.KEY_REQUEST_SENDER);
 		query.findInBackground(new FindCallback<ParseObject>() {
 			@Override
 			public void done(List<ParseObject> requests, ParseException e) {
@@ -93,10 +93,10 @@ public class ShowFrndReqsActivity extends ListActivity {
 
 				mSenders = new ArrayList<ParseUser>();
 				for (ParseObject req : mReqs) {
-					mSenders.add(req.getParseUser(ParseConstants.KEY_SENDER));
+					mSenders.add(req.getParseUser(ParseConstants.KEY_REQUEST_SENDER));
 				}
 				adapter = new FrndReqAdapter(ShowFrndReqsActivity.this,
-						mSenders,mReqs);
+						mSenders,mReqs,mProgressBar);
 				getListView().setAdapter(adapter);
 			}
 		});

@@ -22,8 +22,8 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 
-import com.ankurmittal.learning.adapters.ParseConstants;
 import com.ankurmittal.learning.adapters.UserAdapter;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -74,7 +74,7 @@ public class SearchResultsActivity extends ListActivity {
 						ParseConstants.KEY_FRIENDS_REQUEST);
 				friendRequest.put(ParseConstants.KEY_FRND_REQ_RECEIVER,
 						friend.getObjectId());
-				friendRequest.put(ParseConstants.KEY_SENDER,
+				friendRequest.put(ParseConstants.KEY_REQUEST_SENDER,
 						ParseUser.getCurrentUser());
 				friendRequest.put(ParseConstants.KEY_SENDER_NAME, ParseUser
 						.getCurrentUser().getUsername());
@@ -223,7 +223,7 @@ public class SearchResultsActivity extends ListActivity {
 		isFrndReqSent.add(11);
 		ParseQuery<ParseObject> getFriendReqs = new ParseQuery<ParseObject>(
 				ParseConstants.KEY_FRIENDS_REQUEST);
-		getFriendReqs.whereEqualTo(ParseConstants.KEY_SENDER,
+		getFriendReqs.whereEqualTo(ParseConstants.KEY_REQUEST_SENDER,
 				ParseUser.getCurrentUser());
 		getFriendReqs.whereEqualTo(ParseConstants.KEY_FRND_REQ_RECEIVER, users
 				.get(i).getObjectId());

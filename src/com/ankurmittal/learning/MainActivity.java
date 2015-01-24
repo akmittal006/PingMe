@@ -9,9 +9,8 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,8 +21,10 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ankurmittal.learning.adapters.ParseConstants;
-import com.ankurmittal.learning.adapters.SectionsPagerAdapter;
+import com.ankurmittal.learning.storage.ChatContent;
+import com.ankurmittal.learning.storage.FriendsDataSource;
+import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -38,19 +39,6 @@ public class MainActivity extends Activity implements FriendsFragment.Callbacks 
 	int count;
 	private boolean mTwoPane = false;
 
-	/**
-	 * The {@link android.support.v4.view.PagerAdapter} that will provide
-	 * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
-	 * derivative, which will keep every loaded fragment in memory. If this
-	 * becomes too memory intensive, it may be best to switch to a
-	 * {@link android.support.v13.app.FragmentStatePagerAdapter}.
-	 */
-	SectionsPagerAdapter mSectionsPagerAdapter;
-
-	/**
-	 * The {@link ViewPager} that will host the section contents.
-	 */
-	ViewPager mViewPager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +152,22 @@ public class MainActivity extends Activity implements FriendsFragment.Callbacks 
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.sign_out) {
+			//prompt if they wanna logout
+			//TODO:do smthing
+			//if yes delete frnds database
+			FriendsDataSource mFriendsDataSource = new FriendsDataSource(this);
+			mFriendsDataSource.open();
+			Log.d("DATABASE CHECK",""+ mFriendsDataSource.selectAll().getCount());
+			mFriendsDataSource.deleteAll();
+			Log.d("DATABASE CHECK",""+ mFriendsDataSource.selectAll().getCount());
+			mFriendsDataSource.close();
+			TextMessageDataSource mMessageSource = new TextMessageDataSource(this);
+			mMessageSource.open();
+			Log.d("DATABASE CHECK",""+ mMessageSource.selectAll().getCount());
+			mMessageSource.deleteAll();
+			Log.d("DATABASE CHECK",""+ mMessageSource.selectAll().getCount());
+			mMessageSource.close();
+			ChatContent.deleteAllItems();
 			Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

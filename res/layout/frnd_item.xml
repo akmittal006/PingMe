@@ -21,11 +21,9 @@
         android:id="@+id/usernameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/userImageView"
+        android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/userImageView"
         android:text="Large Text"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    
 
 </RelativeLayout>

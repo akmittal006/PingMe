@@ -13,11 +13,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.R;
-import com.ankurmittal.learning.SearchResultsActivity;
+import com.ankurmittal.learning.util.MD5Util;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -32,13 +34,15 @@ public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
 	protected List<ParseUser> mUsers;
 	protected List<ParseObject> mReqs;
 	protected ParseUser currentUser;
+	protected ProgressBar mProgressBar;
 
 	public FrndReqAdapter(Context context, List<ParseUser> users,
-			List<ParseObject> reqs) {
+			List<ParseObject> reqs, ProgressBar progBar) {
 		super(context, R.layout.frnd_req_item, users);
 		mContext = context;
 		mUsers = users;
 		mReqs = reqs;
+		mProgressBar = progBar;
 	}
 
 	@Override
@@ -78,6 +82,8 @@ public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
 		}
 
 		holder.nameLabel.setText(user.getUsername());
+		
+		/////////if request is accepted/////////////
 		holder.mAcceptButton.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -93,7 +99,57 @@ public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
 						if (e == null) {
 							Toast.makeText(mContext, R.string.frnd_added,
 									Toast.LENGTH_SHORT).show();
+							// add current user as friend to sender
+							ParseObject friendRequestAccepts = new ParseObject(
+									ParseConstants.KEY_FRIENDS_REQUEST_ACCEPTS);
+							friendRequestAccepts.put(
+									ParseConstants.KEY_RECEIVER,
+									mUsers.get(position).getObjectId());
+							friendRequestAccepts.put(ParseConstants.KEY_REQUEST_SENDER,
+									ParseUser.getCurrentUser());
+							friendRequestAccepts.put(
+									ParseConstants.KEY_SENDER_NAME, ParseUser
+											.getCurrentUser().getUsername());
+							friendRequestAccepts
+									.saveInBackground(new SaveCallback() {
+
+										@Override
+										public void done(ParseException e) {
+
+											if (e == null) {
+												// friend request accept send
+												Log.d("accept sent", "sent!");
+											} else {
+												// there was error
+												Toast.makeText(
+														mContext,
+														R.string.friend_request_error_label,
+														Toast.LENGTH_SHORT)
+														.show();
+											}
+
+										}
+									});
+							//also remove the req form front end
+							mUsers.remove(position);
+							notifyDataSetChanged();
+							// remove at backend
+							mProgressBar.setVisibility(View.VISIBLE);
+							ParseObject req = mReqs.get(position);
+							req.deleteInBackground(new DeleteCallback() {
+
+								@Override
+								public void done(ParseException arg0) {
+									mProgressBar.setVisibility(View.INVISIBLE);
+									mReqs.remove(position);
+									Toast.makeText(mContext, "deleted",
+											Toast.LENGTH_SHORT).show();
+									Log.d("checking", "" + mUsers.size());
+								}
+							});
+
 						} else {
+							// there was an error while adding frnd
 							AlertDialog.Builder builder = new AlertDialog.Builder(
 									mContext);
 							builder.setTitle(R.string.error_title);
@@ -113,45 +169,37 @@ public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
 						}
 					}
 				});
-				//add current user as friend to sender
-				ParseObject friendRequestAccepts = new ParseObject(ParseConstants.KEY_FRIENDS_REQUEST_ACCEPTS);
-				friendRequestAccepts.put(ParseConstants.KEY_RECEIVER, mUsers.get(position).getObjectId());
-				friendRequestAccepts.put(ParseConstants.KEY_SENDER, ParseUser.getCurrentUser());
-				friendRequestAccepts.put(ParseConstants.KEY_SENDER_NAME, ParseUser.getCurrentUser().getUsername());
-				friendRequestAccepts.saveInBackground(new SaveCallback() {
-					
-					@Override
-					public void done(ParseException e) {
-						
-						if (e == null) {
-							//friend request send
-							Log.d("accept sent" , "sent!");
-						} else {
-							// there was error
-							Toast.makeText(mContext , R.string.friend_request_error_label, Toast.LENGTH_SHORT).show();
-						}
-						
-					}
-				});
-				mUsers.remove(position);
-				notifyDataSetChanged();
-				// remove at backend
-				ParseObject req = mReqs.get(position);
-				req.deleteInBackground();
-				Toast.makeText(mContext, R.string.frnd_added,
-						Toast.LENGTH_SHORT).show();
-				
+
 			}
 		});
+		
+		// ///////if cancel button is pressed/////////////
 		holder.mCancelButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
+
+				// remove from frontend
 				mUsers.remove(position);
 				Log.d("frndReqRemoved", "frndAdded" + position);
 				notifyDataSetChanged();
 
+				// remove at backend
+				mProgressBar.setVisibility(View.VISIBLE);
+				ParseObject req = mReqs.get(position);
+				req.deleteInBackground(new DeleteCallback() {
+
+					@Override
+					public void done(ParseException arg0) {
+						mProgressBar.setVisibility(View.INVISIBLE);
+						mReqs.remove(position);
+						Log.d("checking", "" + mUsers.size());
+					}
+
+				});
+
 			}
+
 		});
 
 		return convertView;

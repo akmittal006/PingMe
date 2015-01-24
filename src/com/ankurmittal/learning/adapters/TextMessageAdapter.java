@@ -3,6 +3,7 @@ package com.ankurmittal.learning.adapters;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,36 +31,38 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		TextMessage message = mMessages.get(position);
-		if (convertView == null) {
-			if(message.getSender() == ParseUser.getCurrentUser().getUsername()) {
+		//if (convertView == null) {
+			Log.d("adapter", message.getSenderName());
+			if(message.getSenderName().equals(ParseUser.getCurrentUser().getUsername())) {
 				convertView = LayoutInflater.from(mContext).inflate(
 						R.layout.chat_item_sent, null);
 				holder = new ViewHolder();
 				holder.messageView = (TextView) convertView
 						.findViewById(R.id.messageTextView);
+				convertView.setTag(holder);
+				holder.messageView.setText(message.getMessage());
 			} else{
 				convertView = LayoutInflater.from(mContext).inflate(
 						R.layout.chat_item_received, null);
 				holder = new ViewHolder();
 				holder.messageView = (TextView) convertView
 						.findViewById(R.id.messageTextView);
+				convertView.setTag(holder);
+				holder.messageView.setText(message.getMessage());
 			}
-			
-			convertView.setTag(holder);
-		} else {
-			holder = (ViewHolder) convertView.getTag();
-		}
-
-		holder.messageView.setText(message.getmMessage());
-
+//		} else {
+//			Log.d("adapter", message.getSenderName());
+//			holder = (ViewHolder) convertView.getTag();
+//		}
+		holder.messageView.setText(message.getMessage());
 		return convertView;
 	}
 
 	private static class ViewHolder {
-
 		TextView messageView;
 		// TextView frndLabel;
 	}
+	
 
 	public void refill(ArrayList<TextMessage> messages) {
 		mMessages.clear();
