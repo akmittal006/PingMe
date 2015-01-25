@@ -1,10 +1,13 @@
 package com.ankurmittal.learning;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -86,6 +89,11 @@ public class ChatListFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 		if (ParseUser.getCurrentUser() != null) {
 			// retrieveMessages();
+		}else {
+			Intent intent2 = new Intent(getActivity(), LoginActivity.class);
+			intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent2);
 		}
 
 		mMessageDataSource = new TextMessageDataSource(getActivity());
@@ -123,6 +131,7 @@ public class ChatListFragment extends ListFragment {
 		mMessageDataSource.open();
 		if (ParseUser.getCurrentUser() != null) {
 			retrieveMessages();
+			sortMessagesFromDatabase();
 		}
 
 		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
@@ -198,6 +207,8 @@ public class ChatListFragment extends ListFragment {
 		messagesQuery.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID,
 				ParseUser.getCurrentUser().get(ParseConstants.KEY_USER_ID));
 		messagesQuery.include(ParseConstants.KEY_MESSAGE_SENDER);
+		messagesQuery.include(ParseConstants.KEY_CREATED_AT);
+		messagesQuery.addDescendingOrder(ParseConstants.KEY_CREATED_AT);
 		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_ID);
 		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_NAME);
 		messagesQuery.findInBackground(new FindCallback<ParseObject>() {
@@ -212,6 +223,8 @@ public class ChatListFragment extends ListFragment {
 						// create a text message and save it to database
 						TextMessage textmessage = createTextMessage(pTextMessage);
 						mMessageDataSource.insert(textmessage);
+						
+						
 					}
 					sortMessagesFromDatabase();
 					updateView();
@@ -221,7 +234,12 @@ public class ChatListFragment extends ListFragment {
 			}
 		});
 	}
-
+	private String getDateTime(java.util.Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        //Date date = new Date();
+        return dateFormat.format(date);
+}
 	private TextMessage createTextMessage(ParseObject pTextMessage) {
 		TextMessage textMessage = new TextMessage();
 		textMessage.setMessage(pTextMessage
@@ -237,6 +255,7 @@ public class ChatListFragment extends ListFragment {
 				ParseConstants.KEY_MESSAGE_SENDER).getObjectId());
 		textMessage.setSenderName(pTextMessage.getParseUser(
 				ParseConstants.KEY_MESSAGE_SENDER).getUsername());
+		textMessage.setCreatedAt(getDateTime(pTextMessage.getCreatedAt()));
 
 		return textMessage;
 	}

@@ -55,13 +55,13 @@ public class FriendsDataSource {
 				values.put(FriendsHelper.COLUMN_EMAIL, friend.getEmail());
 				mDatabase.insert(FriendsHelper.TABLE_FRIENDS, null, values);
 				mDatabase.setTransactionSuccessful();
-				Log.d("INSERTED", "ROW ADDED");
+				//Log.d("INSERTED", "ROW ADDED");
 			} finally {
 				mDatabase.endTransaction();
 			}
 		} else {
 
-			Log.d(" NOT INSERTED", "ROW NOT ADDED");
+			//Log.d(" NOT INSERTED", "ROW NOT ADDED");
 		}
 
 	}
@@ -175,8 +175,8 @@ public class FriendsDataSource {
 				int i = cursor.getColumnIndex(FriendsHelper.COLUMN_OBJECT_ID);
 				
 				frnd.put("UserId", cursor.getString(i));
-				Log.d("Database check", "to add :" + cursor.getString(i));
-				Log.d("Database check", "to add :" + frnd.getObjectId());
+				//Log.d("Database check", "to add :" + cursor.getString(i));
+				//Log.d("Database check", "to add :" + frnd.getObjectId());
 				// do stuff
 				mFriends.add( frnd);
 				i = cursor.getColumnIndex(FriendsHelper.COLUMN_NAME);

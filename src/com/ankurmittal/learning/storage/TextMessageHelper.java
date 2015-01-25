@@ -17,6 +17,7 @@ public class TextMessageHelper extends SQLiteOpenHelper {
     public static final String COLUMN_RECEIVER_ID = "RECEIVER_ID";
     public static final String COLUMN_MESSAGE_ID = "MESSAGE_ID";
     public static final String COLUMN_MESSAGE = "MESSAGE";
+    public static final String COLUMN_CREATED_AT = "CREATED_AT";
 
     /*
      * Database information
@@ -31,6 +32,7 @@ public class TextMessageHelper extends SQLiteOpenHelper {
                     COLUMN_RECEIVER_NAME + " TEXT,"+
                     COLUMN_RECEIVER_ID + " TEXT,"+
                     COLUMN_MESSAGE_ID + " TEXT,"+
+                    COLUMN_CREATED_AT + " DATETIME,"+
                     COLUMN_MESSAGE + " TEXT)";
     public TextMessageHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

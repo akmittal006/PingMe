@@ -69,6 +69,8 @@ public class TextMessageDataSource {
 						textMessage.getMessageId());
 				values.put(TextMessageHelper.COLUMN_MESSAGE,
 						textMessage.getMessage());
+				Log.d("inseting", textMessage.getCreatedAtString());
+				values.put(TextMessageHelper.COLUMN_CREATED_AT, textMessage.getCreatedAtString());
 				// friend.setViewed(false);
 				mDatabase
 						.insert(TextMessageHelper.TABLE_MESSAGES, null, values);
@@ -170,7 +172,8 @@ public class TextMessageDataSource {
 						TextMessageHelper.COLUMN_SENDER_NAME,
 						TextMessageHelper.COLUMN_RECEIVER_NAME,
 						TextMessageHelper.COLUMN_MESSAGE_ID,
-						TextMessageHelper.COLUMN_MESSAGE }, // column names
+						TextMessageHelper.COLUMN_MESSAGE ,
+						TextMessageHelper.COLUMN_CREATED_AT}, // column names
 				null, // where clause
 				null, // where params
 				null, // groupby
@@ -215,6 +218,9 @@ public class TextMessageDataSource {
 
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE);
 				mTextMessages.get(row).setMessage(cursor.getString(i));
+				
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_CREATED_AT);
+				mTextMessages.get(row).setCreatedAt(cursor.getString(i));
 
 				// Log.d("Database check", "retrieving :" +
 				// mTextMessages.get(row).getSenderName());
@@ -241,7 +247,8 @@ public class TextMessageDataSource {
 						TextMessageHelper.COLUMN_SENDER_NAME,
 						TextMessageHelper.COLUMN_RECEIVER_NAME,
 						TextMessageHelper.COLUMN_MESSAGE_ID,
-						TextMessageHelper.COLUMN_MESSAGE }, // column names
+						TextMessageHelper.COLUMN_MESSAGE,
+						TextMessageHelper.COLUMN_CREATED_AT}, // column names
 				whereClause, // where clause
 				new String[] { senderId ,  senderId }, // where params
 				null, // groupby
@@ -279,6 +286,9 @@ public class TextMessageDataSource {
 
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE);
 				mTextMessages.get(row).setMessage(cursor.getString(i));
+				
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_CREATED_AT);
+				mTextMessages.get(row).setCreatedAt(cursor.getString(i));
 
 				cursor.moveToNext();
 				row++;

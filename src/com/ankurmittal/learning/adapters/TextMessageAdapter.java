@@ -39,6 +39,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 				holder = new ViewHolder();
 				holder.messageView = (TextView) convertView
 						.findViewById(R.id.messageTextView);
+				holder.timeLabel = (TextView)convertView.findViewById(R.id.createdAtTextView);
 				convertView.setTag(holder);
 				holder.messageView.setText(message.getMessage());
 			} else{
@@ -47,6 +48,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 				holder = new ViewHolder();
 				holder.messageView = (TextView) convertView
 						.findViewById(R.id.messageTextView);
+				holder.timeLabel = (TextView)convertView.findViewById(R.id.createdAtTextView);
 				convertView.setTag(holder);
 				holder.messageView.setText(message.getMessage());
 			}
@@ -55,12 +57,13 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 //			holder = (ViewHolder) convertView.getTag();
 //		}
 		holder.messageView.setText(message.getMessage());
+		holder.timeLabel.setText(message.getCreatedAtString());
 		return convertView;
 	}
 
 	private static class ViewHolder {
 		TextView messageView;
-		// TextView frndLabel;
+		 TextView timeLabel;
 	}
 	
 

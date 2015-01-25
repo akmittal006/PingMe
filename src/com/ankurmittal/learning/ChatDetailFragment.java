@@ -1,6 +1,7 @@
 package com.ankurmittal.learning;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -18,9 +19,7 @@ import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
-import com.ankurmittal.learning.util.MD5Util;
 import com.ankurmittal.learning.util.ParseConstants;
-import com.parse.ParseConfig;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -137,6 +136,7 @@ public class ChatDetailFragment extends Fragment {
 								message.setSenderName(ParseUser.getCurrentUser().getUsername());
 								message.setReceiverId(mItem.id);
 								message.setReceiverName(mItem.content);
+								message.setCreatedAt(new Date());
 								mMessageDataSource.insert(message);
 								//add to chat item
 								String id = mItem.id;
@@ -176,7 +176,6 @@ public class ChatDetailFragment extends Fragment {
 			chatItem.clearMessages();
 		}
 			for (TextMessage message : allMessages) {
-				
 
 				Log.d("chat frag", "" + id);
 					if (ChatContent.ITEM_MAP.containsKey(id)) {
@@ -184,10 +183,9 @@ public class ChatDetailFragment extends Fragment {
 						ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
 						Log.d("message sender name" , message.getSenderName());
 						chatItem.addMessage(message);
-						Log.d("IMPPP chat frag", "msg added");
+						Log.d("IMPPP chat frag", "msg added " + message.getCreatedAtString());
 					} else {
 						// new chat item is created
-						
 						ChatItem chatItem = new ChatItem(id, message.getSenderName());
 						Log.d("chat frag", "new chat item created :" + message.getSenderName());
 						chatItem.addMessage(message);
