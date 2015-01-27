@@ -23,4 +23,5 @@ public class ParseConstants {
 	public static final String KEY_MESSAGE_ID = "messageId";
 	public static final String KEY_MESSAGE_RECEIVER_NAME = "messageReceiverName";;
 
+	public static final String KEY_LOWER_USERNAME = "lowercaseUsername";
 }

@@ -21,6 +21,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
@@ -153,7 +154,7 @@ public class SignUpActivity extends Activity {
 			user.setEmail(email);
 
 			// other fields can be set just like with ParseObject
-			// user.put("phone", "650-253-0000");
+			 user.put(ParseConstants.KEY_LOWER_USERNAME, username.toLowerCase());
 
 			user.signUpInBackground(new SignUpCallback() {
 				public void done(ParseException e) {

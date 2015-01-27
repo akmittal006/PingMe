@@ -28,6 +28,9 @@ public class ChatItem {
 	public void addMessage(TextMessage message) {
 		mMessages.add(message);
 	}
+	public TextMessage getMessage(int i) {
+		return mMessages.get(i);
+	}
 
 	@Override
 	public String toString() {

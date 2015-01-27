@@ -20,6 +20,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.adapters.UserAdapter;
@@ -164,9 +165,12 @@ public class SearchResultsActivity extends ListActivity {
 
 	// //////////////HANDLE TEXT QUERY//////////////////////////
 	private void handleQueryText(String queryText) {
+		if(queryText.equals("")) {
+			TextView emptyView = (TextView) findViewById(android.R.id.empty);
+			emptyView.setVisibility(View.VISIBLE);
+		} else {
 		ParseQuery<ParseUser> users = ParseUser.getQuery();
-
-		users.whereStartsWith("username", queryText);
+		users.whereStartsWith(ParseConstants.KEY_LOWER_USERNAME, queryText.toLowerCase());
 		mProgBar.setVisibility(View.VISIBLE);
 
 		users.findInBackground(new FindCallback<ParseUser>() {
@@ -213,7 +217,7 @@ public class SearchResultsActivity extends ListActivity {
 				}
 
 			}
-		});
+		}); }
 	}
 
 	// ////////////find users///////////////////////////////////

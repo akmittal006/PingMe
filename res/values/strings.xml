@@ -8,6 +8,7 @@
     <string name="title_section3">Section 3</string>
     <string name="hello_world">Hello world!</string>
     <string name="sign_out">Sign out</string>
+    <string name = "empty_text">Type something to send</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="username_hint">    Username</string>
     <string name="error_title">Oops! Sorry!</string>
@@ -41,6 +42,8 @@
     <string name="title_chat_list">Chats</string>
     <string name="title_chat_detail">Chat Detail</string>
     <string name="title_facebook_login">Fb login</string>
+    <string name="empty_search">Type to search people</string>
+    <string name = "chat_detail_empty_text">Send message to start conversation</string>
  
     <string name="com_facebook_dialogloginactivity_ok_button">OK</string>
     <string name="com_facebook_like_button_not_liked">Like</string>

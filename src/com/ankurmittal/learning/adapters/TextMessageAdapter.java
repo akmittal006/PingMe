@@ -1,5 +1,7 @@
 package com.ankurmittal.learning.adapters;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -33,16 +35,28 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 		TextMessage message = mMessages.get(position);
 		//if (convertView == null) {
 			Log.d("adapter", message.getSenderName());
-			if(message.getSenderName().equals(ParseUser.getCurrentUser().getUsername())) {
+			if(message.getReceiverName().equals("pingMe")) {
 				convertView = LayoutInflater.from(mContext).inflate(
-						R.layout.chat_item_sent, null);
+						R.layout.chat_item_neutral, null);
 				holder = new ViewHolder();
 				holder.messageView = (TextView) convertView
 						.findViewById(R.id.messageTextView);
-				holder.timeLabel = (TextView)convertView.findViewById(R.id.createdAtTextView);
 				convertView.setTag(holder);
 				holder.messageView.setText(message.getMessage());
-			} else{
+				
+			}else if(message.getSenderName().equals(ParseUser.getCurrentUser().getUsername())) {
+				
+					convertView = LayoutInflater.from(mContext).inflate(
+							R.layout.chat_item_sent, null);
+					holder = new ViewHolder();
+					holder.messageView = (TextView) convertView
+							.findViewById(R.id.messageTextView);
+					holder.timeLabel = (TextView)convertView.findViewById(R.id.createdAtTextView);
+					convertView.setTag(holder);
+					holder.messageView.setText(message.getMessage());
+					holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
+			} 
+			else{
 				convertView = LayoutInflater.from(mContext).inflate(
 						R.layout.chat_item_received, null);
 				holder = new ViewHolder();
@@ -51,16 +65,23 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 				holder.timeLabel = (TextView)convertView.findViewById(R.id.createdAtTextView);
 				convertView.setTag(holder);
 				holder.messageView.setText(message.getMessage());
+				holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
 			}
 //		} else {
 //			Log.d("adapter", message.getSenderName());
 //			holder = (ViewHolder) convertView.getTag();
 //		}
-		holder.messageView.setText(message.getMessage());
-		holder.timeLabel.setText(message.getCreatedAtString());
+		
+		
 		return convertView;
 	}
-
+private String getTimeFromDate(Date date) {
+	String strDate = null;
+	SimpleDateFormat dateFormat = new SimpleDateFormat(
+            "HH:mm");
+    strDate = dateFormat.format(date);
+	return strDate;
+}
 	private static class ViewHolder {
 		TextView messageView;
 		 TextView timeLabel;

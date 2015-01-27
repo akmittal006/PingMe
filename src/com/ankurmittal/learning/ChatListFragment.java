@@ -2,6 +2,8 @@ package com.ankurmittal.learning;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -202,19 +204,22 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private void retrieveMessages() {
+		 
 		ParseQuery<ParseObject> messagesQuery = new ParseQuery<ParseObject>(
 				ParseConstants.TEXT_MESSAGE);
 		messagesQuery.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID,
 				ParseUser.getCurrentUser().get(ParseConstants.KEY_USER_ID));
 		messagesQuery.include(ParseConstants.KEY_MESSAGE_SENDER);
 		messagesQuery.include(ParseConstants.KEY_CREATED_AT);
-		messagesQuery.addDescendingOrder(ParseConstants.KEY_CREATED_AT);
+		messagesQuery.addAscendingOrder(ParseConstants.KEY_CREATED_AT);
 		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_ID);
 		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_NAME);
 		messagesQuery.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
 			public void done(List<ParseObject> pTextMessages, ParseException e) {
+				Date prevDate = null;
+				Date currDate = null;
 
 				if (e == null) {
 					Log.d("Retrieved messages", "NO. :-" + pTextMessages.size());
@@ -222,12 +227,15 @@ public class ChatListFragment extends ListFragment {
 					for (ParseObject pTextMessage : pTextMessages) {
 						// create a text message and save it to database
 						TextMessage textmessage = createTextMessage(pTextMessage);
-						mMessageDataSource.insert(textmessage);
-						
-						
+						if(ParseUser.getCurrentUser() != null) {
+							mMessageDataSource.insert(textmessage);
+						}
 					}
-					sortMessagesFromDatabase();
-					updateView();
+					if(ParseUser.getCurrentUser() != null) {
+						sortMessagesFromDatabase();
+						updateView();
+					}
+					
 				} else {
 					Log.d("REtrieval errror", "" + e.getMessage());
 				}
@@ -240,6 +248,7 @@ public class ChatListFragment extends ListFragment {
         //Date date = new Date();
         return dateFormat.format(date);
 }
+	
 	private TextMessage createTextMessage(ParseObject pTextMessage) {
 		TextMessage textMessage = new TextMessage();
 		textMessage.setMessage(pTextMessage

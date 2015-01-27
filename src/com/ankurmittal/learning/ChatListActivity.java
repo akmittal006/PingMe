@@ -90,9 +90,10 @@ public class ChatListActivity extends Activity implements
 	                    // handle response
 	                	setTitle(user.getFirstName());
 	                	Log.d("hooooorrayyyy", user.getFirstName());
-	                	ParseUser.getCurrentUser().put("UserId", ParseUser.getCurrentUser().getObjectId());
+	                	ParseUser.getCurrentUser().put(ParseConstants.KEY_USER_ID, ParseUser.getCurrentUser().getObjectId());
 	    				ParseUser.getCurrentUser().setUsername(user.getFirstName());
 	    				ParseUser.getCurrentUser().setEmail(user.getProperty("email").toString());
+	    				ParseUser.getCurrentUser().put(ParseConstants.KEY_LOWER_USERNAME, user.getFirstName().toLowerCase());
 	    				ParseUser.getCurrentUser().saveInBackground();
 	    				
 	                }
