@@ -3,9 +3,15 @@ package com.ankurmittal.learning;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONObject;
+
 import android.app.Fragment;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ankurmittal.learning.adapters.TextMessageAdapter;
 import com.ankurmittal.learning.storage.ChatContent;
@@ -25,10 +32,16 @@ import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.parse.FindCallback;
+import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SendCallback;
 
 /**
  * A fragment representing a single Chat detail screen. This fragment is either
@@ -81,9 +94,14 @@ public class ChatDetailFragment extends Fragment {
 
 	@Override
 	public void onPause() {
-		super.onPause();
-		// close database connection
 		mMessageDataSource.close();
+		super.onPause();
+	}
+
+	@Override
+	public void onDetach() {
+		// TODO Auto-generated method stub
+		super.onDetach();
 	}
 
 	@Override
@@ -92,8 +110,7 @@ public class ChatDetailFragment extends Fragment {
 		// open database connection
 		mMessageDataSource.open();
 		loadChatItemMessagesFromDatabase();
-		displayCurrentDate();
-
+		syncMsgsToParse();
 	}
 
 	@Override
@@ -144,16 +161,14 @@ public class ChatDetailFragment extends Fragment {
 						pTextMessage.put(
 								ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 								mItem.content);
-						pTextMessage.saveInBackground(new SaveCallback() {
-
+						pTextMessage.put("isSent", false);
+						pTextMessage.pinInBackground(new SaveCallback() {
 							@Override
 							public void done(ParseException e) {
+								syncMsgsToParse();
+
 								if (e == null) {
-									// put message id
-									pTextMessage.put(
-											ParseConstants.KEY_MESSAGE_ID,
-											pTextMessage.getObjectId());
-									// saving new message at database
+									Log.i("msg pinned", "pinned");
 									message = new TextMessage();
 									message.setMessage(newTextMessage);
 									message.setMessageId(pTextMessage
@@ -165,15 +180,11 @@ public class ChatDetailFragment extends Fragment {
 									message.setReceiverId(mItem.id);
 									message.setReceiverName(mItem.content);
 									message.setCreatedAt(new Date());
-									mMessageDataSource.insert(message);
+									message.setSent(false);
+
 									// add to chat item
 									String id = mItem.id;
 									if (ChatContent.ITEM_MAP.containsKey(id)) {
-										// Notify the active callbacks interface
-										// (the activity, if the
-										// fragment is attached to one) that an
-										// item has b een selected.
-										// mCallbacks.onItemSelected(id);
 										ChatItem chatItem = ChatContent.ITEM_MAP
 												.get(id);
 										maintainDate(message, chatItem);
@@ -192,10 +203,14 @@ public class ChatDetailFragment extends Fragment {
 													.getItemMessages()));
 									chatView.setSelection(chatView.getAdapter()
 											.getCount() - 1);
-								}
 
+								} else {
+
+								}
 							}
 						});
+						syncMsgsToParse();
+						
 					}
 				}
 			});
@@ -204,29 +219,13 @@ public class ChatDetailFragment extends Fragment {
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 				// TODO Auto-generated method stub
-				Log.d("scrolled", "yayyyyyyy");
 				final ListView lw = chatView;
 
-				if (view.getId() == lw.getId()) {
-					final int currentFirstVisibleItem = firstVisibleItem;
-
+				if (view.getId() == lw.getId() && mItem.getItemMessages().size() > 0) {
+					if(mItem.getMessage(
+							firstVisibleItem) != null) {
 					dateView.setText(getDateString(mItem.getMessage(
-							firstVisibleItem).getCreatedAt()));
-					Log.d("check", "" + visibleItemCount + " / "
-							+ totalItemCount);
-
-					if (currentFirstVisibleItem > mLastFirstVisibleItem) {
-						mIsScrollingUp = false;
-						Log.i("a", "scrolling down...");
-					} else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
-						mIsScrollingUp = true;
-						Log.i("a", "scrolling up...");
-					} else {
-						// no scrolling
-
-					}
-
-					mLastFirstVisibleItem = currentFirstVisibleItem;
+							firstVisibleItem).getCreatedAt())); }
 				}
 			}
 
@@ -234,10 +233,7 @@ public class ChatDetailFragment extends Fragment {
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
 				if (scrollState == SCROLL_STATE_IDLE) {
 					dateView.setVisibility(View.INVISIBLE);
-
-					Log.i("a", "scrolling stopped...");
 				} else if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
-
 					dateView.setVisibility(View.VISIBLE);
 				}
 
@@ -282,15 +278,21 @@ public class ChatDetailFragment extends Fragment {
 					Log.d("IMPPP chat frag", "msg added");
 				}
 			}
+			if (ChatContent.ITEM_MAP.containsKey(id)) {
+				// messages from that sender exist
+				ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
+				addNotSentMessages(chatItem);
+				Log.i("added", "not sent messages");
+			}
 		} else {
 			TextView emptyView = (TextView) rootView
 					.findViewById(android.R.id.empty);
 			emptyView.setVisibility(View.VISIBLE);
 		}
+
 		chatView.setAdapter(new TextMessageAdapter(getActivity(), mItem
 				.getItemMessages()));
 		chatView.setSelection(chatView.getAdapter().getCount() - 1);
-		displayCurrentDate();
 	}
 
 	private void maintainDate(TextMessage pTextMessage, ChatItem chatItem) {
@@ -308,11 +310,6 @@ public class ChatDetailFragment extends Fragment {
 				chatItem.addMessage(dateMessage);
 			}
 		}
-	}
-
-	private void displayCurrentDate() {
-		int c = chatView.getFirstVisiblePosition(); // first visible row
-		Log.d("HURRRRAYYYYY", mItem.getMessage(c).getMessage());
 	}
 
 	private Date getDate(Date date) {
@@ -352,4 +349,174 @@ public class ChatDetailFragment extends Fragment {
 		return textMessage;
 	}
 
+	private void syncMsgsToParse() {
+		ConnectivityManager cm = (ConnectivityManager) getActivity()
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+		if ((ni != null) && (ni.isConnected())) {
+			if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
+				// If we have a network connection and a current
+				// logged in user, sync the todos
+				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+						ParseConstants.TEXT_MESSAGE);
+				query.fromLocalDatastore();
+				query.whereEqualTo("isSent", false);
+				// query.whereEqualTo("isSent", false);
+				query.findInBackground(new FindCallback<ParseObject>() {
+					public void done(List<ParseObject> messages,
+							ParseException e) {
+						if (e == null) {
+							Log.i("pinned masgs", "" + messages.size());
+							for (final ParseObject message : messages) {
+								// Set is draft flag to false before
+								// syncing to Parse
+								message.put("isSent", true);
+								message.saveInBackground(new SaveCallback() {
+
+									@Override
+									public void done(ParseException e) {
+										if (e == null) {
+											// message sent
+
+											Log.i("saving",
+													""
+															+ message
+																	.getBoolean("isSent"));
+											mMessageDataSource
+													.insert(createTextMessage(message));
+											prevDate = null;
+											currDate = null;
+											loadChatItemMessagesFromDatabase();
+											// unpin the message
+											message.unpinInBackground();
+											sendNotification(message);
+										} else {
+											// Reset the is draft flag locally
+											// to true
+											message.put("isSent", false);
+										}
+									}
+
+								});
+
+							}
+						} else {
+							Log.i("TodoListActivity",
+									"syncTodosToParse: Error finding pinned todos: "
+											+ e.getMessage());
+						}
+					}
+				});
+			} else {
+				// If we have a network connection but no logged in user, direct
+				// the person to log in or sign up.
+
+			}
+		} else {
+			// If there is no connection, let the user know the sync didn't
+			// happen
+			Toast.makeText(
+					getActivity().getApplicationContext(),
+					"Your device appears to be offline. Some todos may not have been synced to Parse.",
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private TextMessage createTextMessage(ParseObject pTextMessage) {
+		TextMessage textMessage = new TextMessage();
+		textMessage.setMessage(pTextMessage
+				.getString(ParseConstants.KEY_MESSAGE));
+		Log.d("list frag ",
+				" " + pTextMessage.getString(ParseConstants.KEY_MESSAGE));
+		textMessage.setMessageId(pTextMessage.getObjectId());
+		textMessage.setReceiverId(pTextMessage
+				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
+		textMessage.setReceiverName(pTextMessage
+				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
+		textMessage.setSenderId(pTextMessage.getParseUser(
+				ParseConstants.KEY_MESSAGE_SENDER).getObjectId());
+		textMessage.setSenderName(pTextMessage.getParseUser(
+				ParseConstants.KEY_MESSAGE_SENDER).getUsername());
+		if (pTextMessage.getCreatedAt() != null) {
+			textMessage.setCreatedAt(getDateTime(pTextMessage.getCreatedAt()));
+		} else {
+			textMessage.setCreatedAt(new Date());
+		}
+
+		textMessage.setSent(pTextMessage.getBoolean("isSent"));
+
+		return textMessage;
+	}
+
+	private String getDateTime(java.util.Date date) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		// Date date = new Date();
+		return dateFormat.format(date);
+	}
+
+	private void addNotSentMessages(final ChatItem item) {
+		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+				ParseConstants.TEXT_MESSAGE);
+		query.fromLocalDatastore();
+		query.whereEqualTo("isSent", false);
+		query.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID, item.id);
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> messages, ParseException e) {
+				// TODO Auto-generated method stub
+				if (e == null) {
+					Log.i("not sent ", "" + messages.size());
+					for (ParseObject message : messages) {
+						item.addMessage(createTextMessage(message));
+					}
+					chatView.setAdapter(new TextMessageAdapter(getActivity(),
+							mItem.getItemMessages()));
+					chatView.setSelection(chatView.getAdapter().getCount() - 1);
+				}
+			}
+		});
+	}
+	protected void sendNotification(ParseObject message) {
+		ParseQuery<ParseInstallation> query = ParseInstallation.getQuery();
+		query.whereEqualTo(ParseConstants.KEY_USER_ID, message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
+		
+		ParsePush push = new ParsePush();
+		push.setQuery(query);
+		push.setMessage("" + message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME) + ": " + message.getString(ParseConstants.KEY_MESSAGE));
+		push.setData(createJSONObject(message));
+		push.sendInBackground(new SendCallback() {
+			
+			@Override
+			public void done(ParseException arg0) {
+				// msg sent!
+				Log.i("Message Push sent", "hurray");
+			}
+		});
+	}
+	protected JSONObject createJSONObject(ParseObject message) {
+		JSONObject jsonMessage= new JSONObject();
+		try {
+		jsonMessage.put(ParseConstants.KEY_MESSAGE,
+				message.getString(ParseConstants.KEY_MESSAGE));
+		jsonMessage.put(ParseConstants.KEY_MESSAGE_ID, message.getObjectId());
+		jsonMessage.put(ParseConstants.KEY_SENDER_NAME,
+				message.getParseUser(ParseConstants.KEY_MESSAGE_SENDER).getUsername());
+		jsonMessage.put(ParseConstants.KEY_SENDER_ID,
+				message.getParseUser(ParseConstants.KEY_MESSAGE_SENDER).getObjectId());
+		jsonMessage.put(
+				ParseConstants.KEY_MESSAGE_RECEIVER_ID,
+				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
+		jsonMessage.put(
+				ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
+				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
+		jsonMessage.put("isSent", message.getBoolean("isSent"));
+		jsonMessage.put(ParseConstants.KEY_CREATED_AT, message.getCreatedAt());
+		return jsonMessage;}
+		catch (Exception e) {
+			Log.e("JSON ERROR", "error creating message");
+		}
+		return null;
+	}
 }

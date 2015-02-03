@@ -18,12 +18,13 @@ public class TextMessageHelper extends SQLiteOpenHelper {
     public static final String COLUMN_MESSAGE_ID = "MESSAGE_ID";
     public static final String COLUMN_MESSAGE = "MESSAGE";
     public static final String COLUMN_CREATED_AT = "CREATED_AT";
+    public static final String COLUMN_IS_SENT = "IS_SENT";
 
     /*
      * Database information
      */
     private static final String DB_NAME = "ping_text_messages.db";
-    private static final int DB_VERSION = 1; // Must increment to trigger an upgrade
+    private static final int DB_VERSION = 3; // Must increment to trigger an upgrade
     private static final String DB_CREATE =
             "CREATE TABLE " + TABLE_MESSAGES + " (" +
                     COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -33,7 +34,11 @@ public class TextMessageHelper extends SQLiteOpenHelper {
                     COLUMN_RECEIVER_ID + " TEXT,"+
                     COLUMN_MESSAGE_ID + " TEXT,"+
                     COLUMN_CREATED_AT + " DATETIME,"+
+                    COLUMN_IS_SENT + " TEXT," +
                     COLUMN_MESSAGE + " TEXT)";
+    private static final String DB_ALTER =
+            "ALTER TABLE " + TABLE_MESSAGES + " ADD COLUMN " + COLUMN_IS_SENT + " TEXT" ;
+   
     public TextMessageHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
@@ -44,9 +49,9 @@ public class TextMessageHelper extends SQLiteOpenHelper {
     }
 
 	@Override
-	public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
-		
+		//db.execSQL(DB_ALTER);
 	}
 
 }

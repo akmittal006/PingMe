@@ -29,7 +29,12 @@ public class ChatItem {
 		mMessages.add(message);
 	}
 	public TextMessage getMessage(int i) {
-		return mMessages.get(i);
+		if(mMessages.size() > 0) {
+			return mMessages.get(i);
+		} else {
+			return null;
+		}
+		
 	}
 
 	@Override

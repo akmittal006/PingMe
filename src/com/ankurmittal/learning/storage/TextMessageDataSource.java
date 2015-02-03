@@ -1,8 +1,6 @@
 package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,10 +8,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
-import com.ankurmittal.learning.util.ParseConstants;
-import com.parse.ParseObject;
-import com.parse.ParseUser;
 
 public class TextMessageDataSource {
 	private SQLiteDatabase mDatabase; // The actual DB!
@@ -32,7 +26,7 @@ public class TextMessageDataSource {
 	 */
 	public void open() throws SQLException {
 		mDatabase = mTextMessageHelper.getWritableDatabase();
-		//Log.d("TEXT Databse check", "database opened");
+		// Log.d("TEXT Databse check", "database opened");
 	}
 
 	/*
@@ -40,7 +34,7 @@ public class TextMessageDataSource {
 	 */
 	public void close() {
 		mDatabase.close();
-		//Log.d("TEXT Databse check", "database closed");
+		// Log.d("TEXT Databse check", "database closed");
 	}
 
 	// INSERT
@@ -69,8 +63,11 @@ public class TextMessageDataSource {
 						textMessage.getMessageId());
 				values.put(TextMessageHelper.COLUMN_MESSAGE,
 						textMessage.getMessage());
+				values.put(TextMessageHelper.COLUMN_IS_SENT,
+						textMessage.isSent() + "");
 				Log.d("inseting", textMessage.getCreatedAtString());
-				values.put(TextMessageHelper.COLUMN_CREATED_AT, textMessage.getCreatedAtString());
+				values.put(TextMessageHelper.COLUMN_CREATED_AT,
+						textMessage.getCreatedAtString());
 				// friend.setViewed(false);
 				mDatabase
 						.insert(TextMessageHelper.TABLE_MESSAGES, null, values);
@@ -84,6 +81,7 @@ public class TextMessageDataSource {
 			Log.d(" NOT INSERTED", "ROW NOT ADDED");
 		}
 
+		
 	}
 
 	// public void insertByMain(ParseUser friend) {
@@ -143,18 +141,36 @@ public class TextMessageDataSource {
 	// }
 
 	public Cursor isMessageNew(TextMessage textMessage) {
+		Log.i("error",
+				textMessage.getMessage() + ":" + textMessage.getMessageId()
+						+ "");
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
-
-		Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
-				new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
-																		// names
-				whereClause, // where clause
-				new String[] { textMessage.getMessageId() }, // where params
-				null, // groupby
-				null, // having
-				null // orderby
-				);
-		return cursor;
+ 
+		if(mDatabase.isOpen()) {
+			Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+					new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
+																			// names
+					whereClause, // where clause
+					new String[] { textMessage.getMessageId() }, // where params
+					null, // groupby
+					null, // having
+					null // orderby
+					);
+			return cursor;
+		} else {
+			open();
+			Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+					new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
+																			// names
+					whereClause, // where clause
+					new String[] { textMessage.getMessageId() }, // where params
+					null, // groupby
+					null, // having
+					null // orderby
+					);
+			return cursor;
+		}
+		
 	}
 
 	public void deleteAll() {
@@ -166,25 +182,28 @@ public class TextMessageDataSource {
 
 	public Cursor selectAll() {
 
+		
 		Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
 						TextMessageHelper.COLUMN_RECEIVER_ID,
 						TextMessageHelper.COLUMN_SENDER_NAME,
 						TextMessageHelper.COLUMN_RECEIVER_NAME,
 						TextMessageHelper.COLUMN_MESSAGE_ID,
-						TextMessageHelper.COLUMN_MESSAGE ,
-						TextMessageHelper.COLUMN_CREATED_AT}, // column names
+						TextMessageHelper.COLUMN_MESSAGE,
+						TextMessageHelper.COLUMN_IS_SENT,
+						TextMessageHelper.COLUMN_CREATED_AT }, // column names
 				null, // where clause
 				null, // where params
 				null, // groupby
 				null, // having
 				null // orderby
 				);
-
+		
 		return cursor;
 	}
 
 	public ArrayList<TextMessage> getAllMessages() {
+		
 
 		Cursor cursor = selectAll();
 		ArrayList<TextMessage> mTextMessages = new ArrayList<TextMessage>();
@@ -218,9 +237,16 @@ public class TextMessageDataSource {
 
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE);
 				mTextMessages.get(row).setMessage(cursor.getString(i));
-				
+
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_CREATED_AT);
 				mTextMessages.get(row).setCreatedAt(cursor.getString(i));
+
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_IS_SENT);
+				boolean sent = false;
+				if (cursor.getString(i).equals("true")) {
+					sent = true;
+				}
+				mTextMessages.get(row).setSent(sent);
 
 				// Log.d("Database check", "retrieving :" +
 				// mTextMessages.get(row).getSenderName());
@@ -233,28 +259,53 @@ public class TextMessageDataSource {
 			// //Log.d("Database check", "added" +
 			// mTextMessages.get(i).getSenderName());
 			// }
+			
 			return mTextMessages;
 		}
 
 	}
 
 	public ArrayList<TextMessage> getMessagesFrom(String senderId) {
-		String whereClause = TextMessageHelper.COLUMN_SENDER_ID + " = ? OR " +  TextMessageHelper.COLUMN_RECEIVER_ID + " = ?" ;
+		
+		String whereClause = TextMessageHelper.COLUMN_SENDER_ID + " = ? OR "
+				+ TextMessageHelper.COLUMN_RECEIVER_ID + " = ?";
 
-		Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
-				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
-						TextMessageHelper.COLUMN_RECEIVER_ID,
-						TextMessageHelper.COLUMN_SENDER_NAME,
-						TextMessageHelper.COLUMN_RECEIVER_NAME,
-						TextMessageHelper.COLUMN_MESSAGE_ID,
-						TextMessageHelper.COLUMN_MESSAGE,
-						TextMessageHelper.COLUMN_CREATED_AT}, // column names
-				whereClause, // where clause
-				new String[] { senderId ,  senderId }, // where params
-				null, // groupby
-				null, // having
-				null // orderby
-				);
+		Cursor cursor;
+		//check if database is open 
+		if(mDatabase.isOpen()) {
+			cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+					new String[] { TextMessageHelper.COLUMN_SENDER_ID,
+							TextMessageHelper.COLUMN_RECEIVER_ID,
+							TextMessageHelper.COLUMN_SENDER_NAME,
+							TextMessageHelper.COLUMN_RECEIVER_NAME,
+							TextMessageHelper.COLUMN_MESSAGE_ID,
+							TextMessageHelper.COLUMN_MESSAGE,
+							TextMessageHelper.COLUMN_IS_SENT,
+							TextMessageHelper.COLUMN_CREATED_AT }, // column names
+					whereClause, // where clause
+					new String[] { senderId, senderId }, // where params
+					null, // groupby
+					null, // having
+					null // orderby
+					);
+		} else {
+			open();
+			cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+					new String[] { TextMessageHelper.COLUMN_SENDER_ID,
+							TextMessageHelper.COLUMN_RECEIVER_ID,
+							TextMessageHelper.COLUMN_SENDER_NAME,
+							TextMessageHelper.COLUMN_RECEIVER_NAME,
+							TextMessageHelper.COLUMN_MESSAGE_ID,
+							TextMessageHelper.COLUMN_MESSAGE,
+							TextMessageHelper.COLUMN_IS_SENT,
+							TextMessageHelper.COLUMN_CREATED_AT }, // column names
+					whereClause, // where clause
+					new String[] { senderId, senderId }, // where params
+					null, // groupby
+					null, // having
+					null // orderby
+					);
+		}
 		ArrayList<TextMessage> mTextMessages = new ArrayList<TextMessage>();
 
 		if (cursor.getCount() == 0) {
@@ -286,13 +337,20 @@ public class TextMessageDataSource {
 
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE);
 				mTextMessages.get(row).setMessage(cursor.getString(i));
-				
+
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_CREATED_AT);
 				mTextMessages.get(row).setCreatedAt(cursor.getString(i));
 
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_IS_SENT);
+				boolean sent = false;
+				if (cursor.getString(i).equals("true")) {
+					sent = true;
+				}
+				Log.i("SENT", "" + sent);
+				mTextMessages.get(row).setSent(sent);
+
 				cursor.moveToNext();
 				row++;
-
 			}
 			return mTextMessages;
 		}

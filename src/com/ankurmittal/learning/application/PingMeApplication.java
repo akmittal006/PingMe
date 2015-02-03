@@ -2,10 +2,10 @@ package com.ankurmittal.learning.application;
 
 import android.app.Application;
 
-import com.ankurmittal.learning.ChatListActivity;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
-import com.parse.PushService;
+import com.parse.ParseUser;
 
 public class PingMeApplication extends Application {
 	
@@ -21,5 +21,9 @@ public class PingMeApplication extends Application {
 //		    		);
 		    ParseInstallation.getCurrentInstallation().saveInBackground();
 	}
-
+	public static void updateParseInstallation(ParseUser user) {
+		ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+		installation.put(ParseConstants.KEY_USER_ID, user.getObjectId());
+		installation.saveInBackground();
+	}
 }

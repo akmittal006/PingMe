@@ -24,10 +24,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.facebook.Request;
-import com.facebook.Request.GraphUserCallback;
-import com.facebook.Response;
-import com.facebook.model.GraphUser;
+import com.ankurmittal.learning.application.PingMeApplication;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -136,17 +133,7 @@ public class LoginActivity extends Activity {
 		});
 
 	}
-	private static void getFacebookIdInBackground() {
-		  Request.newMeRequest(ParseFacebookUtils.getSession(), new GraphUserCallback() {
-			
-			@Override
-			public void onCompleted(GraphUser user, Response response) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-			
-		}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	  super.onActivityResult(requestCode, resultCode, data);
@@ -156,10 +143,7 @@ public class LoginActivity extends Activity {
 
 	// ////////////////ATTEMPT LOGIN//////////////////////////
 	public void attemptLogin() {
-		// if (!mAuthTask ) {
-		// return;
-		// }
-
+	
 		// Reset errors.
 
 		mUsername.setError(null);
@@ -201,6 +185,8 @@ public class LoginActivity extends Activity {
 							showProgressBar(false);
 							if (user != null) {
 								// Hooray! The user is logged in.
+								PingMeApplication.updateParseInstallation(user);
+								
 								Intent intent = new Intent(LoginActivity.this,
 										ChatListActivity.class);
 								intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

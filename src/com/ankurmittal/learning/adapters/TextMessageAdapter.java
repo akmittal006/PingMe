@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.util.Log;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +34,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 		ViewHolder holder;
 		TextMessage message = mMessages.get(position);
 		//if (convertView == null) {
-			Log.d("adapter", message.getSenderName());
+			
 			if(message.getReceiverName().equals("pingMe")) {
 				convertView = LayoutInflater.from(mContext).inflate(
 						R.layout.chat_item_neutral, null);
@@ -54,6 +54,11 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 					holder.timeLabel = (TextView)convertView.findViewById(R.id.createdAtTextView);
 					convertView.setTag(holder);
 					holder.messageView.setText(message.getMessage());
+					if(message.isSent) {
+						holder.messageView.setTypeface(null, Typeface.NORMAL);
+					}else {
+						holder.messageView.setTypeface(null, Typeface.ITALIC);
+					}
 					holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
 			} 
 			else{
@@ -65,6 +70,11 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 				holder.timeLabel = (TextView)convertView.findViewById(R.id.createdAtTextView);
 				convertView.setTag(holder);
 				holder.messageView.setText(message.getMessage());
+				if(message.isSent) {
+					holder.messageView.setTypeface(null, Typeface.NORMAL);
+				}else {
+					holder.messageView.setTypeface(null, Typeface.ITALIC);
+				}
 				holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
 			}
 //		} else {

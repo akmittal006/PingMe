@@ -1,10 +1,12 @@
 package com.ankurmittal.learning;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+
+import com.ankurmittal.learning.storage.TextMessageDataSource;
 
 /**
  * An activity representing a single Chat detail screen. This activity is only
@@ -14,7 +16,9 @@ import android.view.MenuItem;
  * This activity is mostly just a 'shell' activity containing nothing more than
  * a {@link ChatDetailFragment}.
  */
+
 public class ChatDetailActivity extends Activity {
+	private TextMessageDataSource mMessageDataSource;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,20 @@ public class ChatDetailActivity extends Activity {
 			getFragmentManager().beginTransaction()
 					.add(R.id.chat_detail_container, fragment).commit();
 		}
+		mMessageDataSource = new TextMessageDataSource(this);
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		
+		super.onPause();
+		
+		if(mMessageDataSource != null) {
+			mMessageDataSource.open();
+			mMessageDataSource.close();
+		}
+		
 	}
 
 	@Override

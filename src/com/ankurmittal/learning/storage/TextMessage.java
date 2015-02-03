@@ -1,11 +1,13 @@
 package com.ankurmittal.learning.storage;
 
+import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.sql.Date;
 import java.util.Locale;
 
 import android.util.Log;
+
+import com.parse.ParseObject;
 
 public class TextMessage  {
 	
@@ -16,7 +18,7 @@ public class TextMessage  {
 	public String mReceiverId;
 	public String mMessageId;
 	public java.util.Date createdAt;
-	
+	public boolean isSent = false;
 	public TextMessage() {
 		
 	}
@@ -28,6 +30,13 @@ public class TextMessage  {
 }
 	public String getMessageId() {
 		return mMessageId;
+	}
+	
+	public boolean isSent() {
+		return isSent;
+	}
+	public void setSent(boolean isSent) {
+		this.isSent = isSent;
 	}
 	public void setMessageId(String mMessageId) {
 		this.mMessageId = mMessageId;

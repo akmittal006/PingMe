@@ -265,6 +265,7 @@ public class ChatListFragment extends ListFragment {
 		textMessage.setSenderName(pTextMessage.getParseUser(
 				ParseConstants.KEY_MESSAGE_SENDER).getUsername());
 		textMessage.setCreatedAt(getDateTime(pTextMessage.getCreatedAt()));
+		textMessage.setSent(pTextMessage.getBoolean("isSent"));
 
 		return textMessage;
 	}
