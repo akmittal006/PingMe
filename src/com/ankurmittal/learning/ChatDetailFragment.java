@@ -498,6 +498,7 @@ public class ChatDetailFragment extends Fragment {
 	protected JSONObject createJSONObject(ParseObject message) {
 		JSONObject jsonMessage= new JSONObject();
 		try {
+		jsonMessage.put("alert",  message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME) + ": " + message.getString(ParseConstants.KEY_MESSAGE));
 		jsonMessage.put(ParseConstants.KEY_MESSAGE,
 				message.getString(ParseConstants.KEY_MESSAGE));
 		jsonMessage.put(ParseConstants.KEY_MESSAGE_ID, message.getObjectId());
@@ -512,7 +513,9 @@ public class ChatDetailFragment extends Fragment {
 				ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
 		jsonMessage.put("isSent", message.getBoolean("isSent"));
-		jsonMessage.put(ParseConstants.KEY_CREATED_AT, message.getCreatedAt());
+		jsonMessage.put(ParseConstants.KEY_CREATED_AT, getDateTime(message.getCreatedAt()));
+		
+		Log.d("Json message", jsonMessage.toString());
 		return jsonMessage;}
 		catch (Exception e) {
 			Log.e("JSON ERROR", "error creating message");

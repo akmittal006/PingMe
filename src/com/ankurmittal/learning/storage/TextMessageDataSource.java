@@ -142,7 +142,7 @@ public class TextMessageDataSource {
 
 	public Cursor isMessageNew(TextMessage textMessage) {
 		Log.i("error",
-				textMessage.getMessage() + ":" + textMessage.getMessageId()
+				textMessage.getMessage() 
 						+ "");
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
  
