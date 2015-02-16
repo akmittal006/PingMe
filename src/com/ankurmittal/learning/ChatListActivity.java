@@ -3,12 +3,15 @@ package com.ankurmittal.learning;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +26,7 @@ import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.TypefaceSpan;
 import com.facebook.AppEventsLogger;
 import com.facebook.Request;
 import com.facebook.Response;
@@ -67,7 +71,7 @@ public class ChatListActivity extends Activity implements
 		
 		setContentView(R.layout.activity_chat_list);
 		friendRequests = new ArrayList<ParseObject>();
-		
+		getActionBar().setDisplayShowHomeEnabled(false);
 		if (findViewById(R.id.chat_detail_container) != null) {
 			// The detail container view will be present only in the
 			// large-screen layouts (res/values-large and
@@ -138,7 +142,14 @@ public class ChatListActivity extends Activity implements
 			loadFriendRequests();
 			ParseUser.getCurrentUser().put("UserId", ParseUser.getCurrentUser().getObjectId());
 			ParseUser.getCurrentUser().saveInBackground();
-			this.setTitle(currentUser.getUsername());
+			SpannableString s = new SpannableString("Ping Me");
+		    s.setSpan(new TypefaceSpan(this, "LOBSTERTWO-BOLD.OTF"), 0, s.length(),
+		            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		 
+		    // Update the action bar title with the TypefaceSpan instance
+		    ActionBar actionBar = getActionBar();
+		    actionBar.setTitle(s);
+			
 			ParseFacebookUtils.initialize(R.string.facebook_app_id + "");
 			Session session = ParseFacebookUtils.getSession();
 		    if (session != null && session.isOpened()) {

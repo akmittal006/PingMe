@@ -225,19 +225,20 @@ public class FriendsFragment extends ListFragment {
 						}
 						else {
 							Log.e(TAG, e.getMessage());
-							AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-							builder.setMessage(e.getMessage())
-								.setTitle(R.string.error_title)
-								.setPositiveButton(android.R.string.ok, null);
-							AlertDialog dialog = builder.create();
-							dialog.show();
-							mFriendsDataSource.close();
+							if(getActivity() != null) {
+								AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+								builder.setMessage(e.getMessage())
+									.setTitle(R.string.error_title)
+									.setPositiveButton(android.R.string.ok, null);
+								AlertDialog dialog = builder.create();
+								dialog.show();
+								mFriendsDataSource.close();
+							}
+							
 						}
 					}
 				});
 			}
-
-
 		});
 	}
 }

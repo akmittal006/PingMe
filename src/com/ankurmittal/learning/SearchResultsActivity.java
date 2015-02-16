@@ -3,6 +3,7 @@ package com.ankurmittal.learning;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
@@ -12,6 +13,8 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,8 +26,9 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ankurmittal.learning.adapters.UserAdapter;
+import com.ankurmittal.learning.adapters.CopyOfUserAdapter;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.TypefaceSpan;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -43,6 +47,7 @@ public class SearchResultsActivity extends ListActivity {
 	SearchView searchView;
 	ProgressBar mProgBar;
 	ArrayList<Integer> isFrndReqSent;
+	boolean result;
 	protected ParseRelation<ParseUser> friendsRel;
 
 	@Override
@@ -55,6 +60,15 @@ public class SearchResultsActivity extends ListActivity {
 				.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
 
 		handleIntent(getIntent());
+		getActionBar().setDisplayShowHomeEnabled(false);
+		SpannableString s = new SpannableString("Search People");
+		s.setSpan(new TypefaceSpan(this, "LOBSTERTWO-BOLD.OTF"), 0, s.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+		// Update the action bar title with the TypefaceSpan instance
+		ActionBar actionBar = getActionBar();
+		actionBar.setTitle(s);
+
 	}
 
 	@Override
@@ -62,50 +76,8 @@ public class SearchResultsActivity extends ListActivity {
 			long id) {
 
 		super.onListItemClick(l, v, position, id);
-		if(isFrndReqSent.get(position) == 00) {String friendName = mUsernames[position];
-		final ParseUser friend = mUsers.get(position);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.add_friend_dialog_title);
-		builder.setMessage("Send friend request to " + friendName + " ?");
-		builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+		isUserRequestReceivable(position);
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				ParseObject friendRequest = new ParseObject(
-						ParseConstants.KEY_FRIENDS_REQUEST);
-				friendRequest.put(ParseConstants.KEY_FRND_REQ_RECEIVER,
-						friend.getObjectId());
-				friendRequest.put(ParseConstants.KEY_REQUEST_SENDER,
-						ParseUser.getCurrentUser());
-				friendRequest.put(ParseConstants.KEY_SENDER_NAME, ParseUser
-						.getCurrentUser().getUsername());
-				friendRequest.saveInBackground(new SaveCallback() {
-
-					@Override
-					public void done(ParseException e) {
-
-						if (e == null) {
-							// friend request sent
-							isFrndReqSent.set(position, 10);
-							Toast.makeText(SearchResultsActivity.this,
-									R.string.friend_request_sent_label,
-									Toast.LENGTH_SHORT).show();
-							showQueryResults();
-						} else {
-							// there was error
-							Toast.makeText(SearchResultsActivity.this,
-									R.string.friend_request_error_label,
-									Toast.LENGTH_SHORT).show();
-						}
-
-					}
-				});
-			}
-		});
-		builder.setNegativeButton(android.R.string.cancel, null);
-		AlertDialog dialog = builder.create();
-		dialog.show();}
-		
 	}
 
 	@Override
@@ -165,220 +137,149 @@ public class SearchResultsActivity extends ListActivity {
 
 	// //////////////HANDLE TEXT QUERY//////////////////////////
 	private void handleQueryText(String queryText) {
-		if(queryText.equals("")) {
+		if (queryText.equals("")) {
 			TextView emptyView = (TextView) findViewById(android.R.id.empty);
 			emptyView.setVisibility(View.VISIBLE);
 		} else {
-		ParseQuery<ParseUser> users = ParseUser.getQuery();
-		users.whereStartsWith(ParseConstants.KEY_LOWER_USERNAME, queryText.toLowerCase());
-		mProgBar.setVisibility(View.VISIBLE);
+			ParseQuery<ParseUser> users = ParseUser.getQuery();
+			users.whereStartsWith(ParseConstants.KEY_LOWER_USERNAME,
+					queryText.toLowerCase());
+			mProgBar.setVisibility(View.VISIBLE);
 
-		users.findInBackground(new FindCallback<ParseUser>() {
+			users.findInBackground(new FindCallback<ParseUser>() {
 
-			@Override
-			public void done(List<ParseUser> users, ParseException e) {
+				@Override
+				public void done(List<ParseUser> users, ParseException e) {
 
-				if (e == null) {
-					// success, display users
-					Log.d(TAG, "users :" + users.size());
-					mUsers = new ArrayList<ParseUser>();
-					mRaw = new ArrayList<String>();
-					isFrndReqSent = new ArrayList<Integer>();
-					for (int i = 0; i < users.size(); i++) {
-						if (users
-								.get(i)
-								.getUsername()
-								.equals(ParseUser.getCurrentUser()
-										.getUsername())) {
+					if (e == null) {
+						// success, display users
+						Log.d(TAG, "users :" + users.size());
+						mUsers = new ArrayList<ParseUser>();
+						mRaw = new ArrayList<String>();
+						isFrndReqSent = new ArrayList<Integer>();
+						for (int i = 0; i < users.size(); i++) {
+							if (users
+									.get(i)
+									.getUsername()
+									.equals(ParseUser.getCurrentUser()
+											.getUsername())) {
 
-						} else {
-							mRaw.add(users.get(i).getUsername());
-							mUsers.add(users.get(i));
-						}
-					}
-
-					for (int i = 0; i < mUsers.size(); i++) {
-
-						Log.d(TAG, isFrndReqSent.size() + " >> size");
-						findUsersAndCheckFrndReqSent(mUsers, i);
-
-					}
-					for (int i = 0; i < mUsers.size(); i++) {
-
-						isFriends(mUsers, i);
-					}
-
-					// findLastUser(users);
-					mUsernames = mRaw.toArray(new String[mRaw.size()]);
-
-				} else {
-					// there was an error
-					Log.e(TAG, e.getMessage(), e);
-				}
-
-			}
-		}); }
-	}
-
-	// ////////////find users///////////////////////////////////
-	private void findUsersAndCheckFrndReqSent(final List<ParseUser> users,
-			final int i) {
-
-		isFrndReqSent.add(11);
-		ParseQuery<ParseObject> getFriendReqs = new ParseQuery<ParseObject>(
-				ParseConstants.KEY_FRIENDS_REQUEST);
-		getFriendReqs.whereEqualTo(ParseConstants.KEY_REQUEST_SENDER,
-				ParseUser.getCurrentUser());
-		getFriendReqs.whereEqualTo(ParseConstants.KEY_FRND_REQ_RECEIVER, users
-				.get(i).getObjectId());
-
-		Log.d(TAG, "" + i);
-
-		getFriendReqs.findInBackground(new FindCallback<ParseObject>() {
-
-			@Override
-			public void done(List<ParseObject> frnds, ParseException e) {
-				if (e == null) {
-					if (frnds.size() > 0) {
-
-						Log.d(TAG, "requestfound" + i);
-						isFrndReqSent.set(i, 10);
-
-					} else {
-						Log.d(TAG, "req not found" + i);
-						if (isFrndReqSent.get(i) != 00) {
-							isFrndReqSent.set(i, 11);
-						}
-						else {
-							if (isFrendReqListFull() ) {
-								 //display list
-
-								 Log.d(TAG, "frndreqSiz :" + isFrndReqSent.size()
-								 + "  mUsers Size: " + mUsers.size());
-								 Log.d(TAG, "true");
-								 mProgBar.setVisibility(View.INVISIBLE);
-								 showQueryResults();
-
+							} else {
+								mRaw.add(users.get(i).getUsername());
+								mUsers.add(users.get(i));
 							}
 						}
-					}
 
-				} else {
-					Log.d(TAG, "query error " + e.getMessage());
-				}
-				// /check friends here
-
-			}
-
-		});
-	}
-
-	// // ///////////////////find last user ////////////////////
-	// private void findLastUser(final List<ParseUser> users) {
-	// int i = users.size() - 1;
-	// if (users.get(i).getUsername()
-	// .equals(ParseUser.getCurrentUser().getUsername())) {
-	// return;
-	// } else {
-	// mRaw.add(users.get(i).getUsername());
-	// mUsers.add(users.get(i));
-	// ParseQuery<ParseObject> getFriendReqs = new
-	// ParseQuery<ParseObject>(
-	// ParseConstants.KEY_FRIENDS_REQUEST);
-	// getFriendReqs.whereEqualTo(ParseConstants.KEY_SENDER,
-	// ParseUser.getCurrentUser());
-	// getFriendReqs.whereEqualTo(
-	// ParseConstants.KEY_FRND_REQ_RECEIVER, users.get(i)
-	// .getObjectId());
-	// getFriendReqs
-	// .findInBackground(new FindCallback<ParseObject>() {
-	//
-	// @Override
-	// public void done(List<ParseObject> frnds,
-	// ParseException e) {
-	// mProgBar.setVisibility(View.INVISIBLE);
-	// if (e == null) {
-	// if (frnds.size() > 0) {
-	// Log.d(TAG, "requestfound");
-	// isFrndReqSent.add(10);
-	// } else {
-	// Log.d(TAG, "req not found");
-	// isFrndReqSent.add(00);
-	// }
-	// } else {
-	// Log.d(TAG,
-	// "query error " + e.getMessage());
-	// }
-	//
-	//
-	// }
-	// });
-	//
-	// }
-	// }
-
-	private void isFriends(final List<ParseUser> users, final int i) {
-		ParseUser user = users.get(i);
-
-		ParseQuery<ParseUser> query = friendsRel.getQuery();
-		query.whereEqualTo("objectId", user.getObjectId());
-
-		query.findInBackground(new FindCallback<ParseUser>() {
-
-			@Override
-			public void done(List<ParseUser> frnds, ParseException e) {
-				if (e == null) {
-					if (frnds.size() > 0) {
-						Log.d(TAG,
-								"friend found " + i + " "
-										+ isFrndReqSent.get(i));
-						isFrndReqSent.set(i, 01);
+						mUsernames = mRaw.toArray(new String[mRaw.size()]);
+						mProgBar.setVisibility(View.INVISIBLE);
+						showQueryResults();
 
 					} else {
-						Log.d(TAG,
-								"not found " + i + " " + isFrndReqSent.get(i));
-						if (isFrndReqSent.get(i) == 11) {
-							isFrndReqSent.set(i, 00);
-						}
-
+						// there was an error
+						Log.e(TAG, e.getMessage(), e);
 					}
-				} else {
-					Log.d(TAG, "query error " + e.getMessage());
-				}
-				// mProgBar.setVisibility(View.INVISIBLE);
-				// showQueryResults();
-				if (isFrendReqListFull() ) {
-					 //display list
-
-					 Log.d(TAG, "frndreqSiz :" + isFrndReqSent.size()
-					 + "  mUsers Size: " + mUsers.size());
-					 Log.d(TAG, "true");
-					 mProgBar.setVisibility(View.INVISIBLE);
-					 showQueryResults();
 
 				}
-
-			}
-		});
+			});
+		}
 	}
 
 	// /////////////DISPLAY USERS///////////////////
 	private void showQueryResults() {
 		Log.d(TAG, "frndreqSiz :" + isFrndReqSent.size() + "  mUsers Size: "
 				+ mUsers.size());
-		UserAdapter adapter = new UserAdapter(SearchResultsActivity.this,
-				mUsers, isFrndReqSent);
+		CopyOfUserAdapter adapter = new CopyOfUserAdapter(
+				SearchResultsActivity.this, mUsers);
+		Log.i("dipslaying", "search results");
 		getListView().setAdapter(adapter);
 	}
 
-	private boolean isFrendReqListFull() {
-		for (int x = 0; x < isFrndReqSent.size(); x++) {
-			if (isFrndReqSent.get(x) == 11) {
-				Log.d(TAG, "false" + x);
-				return false;
-			} 
-		}
-		return true;
+	private void isUserRequestReceivable(final int position) {
+		final ParseUser user = mUsers.get(position);
+		ParseQuery<ParseUser> query = friendsRel.getQuery();
+		query.whereEqualTo("objectId", user.getObjectId());
+		mProgBar.setVisibility(View.VISIBLE);
+		query.findInBackground(new FindCallback<ParseUser>() {
+			
+			@Override
+			public void done(List<ParseUser> usersList, ParseException arg1) {
+				
+				// TODO Auto-generated method stub
+				if(usersList.size() >0) {
+					mProgBar.setVisibility(View.INVISIBLE);
+					Log.i("searching..", "frnd found");
+					result = false;
+				}else {
+					ParseQuery<ParseObject> getFriendReqs = new ParseQuery<ParseObject>(
+							ParseConstants.KEY_FRIENDS_REQUEST);
+					getFriendReqs.whereEqualTo(ParseConstants.KEY_REQUEST_SENDER,
+							ParseUser.getCurrentUser());
+					getFriendReqs.whereEqualTo(ParseConstants.KEY_FRND_REQ_RECEIVER, user.getObjectId());
+					getFriendReqs.findInBackground(new FindCallback<ParseObject>() {
+						
+						@Override
+						public void done(List<ParseObject> usersList, ParseException arg1) {
+							mProgBar.setVisibility(View.INVISIBLE);
+							// TODO Auto-generated method stub
+							if(usersList.size() >0) {
+								Log.i("searching..", "frnd req found");
+								result = false;
+							}else {
+								String friendName = mUsernames[position];
+								final ParseUser friend = mUsers.get(position);
+								AlertDialog.Builder builder = new AlertDialog.Builder(SearchResultsActivity.this);
+								builder.setTitle(R.string.add_friend_dialog_title);
+								builder.setMessage("Send friend request to " + friendName + " ?");
+								builder.setPositiveButton(android.R.string.ok,
+										new OnClickListener() {
 
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												ParseObject friendRequest = new ParseObject(
+														ParseConstants.KEY_FRIENDS_REQUEST);
+												friendRequest.put(
+														ParseConstants.KEY_FRND_REQ_RECEIVER,
+														friend.getObjectId());
+												friendRequest.put(
+														ParseConstants.KEY_REQUEST_SENDER,
+														ParseUser.getCurrentUser());
+												friendRequest.put(ParseConstants.KEY_SENDER_NAME,
+														ParseUser.getCurrentUser().getUsername());
+												friendRequest.saveInBackground(new SaveCallback() {
+
+													@Override
+													public void done(ParseException e) {
+
+														if (e == null) {
+
+															// friend request sent
+															isFrndReqSent.set(position, 10);
+															Toast.makeText(
+																	SearchResultsActivity.this,
+																	R.string.friend_request_sent_label,
+																	Toast.LENGTH_SHORT).show();
+															showQueryResults();
+														} else {
+															// there was error
+															Toast.makeText(
+																	SearchResultsActivity.this,
+																	R.string.friend_request_error_label,
+																	Toast.LENGTH_SHORT).show();
+														}
+
+													}
+												});
+											}
+										});
+								builder.setNegativeButton(android.R.string.cancel, null);
+								AlertDialog dialog = builder.create();
+								dialog.show();
+							}
+							
+						}
+					});
+				}
+			}
+		});
 	}
 }

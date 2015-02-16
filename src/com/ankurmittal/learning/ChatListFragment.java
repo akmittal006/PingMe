@@ -254,7 +254,7 @@ public class ChatListFragment extends ListFragment {
 		textMessage.setMessage(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE));
 		Log.d("list frag ",
-				" " + pTextMessage.getString(ParseConstants.KEY_MESSAGE));
+				" " + pTextMessage.getString(ParseConstants.KEY_MESSAGE) + ": " + pTextMessage.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME + ", ") + pTextMessage.getBoolean("isSent"));
 		textMessage.setMessageId(pTextMessage.getObjectId());
 		textMessage.setReceiverId(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
@@ -307,9 +307,12 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private void updateView() {
-		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
-				android.R.layout.simple_list_item_activated_1,
-				android.R.id.text1, ChatContent.ITEMS));
+		if(getActivity() != null) {
+			setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
+					android.R.layout.simple_list_item_activated_1,
+					android.R.id.text1, ChatContent.ITEMS));
+		}
+		
 	}
 
 	@Override

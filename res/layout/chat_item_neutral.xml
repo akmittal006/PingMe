@@ -12,7 +12,7 @@
          android:layout_centerHorizontal="true"
          android:layout_margin="2dp"
          android:layout_alignParentTop="true"
-         android:background="@drawable/rounded_square"
+         android:background="@drawable/rounded_square_brown"
          android:gravity="center"
          android:padding="6dp"
          android:text="27 jan 2015"

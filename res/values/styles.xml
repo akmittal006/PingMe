@@ -13,10 +13,8 @@
     </style>
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-    </style>
+    <style name="AppTheme" parent="AppBaseTheme">  </style>
     <color name="com_facebook_blue">#3B5998</color>
-    
+  
 
 </resources>

@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +27,7 @@ import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.TypefaceSpan;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -45,6 +48,7 @@ public class MainActivity extends Activity implements FriendsFragment.Callbacks 
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
 		// getActionBar().hide();
 		friendRequests = new ArrayList<ParseObject>();
 		// Set up the action bar.
@@ -53,7 +57,13 @@ public class MainActivity extends Activity implements FriendsFragment.Callbacks 
 		// fragment.setArguments(arguments);
 		getFragmentManager().beginTransaction()
 				.add(R.id.friends_container, fragment).commit();
-	
+		SpannableString s = new SpannableString("Friends");
+	    s.setSpan(new TypefaceSpan(this, "LOBSTERTWO-BOLD.OTF"), 0, s.length(),
+	            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	 
+	    // Update the action bar title with the TypefaceSpan instance
+	    actionBar.setTitle(s);
+	    getActionBar().setDisplayShowHomeEnabled(false);
 	}
 
 	@Override

@@ -80,6 +80,7 @@ public class ChatDetailFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getActivity().getActionBar().setDisplayShowHomeEnabled(false);
 
 		if (getArguments().containsKey(ARG_ITEM_ID)) {
 			// Load the dummy content specified by the fragment
@@ -161,6 +162,7 @@ public class ChatDetailFragment extends Fragment {
 						pTextMessage.put(
 								ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 								mItem.content);
+						Log.i("chehck ", pTextMessage.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
 						pTextMessage.put("isSent", false);
 						pTextMessage.pinInBackground(new SaveCallback() {
 							@Override
@@ -179,6 +181,7 @@ public class ChatDetailFragment extends Fragment {
 											.getCurrentUser().getUsername());
 									message.setReceiverId(mItem.id);
 									message.setReceiverName(mItem.content);
+									Log.d("check", mItem.content);
 									message.setCreatedAt(new Date());
 									message.setSent(false);
 
@@ -366,18 +369,18 @@ public class ChatDetailFragment extends Fragment {
 					public void done(List<ParseObject> messages,
 							ParseException e) {
 						if (e == null) {
-							Log.i("pinned masgs", "" + messages.size());
+							Log.i("pinned msgs", "" + messages.size());
 							for (final ParseObject message : messages) {
 								// Set is draft flag to false before
 								// syncing to Parse
-								message.put("isSent", true);
+								
 								message.saveInBackground(new SaveCallback() {
 
 									@Override
 									public void done(ParseException e) {
 										if (e == null) {
 											// message sent
-
+											message.put("isSent", true);
 											Log.i("saving",
 													""
 															+ message
@@ -417,8 +420,8 @@ public class ChatDetailFragment extends Fragment {
 			// happen
 			Toast.makeText(
 					getActivity().getApplicationContext(),
-					"Your device appears to be offline. Some todos may not have been synced to Parse.",
-					Toast.LENGTH_LONG).show();
+					"Your device appears to be offline. Some Messages may not have been synced .",
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -426,8 +429,8 @@ public class ChatDetailFragment extends Fragment {
 		TextMessage textMessage = new TextMessage();
 		textMessage.setMessage(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE));
-		Log.d("list frag ",
-				" " + pTextMessage.getString(ParseConstants.KEY_MESSAGE));
+		Log.d("detail frag ",
+				" " +  pTextMessage.getString(ParseConstants.KEY_MESSAGE) + ": " + pTextMessage.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME )+ ", " + pTextMessage.getBoolean("isSent"));
 		textMessage.setMessageId(pTextMessage.getObjectId());
 		textMessage.setReceiverId(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
@@ -484,7 +487,7 @@ public class ChatDetailFragment extends Fragment {
 		
 		ParsePush push = new ParsePush();
 		push.setQuery(query);
-		push.setMessage("" + message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME) + ": " + message.getString(ParseConstants.KEY_MESSAGE));
+		push.setMessage("" + message.getString(ParseConstants.KEY_SENDER_NAME) + ": " + message.getString(ParseConstants.KEY_MESSAGE));
 		push.setData(createJSONObject(message));
 		push.sendInBackground(new SendCallback() {
 			
