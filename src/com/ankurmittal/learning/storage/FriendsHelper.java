@@ -14,6 +14,7 @@ public class FriendsHelper extends SQLiteOpenHelper {
     public static final String COLUMN_NAME = "NAME";
     public static final String COLUMN_OBJECT_ID = "OBJECT_ID";
     public static final String COLUMN_EMAIL = "EMAIL";
+    public static final String COLUMN_PROFILE_IMAGE_ADDRESS = "PROFILE_IMAGE_ADDRESS";
 
     /*
      * Database information
@@ -25,6 +26,7 @@ public class FriendsHelper extends SQLiteOpenHelper {
                     COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     COLUMN_NAME + " TEXT,"+
                     COLUMN_OBJECT_ID + " TEXT,"+
+                    COLUMN_PROFILE_IMAGE_ADDRESS + " TEXT,"+
                     COLUMN_EMAIL + " TEXT)";
     public FriendsHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

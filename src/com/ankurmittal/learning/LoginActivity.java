@@ -1,7 +1,5 @@
 package com.ankurmittal.learning;
 
-import java.util.Arrays;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -27,8 +25,6 @@ import android.widget.TextView.OnEditorActionListener;
 import com.ankurmittal.learning.application.PingMeApplication;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
-import com.parse.ParseFacebookUtils.Permissions;
 import com.parse.ParseUser;
 
 public class LoginActivity extends Activity {
@@ -98,39 +94,39 @@ public class LoginActivity extends Activity {
 		});
 		//fb login
 		mFacebookLoginButton = (Button)findViewById(R.id.facebookLoginButton);
-		mFacebookLoginButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				ParseFacebookUtils.logIn(Arrays.asList(Permissions.User.ABOUT_ME, Permissions.User.EMAIL, "public_profile"),LoginActivity.this, new LogInCallback() {
-					  @Override
-					  public void done(ParseUser user, ParseException err) {
-					    if (user == null) {
-					      Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
-					      
-					    } else if (user.isNew()) {
-					      Log.d("MyApp", "User signed up and logged in through Facebook!");
-					     
-					      
-					      Intent intent = new Intent(LoginActivity.this,
-									ChatListActivity.class);
-							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							startActivity(intent);
-					    } else {
-					      Log.d("MyApp", "User logged in through Facebook!");
-					      
-					      Intent intent = new Intent(LoginActivity.this,
-									ChatListActivity.class);
-							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							startActivity(intent);
-					    }
-					  }
-					});
-				
-			}
-		});
+//		mFacebookLoginButton.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View arg0) {
+//				ParseFacebookUtils.logIn(Arrays.asList(Permissions.User.ABOUT_ME, Permissions.User.EMAIL, "public_profile"),LoginActivity.this, new LogInCallback() {
+//					  @Override
+//					  public void done(ParseUser user, ParseException err) {
+//					    if (user == null) {
+//					      Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+//					      
+//					    } else if (user.isNew()) {
+//					      Log.d("MyApp", "User signed up and logged in through Facebook!");
+//					     
+//					      
+//					      Intent intent = new Intent(LoginActivity.this,
+//									ChatListActivity.class);
+//							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//							startActivity(intent);
+//					    } else {
+//					      Log.d("MyApp", "User logged in through Facebook!");
+//					      
+//					      Intent intent = new Intent(LoginActivity.this,
+//									ChatListActivity.class);
+//							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//							startActivity(intent);
+//					    }
+//					  }
+//					});
+//				
+//			}
+//		});
 
 	}
 
@@ -138,7 +134,7 @@ public class LoginActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	  super.onActivityResult(requestCode, resultCode, data);
 	  Log.d("On activity result", "callled");
-	  ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
+//	  ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
 	}
 
 	// ////////////////ATTEMPT LOGIN//////////////////////////

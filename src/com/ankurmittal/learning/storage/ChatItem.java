@@ -1,7 +1,13 @@
 package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import android.util.Log;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 
@@ -12,6 +18,33 @@ public class ChatItem {
 	public String id;
 	public String content;
 	public ArrayList<TextMessage> mMessages;
+	public String email;
+	private ParseUser senderUser;
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	public void setEmail() {
+		ParseQuery<ParseUser> query = new ParseQuery<ParseUser>(ParseUser.class);
+		query.whereEqualTo("objectId" , id);
+		query.findInBackground(new FindCallback<ParseUser>() {
+			
+			@Override
+			public void done(List<ParseUser> users, ParseException e) {
+				if(e == null) {
+					Log.i("chatItem", "found email");
+					senderUser = users.get(0);
+					setEmail(senderUser.getEmail());
+				}
+				
+			}
+		});
+	}
 
 	public ChatItem(String id, String content, ArrayList<TextMessage> messages) {
 		this.id = id;

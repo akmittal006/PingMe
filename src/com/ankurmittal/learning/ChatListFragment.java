@@ -9,23 +9,31 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.app.ListFragment;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 /**
  * A list fragment representing a list of Chats. This fragment also supports
@@ -132,8 +140,13 @@ public class ChatListFragment extends ListFragment {
 		// open database connection
 		mMessageDataSource.open();
 		if (ParseUser.getCurrentUser() != null) {
-			retrieveMessages();
-			sortMessagesFromDatabase();
+			
+			if(!(getActivity().isFinishing())) {
+				retrieveMessages();
+				deletePinnedMessages();
+				sortMessagesFromDatabase();
+			}
+			
 		}
 
 		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
@@ -204,7 +217,7 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private void retrieveMessages() {
-		 
+		 Log.i("chat lis", "retrieving");
 		ParseQuery<ParseObject> messagesQuery = new ParseQuery<ParseObject>(
 				ParseConstants.TEXT_MESSAGE);
 		messagesQuery.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID,
@@ -220,6 +233,7 @@ public class ChatListFragment extends ListFragment {
 			public void done(List<ParseObject> pTextMessages, ParseException e) {
 				Date prevDate = null;
 				Date currDate = null;
+				 Log.i("chat lis", "retrieved");
 
 				if (e == null) {
 					Log.d("Retrieved messages", "NO. :-" + pTextMessages.size());
@@ -229,11 +243,25 @@ public class ChatListFragment extends ListFragment {
 						TextMessage textmessage = createTextMessage(pTextMessage);
 						if(ParseUser.getCurrentUser() != null) {
 							mMessageDataSource.insert(textmessage);
+							pTextMessage.pinInBackground("Delete Messages", new SaveCallback() {
+								
+								@Override
+								public void done(ParseException e) {
+									if(e == null) {
+										Log.i("cht list", "to delete pinned");
+									} else {
+										Log.i("cht list", "not delete pinned");
+									}
+									
+								}
+							});
 						}
 					}
 					if(ParseUser.getCurrentUser() != null) {
 						sortMessagesFromDatabase();
 						updateView();
+					}if (getActivity() != null) {
+						deletePinnedMessages();
 					}
 					
 				} else {
@@ -271,6 +299,7 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private void sortMessagesFromDatabase() {
+		
 		if (mMessageDataSource.selectAll().getCount() != 0) {
 			ArrayList<TextMessage> allMessages = mMessageDataSource
 					.getAllMessages();
@@ -281,6 +310,7 @@ public class ChatListFragment extends ListFragment {
 				if (message.getSenderId().equals(ParseUser.getCurrentUser().getObjectId()) ) {
 					id = message.getReceiverId(); // equivalent to item id
 					content = message.getReceiverName();
+					
 				}else {
 					 id = message.getSenderId(); // equivalent to item id
 					 content = message.getSenderName();
@@ -297,6 +327,7 @@ public class ChatListFragment extends ListFragment {
 					// new chat item is created
 					ChatItem chatItem = new ChatItem(id,
 							content);
+					chatItem.getEmail();
 					Log.d("chat list", "new chat item created :" + content);
 					chatItem.addMessage(message);
 					ChatContent.addItem(chatItem);
@@ -306,8 +337,9 @@ public class ChatListFragment extends ListFragment {
 		}
 	}
 
-	private void updateView() {
-		if(getActivity() != null) {
+	public void updateView() {
+		if(getActivity() != null && !(getActivity().isFinishing())) {
+			Log.i("chat list frag", "............updating view...........");
 			setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
 					android.R.layout.simple_list_item_activated_1,
 					android.R.id.text1, ChatContent.ITEMS));
@@ -321,5 +353,56 @@ public class ChatListFragment extends ListFragment {
 		super.onDestroy();
 
 	}
+	
+	private void deletePinnedMessages() {
+		
+		ConnectivityManager cm = (ConnectivityManager) getActivity()
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+		if ((ni != null) && (ni.isConnected())) {
+			if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
+				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+						ParseConstants.TEXT_MESSAGE);
+				query.fromPin("Delete Messages");
+				query.findInBackground(new FindCallback<ParseObject>() {
+					public void done(List<ParseObject> messages,
+							ParseException e) {
+						if (e == null) {
+							Log.i("pinned to delete msgs", "" + messages.size());
+							for (final ParseObject message : messages) {
+								message.deleteEventually(new DeleteCallback() {
+									
+									@Override
+									public void done(ParseException arg0) {
+										// TODO Auto-generated method stub
+										Log.i("chat list frag", "delted");
+										message.unpinInBackground("Delete Messages");
+									}
+								});
+
+							}
+						} else {
+							Log.i("To delete pinned messages",
+									" Error finding pinned messages "
+											+ e.getMessage());
+						}
+					}
+				});
+			} else {
+				// If we have a network connection but no logged in user, direct
+				// the person to log in or sign up.
+
+			}
+		} else {
+			// If there is no connection, let the user know the sync didn't
+			// happen
+			Toast.makeText(
+					getActivity().getApplicationContext(),
+					"Your device appears to be offline. Some Messages may not have been synced .",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	
 
 }

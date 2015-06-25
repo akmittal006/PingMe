@@ -69,7 +69,7 @@ public class FriendsFragment extends ListFragment {
 	public void onResume() {
 		super.onResume();
 		//open frnds databse connection
-		
+		Log.d("frinds activity", "on resume");
 		mFriends = new ArrayList<ParseUser>();
 		loadFromDatabase();
 		loadAccepts();
@@ -193,6 +193,7 @@ public class FriendsFragment extends ListFragment {
 			private void loadFriends() {
 				ParseQuery<ParseUser> query = mFriendsRelation.getQuery();
 				query.addAscendingOrder(ParseConstants.KEY_USERNAME);
+				//query.include(ParseConstants.KEY_PROFILE_IMAGE);
 				query.findInBackground(new FindCallback<ParseUser>() {
 					@Override
 					public void done(List<ParseUser> friends, ParseException e) {
@@ -201,26 +202,39 @@ public class FriendsFragment extends ListFragment {
 						}
 						if (e == null) {
 							mFriends.clear();
+							int i =0;
 							for(ParseUser friend : friends) {
-								mFriends.add(friend);
-								//add frnds to database
-								mFriendsDataSource.insert(friend);
+								if(friend.getParseFile(ParseConstants.KEY_PROFILE_IMAGE) != null) {
+									Log.d("loading frnds..."+i, friend.getParseFile(ParseConstants.KEY_PROFILE_IMAGE).getUrl());
+								}
+								
+								//if(mFriendsDataSource.isFriendNew(friend).getCount() == 0) {
+									//not in database
+									mFriends.add(friend);
+									//add frnds to database
+									mFriendsDataSource.insert(friend);
+								//}
+								i++;
 							}
 							
-							
+							if ( i>= friends.size()) {
+								mFriendsDataSource.close();
+								if(getActivity() != null ) {
+									if (getListAdapter() == null) {
+										//Log.d("befor acll to frnds adapter", mFriends.get(1).getString(ParseConstants.KEY_PROFILE_IMAGE));
+										Log.d("Call to frnds adapter1", friends.size() + "");
+										 adapter = new FriendsAdapter(getActivity(), mFriends);
+										 
+										getListView().setAdapter(adapter);
+									}
+									else {
+										((FriendsAdapter)getListAdapter()).refill(mFriends);
+									}
+								}
+							}
+														
 							//load from database
-							mFriendsDataSource.close();
-							if(getActivity() != null ) {
-								if (getListAdapter() == null) {
-									Log.d("Call to frnds adapter", friends.size() + "");
-									 adapter = new FriendsAdapter(getActivity(), mFriends);
-									 
-									getListView().setAdapter(adapter);
-								}
-								else {
-									((FriendsAdapter)getListAdapter()).refill(mFriends);
-								}
-							}
+						
 							
 						}
 						else {

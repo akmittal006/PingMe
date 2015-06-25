@@ -28,12 +28,11 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 	protected ArrayList<String> mFrndsUsernames;
 	protected String hash;
 
-	public UserAdapter(Context context, List<ParseUser> users,
-			ArrayList<Integer> isFrndReqSentAndFriends) {
+	public UserAdapter(Context context, List<ParseUser> users) {
 		super(context, R.layout.user_item, users);
 		mContext = context;
 		mUsers = users;
-		mIsFrndReqSentAndFriends = isFrndReqSentAndFriends;
+		
 	}
 
 	@Override
@@ -97,12 +96,13 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 		}
 
 		holder.nameLabel.setText(user.getUsername());
+		holder.frndLabel.setText("");
 
-		if (mIsFrndReqSentAndFriends.get(position) == 10) {
-			holder.frndLabel.setText(R.string.friend_request_sent_label);
-		} else if (mIsFrndReqSentAndFriends.get(position) == 01) {
-			holder.frndLabel.setText(R.string.friends_label);
-		}
+//		if (mIsFrndReqSentAndFriends.get(position) == 10) {
+//			holder.frndLabel.setText(R.string.friend_request_sent_label);
+//		} else if (mIsFrndReqSentAndFriends.get(position) == 01) {
+//			holder.frndLabel.setText(R.string.friends_label);
+//		}
 
 		return convertView;
 	}

@@ -22,22 +22,20 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ankurmittal.learning.application.PingMeApplication;
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.ankurmittal.learning.util.TypefaceSpan;
-import com.facebook.AppEventsLogger;
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.model.GraphUser;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
 
 /**
  * An activity representing a list of Chats. This activity has different
@@ -87,24 +85,24 @@ public class ChatListActivity extends Activity implements
 		
 	}
 
-	private void makeMeRequest() {
-		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
-	            new Request.GraphUserCallback() {
-	                @Override
-	                public void onCompleted(GraphUser user, Response response) {
-	                    // handle response
-	                	setTitle(user.getFirstName());
-	                	Log.d("hooooorrayyyy", user.getFirstName());
-	                	ParseUser.getCurrentUser().put(ParseConstants.KEY_USER_ID, ParseUser.getCurrentUser().getObjectId());
-	    				ParseUser.getCurrentUser().setUsername(user.getFirstName());
-	    				ParseUser.getCurrentUser().setEmail(user.getProperty("email").toString());
-	    				ParseUser.getCurrentUser().put(ParseConstants.KEY_LOWER_USERNAME, user.getFirstName().toLowerCase());
-	    				ParseUser.getCurrentUser().saveInBackground();
-	    				
-	                }
-	            });
-	    request.executeAsync();
-	}
+//	private void makeMeRequest() {
+//		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
+//	            new Request.GraphUserCallback() {
+//	                @Override
+//	                public void onCompleted(GraphUser user, Response response) {
+//	                    // handle response
+//	                	setTitle(user.getFirstName());
+//	                	Log.d("hooooorrayyyy", user.getFirstName());
+//	                	ParseUser.getCurrentUser().put(ParseConstants.KEY_USER_ID, ParseUser.getCurrentUser().getObjectId());
+//	    				ParseUser.getCurrentUser().setUsername(user.getFirstName());
+//	    				ParseUser.getCurrentUser().setEmail(user.getProperty("email").toString());
+//	    				ParseUser.getCurrentUser().put(ParseConstants.KEY_LOWER_USERNAME, user.getFirstName().toLowerCase());
+//	    				ParseUser.getCurrentUser().saveInBackground();
+//	    				
+//	                }
+//	            });
+//	    request.executeAsync();
+//	}
 
 	/**
 	 * Callback method from {@link ChatListFragment.Callbacks} indicating that
@@ -139,9 +137,11 @@ public class ChatListActivity extends Activity implements
 		currentUser = ParseUser.getCurrentUser();
 		if (currentUser != null) {
 			// do stuff with the user
+			PingMeApplication.updateParseInstallation(currentUser);
 			loadFriendRequests();
 			ParseUser.getCurrentUser().put("UserId", ParseUser.getCurrentUser().getObjectId());
 			ParseUser.getCurrentUser().saveInBackground();
+			
 			SpannableString s = new SpannableString("Ping Me");
 		    s.setSpan(new TypefaceSpan(this, "LOBSTERTWO-BOLD.OTF"), 0, s.length(),
 		            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -149,15 +149,15 @@ public class ChatListActivity extends Activity implements
 		    // Update the action bar title with the TypefaceSpan instance
 		    ActionBar actionBar = getActionBar();
 		    actionBar.setTitle(s);
-			
-			ParseFacebookUtils.initialize(R.string.facebook_app_id + "");
-			Session session = ParseFacebookUtils.getSession();
-		    if (session != null && session.isOpened()) {
-		        makeMeRequest();
-		        
-		    }
-			// Logs 'install' and 'app activate' App Events.
-			  AppEventsLogger.activateApp(this);
+//			
+//			ParseFacebookUtils.initialize(R.string.facebook_app_id + "");
+//			Session session = ParseFacebookUtils.getSession();
+//		    if (session != null && session.isOpened()) {
+//		        makeMeRequest();
+//		        
+//		    }
+//			// Logs 'install' and 'app activate' App Events.
+//			  AppEventsLogger.activateApp(this);
 		} else {
 			// show the signup or login screen
 			Intent intent2 = new Intent(ChatListActivity.this, LoginActivity.class);
@@ -172,7 +172,7 @@ public class ChatListActivity extends Activity implements
 	  super.onPause();
 
 	  // Logs 'app deactivate' App Event.
-	  AppEventsLogger.deactivateApp(this);
+//	  AppEventsLogger.deactivateApp(this);
 	}
 
 	@Override
@@ -270,6 +270,40 @@ public class ChatListActivity extends Activity implements
 			Log.d("DATABASE CHECK",""+ mMessageSource.selectAll().getCount());
 			mMessageSource.close();
 			ChatContent.deleteAllItems();
+			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+					ParseConstants.TEXT_MESSAGE);
+			query.fromPin(Constants.GROUP_NOT_SENT);
+			query.fromPin("Delete Messages");
+			
+			query.findInBackground(new FindCallback<ParseObject>() {
+				
+				@Override
+				public void done(List<ParseObject> arg0, ParseException arg1) {
+					// TODO Auto-generated method stub
+					Log.e("logging out ", "total pinned msgs" + arg0.size()); 
+					final int i = 0;
+					for (ParseObject message: arg0) {
+						
+						message.unpinInBackground(Constants.GROUP_NOT_SENT, new DeleteCallback() {
+							
+							@Override 
+							public void done(ParseException e) {
+								// TODO Auto-generated method stub
+								if(e == null) {
+									Log.i("unpinned", "msg unpinned " + i);
+								}
+								else  {
+									Log.e("unpinned error", "msg unpinned " + i + " " + e.getMessage());
+								}
+								
+							}
+						});
+						message.unpinInBackground("Delete Messages");
+						
+					}
+					
+				}
+			});
 			Intent intent = new Intent(ChatListActivity.this, LoginActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -285,8 +319,15 @@ public class ChatListActivity extends Activity implements
 			Intent intent = new Intent(ChatListActivity.this, MainActivity.class);
 			startActivity(intent);
 		}
+		else if(id == R.id.profile) {
+			Intent intent = new Intent(ChatListActivity.this, ProfileActivity.class);
+			startActivity(intent);
+		}
 
 		return super.onOptionsItemSelected(item);
 	}
+	
+	
+
 
 }

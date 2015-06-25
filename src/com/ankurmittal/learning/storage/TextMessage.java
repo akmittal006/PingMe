@@ -17,10 +17,17 @@ public class TextMessage  {
 	public String mSenderId;
 	public String mReceiverId;
 	public String mMessageId;
+	public String mType;
 	public java.util.Date createdAt;
 	public boolean isSent = false;
 	public TextMessage() {
 		
+	}
+	public void setType(String type) {
+		mType = type;
+	}
+	public String getType() {
+		return mType;
 	}
 	private String getDateTime(java.util.Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -72,7 +79,7 @@ public class TextMessage  {
 		this.mSenderName = mSender;
 	}
 	public void setCreatedAt(String date) {
-		Log.d("textMessage created at raw" , date);
+		//Log.d("textMessage created at raw" , date);
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 		try {
@@ -81,7 +88,7 @@ public class TextMessage  {
 			Log.e("date error in text message", "invalid date string");
 			e.printStackTrace();
 		}
-		Log.d("textMessage created at" , createdAt.toString());
+		//Log.d("textMessage created at" , createdAt.toString());
 	}
 	public void setCreatedAt(java.util.Date date) {
 		createdAt = date;

@@ -20,7 +20,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
+import com.ankurmittal.learning.util.CustomTarget;
 import com.ankurmittal.learning.util.MD5Util;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.ParseUser;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -30,7 +32,7 @@ public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 	Context mContext;
 	String[] usernames;
 	ArrayList<ParseUser> mFriends;
-	protected String hash;
+	protected String userID;
 
 	public FriendsAdapter(Context context, ArrayList<ParseUser> friends) {
 
@@ -63,15 +65,32 @@ public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 		}
 
 		ParseUser user = mFriends.get(position);
-		String email = user.getEmail().toLowerCase();
-
-		if (email.equals("")) {
-			holder.userImageView.setImageResource(R.drawable.avatar_empty);
+		String imgUrl = user.getString(ParseConstants.KEY_PROFILE_IMAGE);
+		if(imgUrl != null) {
+			Log.d("friends adapter", imgUrl);
+		} else if (user.getParseFile(ParseConstants.KEY_PROFILE_IMAGE) != null ) {
+			imgUrl = user.getParseFile(ParseConstants.KEY_PROFILE_IMAGE).getUrl();
+			Log.d("friends adapter", imgUrl);
 		} else {
-			hash = MD5Util.md5Hex(email);
-			String gravatarUrl = "http://www.gravatar.com/avatar/" + hash
-					+ "?s=204&d=404";
+			Log.d("friends adapter", "null image url "+ position + user.getUsername());
+			holder.nameLabel.setText(user.getUsername());
+			holder.userImageView.setImageResource(R.drawable.avatar_empty);
+			return convertView;
+		}
+		
+
+		if (imgUrl.equals("null")) {
+			holder.userImageView.setImageResource(R.drawable.avatar_empty);
+			Log.i("frnds adapter", imgUrl + " img set - " + position);
+		} else if(imgUrl != null) {
+			Log.i("url check", imgUrl);
+			//hash = MD5Util.md5Hex(email);
+//			String gravatarUrl = "http://www.gravatar.com/avatar/" + hash
+//					+ "?s=204&d=404";
 			Picasso.with(mContext).setIndicatorsEnabled(true);
+			CustomTarget target = new CustomTarget();
+			//Log.d("frnds adpater",user.getString("UserId"));
+			target.setTargetHash(user.getString("UserId"));
 			if (isExternalStorageAvailable()) {
 
 				// 1. Get the external storage directory
@@ -83,19 +102,20 @@ public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 
 				String path = mediaStorageDir.getPath() + File.separator;
 
-				File file = new File(path + "/" + hash + ".jpg");
+				File file = new File(path + "/" + user.getString("UserId") + ".jpg");
 				if (file.exists()) {
-					Log.i("IMPPPPPP", Uri.fromFile(file).toString());
+					Log.i("image loaded from mobile", Uri.fromFile(file).toString());
 					Picasso.with(mContext).load(Uri.fromFile(file))
 							.placeholder(R.drawable.avatar_empty)
 							.resize(75, 75).centerCrop()
 							.into(holder.userImageView);
 				} else {
-					Picasso.with(mContext).load(gravatarUrl)
+					Log.i("image loaded from net", Uri.fromFile(file).toString());
+					Picasso.with(mContext).load(imgUrl)
 							.placeholder(R.drawable.avatar_empty)
 							.resize(75, 75).centerCrop()
 							.into(holder.userImageView);
-					Picasso.with(mContext).load(gravatarUrl).into(target);
+					Picasso.with(mContext).load(imgUrl).into(target);
 				}
 
 			}
@@ -107,63 +127,63 @@ public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 		return convertView;
 	}
 
-	private Target target = new Target() {
-		@Override
-		public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					if (isExternalStorageAvailable()) {
-
-						// 1. Get the external storage directory
-						String appName = "PingMe";
-						File mediaStorageDir = new File(
-								Environment
-										.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-								appName);
-
-						// 2. Create our subdirectory
-						if (!mediaStorageDir.exists()) {
-							if (!mediaStorageDir.mkdirs()) {
-								Log.e("friends", "Failed to create directory.");
-								// return null;
-							}
-						}
-						// 3. Create a file name
-						// 4. Create the file
-						File mediaFile;
-
-						String path = mediaStorageDir.getPath()
-								+ File.separator;
-
-						File file = new File(path + "/" + hash + ".jpg");
-						try {
-							file.createNewFile();
-							FileOutputStream ostream = new FileOutputStream(
-									file);
-							bitmap.compress(CompressFormat.JPEG, 75, ostream);
-							ostream.close();
-							Log.i("check", file.getPath());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-					}
-
-				}
-			}).start();
-		}
-
-		@Override
-		public void onBitmapFailed(Drawable errorDrawable) {
-		}
-
-		@Override
-		public void onPrepareLoad(Drawable placeHolderDrawable) {
-			if (placeHolderDrawable != null) {
-			}
-		}
-	};
+//	private Target target = new Target() {
+//		@Override
+//		public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+//			new Thread(new Runnable() {
+//				@Override
+//				public void run() {
+//					if (isExternalStorageAvailable()) {
+//
+//						// 1. Get the external storage directory
+//						String appName = "PingMe";
+//						File mediaStorageDir = new File(
+//								Environment
+//										.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+//								appName);
+//
+//						// 2. Create our subdirectory
+//						if (!mediaStorageDir.exists()) {
+//							if (!mediaStorageDir.mkdirs()) {
+//								Log.e("friends", "Failed to create directory. " + mediaStorageDir.toString());
+//								// return null;
+//							}
+//						}
+//						// 3. Create a file name
+//						// 4. Create the file
+//						File mediaFile;
+//
+//						String path = mediaStorageDir.getPath()
+//								+ File.separator;
+//
+//						File file = new File(path + "/" + hash + ".jpg");
+//						try {
+//							file.createNewFile();
+//							FileOutputStream ostream = new FileOutputStream(
+//									file);
+//							bitmap.compress(CompressFormat.JPEG, 75, ostream);
+//							ostream.close();
+//							Log.i("check", file.getPath());
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//
+//					}
+//
+//				}
+//			}).start();
+//		}
+//
+//		@Override
+//		public void onBitmapFailed(Drawable errorDrawable) {
+//		}
+//
+//		@Override
+//		public void onPrepareLoad(Drawable placeHolderDrawable) {
+//			if (placeHolderDrawable != null) {
+//			}
+//		}
+//	};
 
 	private static class ViewHolder {
 		ImageView userImageView;

@@ -13,6 +13,7 @@ public final class Manifest {
   IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
   to match your app's package name + ".permission.C2D_MESSAGE".
 
+
     
          */
         public static final String C2D_MESSAGE="com.ankurmittal.learning.permission.C2D_MESSAGE";

@@ -12,8 +12,16 @@ public class ChatItem2 {
 	public String id;
 	public String content;
 	public ArrayList<TextMessage> mMessages;
-	public String status;
-	
+	public String mStatus;
+	public String mImage; // email
+
+	public String getImage() {
+		return mImage;
+	}
+
+	public void setImage(String mImage) {
+		this.mImage = mImage;
+	}
 
 	public ChatItem2(String id, String content, ArrayList<TextMessage> messages) {
 		this.id = id;
@@ -25,6 +33,14 @@ public class ChatItem2 {
 		this.id = id;
 		this.content = content;
 		mMessages = new ArrayList<TextMessage>();
+	}
+	
+	public void setStatus(String status) {
+		mStatus = status;
+	}
+	
+	public String getStatus() {
+		return mStatus;
 	}
 	
 	public void addMessage(TextMessage message) {

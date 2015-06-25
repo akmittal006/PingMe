@@ -141,9 +141,9 @@ public class TextMessageDataSource {
 	// }
 
 	public Cursor isMessageNew(TextMessage textMessage) {
-		Log.i("error",
-				textMessage.getMessage() 
-						+ "");
+//		Log.i("error",
+//				textMessage.getMessage() 
+//						+ "");
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
  
 		if(mDatabase.isOpen()) {
@@ -179,10 +179,22 @@ public class TextMessageDataSource {
 				null // where params
 				);
 	}
+	
+	public void deleteMessage(String id) {
+		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
+		mDatabase.delete(TextMessageHelper.TABLE_MESSAGES, // table
+				whereClause, // where clause
+				new String[] { id } // where params
+				);
+		
+	}
 
 	public Cursor selectAll() {
 
-		
+		if (!mDatabase.isOpen()) {
+			Log.i("text msg data source", "opening before select all method");
+			open();
+		}
 		Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
 						TextMessageHelper.COLUMN_RECEIVER_ID,
@@ -346,7 +358,7 @@ public class TextMessageDataSource {
 				if (cursor.getString(i).equals("true")) {
 					sent = true;
 				}
-				Log.i("SENT", "" + sent);
+				//Log.i("SENT", "" + sent);
 				mTextMessages.get(row).setSent(sent);
 
 				cursor.moveToNext();

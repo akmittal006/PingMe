@@ -9,12 +9,18 @@ import java.util.Locale;
 import org.json.JSONObject;
 
 import android.app.Fragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -31,6 +37,7 @@ import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.FindCallback;
 import com.parse.ParseAnonymousUtils;
@@ -69,6 +76,8 @@ public class ChatDetailFragment extends Fragment {
 	Date currDate = null;
 	int mLastFirstVisibleItem;
 	boolean mIsScrollingUp;
+	ArrayList<Long> selectedIds;
+	private ArrayList<String> toDeleteMessages;
 
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
@@ -101,7 +110,6 @@ public class ChatDetailFragment extends Fragment {
 
 	@Override
 	public void onDetach() {
-		// TODO Auto-generated method stub
 		super.onDetach();
 	}
 
@@ -127,6 +135,92 @@ public class ChatDetailFragment extends Fragment {
 			chatView = (ListView) rootView.findViewById(R.id.chatListView);
 			chatView.setDivider(null);
 			chatView.setDividerHeight(0);
+
+			chatView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			chatView.setMultiChoiceModeListener(new ListView.MultiChoiceModeListener() {
+
+				@Override
+				public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+					Log.i("Prep called", "called");
+
+					return true;
+				}
+
+				@Override
+				public void onDestroyActionMode(ActionMode mode) {
+					
+
+				}
+
+				@Override
+				public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+					selectedIds = new ArrayList<Long>();
+					Log.i("create called", "called");
+					MenuInflater inflater = getActivity().getMenuInflater();
+		            inflater.inflate(R.menu.list_select_menu, menu);
+		            mode.setTitle("Select Messages");
+		            return true;
+				}
+
+				@Override
+				public boolean onActionItemClicked(ActionMode mode,
+						MenuItem item) {
+					Log.i("called", "called");
+					if(selectedIds.size() >0) {
+						toDeleteMessages = new ArrayList<String>();
+						if(item.getItemId() == R.id.delete) {
+							for(long i : selectedIds) {
+								int j = (int) i;
+								toDeleteMessages.add(mItem.getMessage(j).getMessageId());
+								Log.i("to delete", mItem.getMessage(j).getMessageId() + " " + toDeleteMessages.size());
+							}
+							deleteMessages(toDeleteMessages);
+							
+					} else if(item.getItemId() == R.id.copy) {
+						String copyString = "";
+						for(long i : selectedIds) {
+							int j = (int) i;
+							copyString += " " + mItem.getMessage(j).getMessage();
+						}
+						Log.i("copy success", "" + copyString);
+						ClipboardManager clipboard = (ClipboardManager)
+						        getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+						ClipData clip = ClipData.newPlainText("copyString", copyString);
+						clipboard.setPrimaryClip(clip);
+					}
+					
+					}
+					mode.finish();
+
+					return true;
+				}
+
+				@Override
+				public void onItemCheckedStateChanged(ActionMode mode,
+						int position, long id, boolean checked) {
+					final int checkedCount = chatView.getCheckedItemCount();
+		            switch (checkedCount) {
+		                case 0:
+		                    mode.setSubtitle(null);
+		                    break;
+		                case 1:
+		                    mode.setSubtitle("1 message selected");
+		                    break;
+		                default:
+		                    mode.setSubtitle("" + checkedCount + " messages selected");
+		                    break;
+		            }
+		            if(checked) {
+		            	selectedIds.add(id);
+		            }else {
+		            	selectedIds.remove(id);
+		            }
+		            
+
+					Log.i("" + id, "something checked " + selectedIds.size());
+				}
+			});
+
 			chatView.setAdapter(new TextMessageAdapter(getActivity(), mItem
 					.getItemMessages()));
 			getActivity().setTitle(mItem.toString());
@@ -162,15 +256,16 @@ public class ChatDetailFragment extends Fragment {
 						pTextMessage.put(
 								ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 								mItem.content);
-						Log.i("chehck ", pTextMessage.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
+//						Log.i("chehck ",
+//								pTextMessage
+//										.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
 						pTextMessage.put("isSent", false);
-						pTextMessage.pinInBackground(new SaveCallback() {
+						pTextMessage.pinInBackground(Constants.GROUP_NOT_SENT, new SaveCallback() {
 							@Override
 							public void done(ParseException e) {
-								syncMsgsToParse();
 
 								if (e == null) {
-									Log.i("msg pinned", "pinned");
+									Log.i("written msg pinned", "pinned");
 									message = new TextMessage();
 									message.setMessage(newTextMessage);
 									message.setMessageId(pTextMessage
@@ -210,10 +305,12 @@ public class ChatDetailFragment extends Fragment {
 								} else {
 
 								}
+								Log.i("sys check", "calling sync msgs to parse method");
+								syncMsgsToParse();
 							}
 						});
-						syncMsgsToParse();
 						
+
 					}
 				}
 			});
@@ -221,14 +318,14 @@ public class ChatDetailFragment extends Fragment {
 		chatView.setOnScrollListener(new OnScrollListener() {
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
-				// TODO Auto-generated method stub
-				final ListView lw = chatView;
+				final AbsListView lw = chatView;
 
-				if (view.getId() == lw.getId() && mItem.getItemMessages().size() > 0) {
-					if(mItem.getMessage(
-							firstVisibleItem) != null) {
-					dateView.setText(getDateString(mItem.getMessage(
-							firstVisibleItem).getCreatedAt())); }
+				if (view.getId() == lw.getId()
+						&& mItem.getItemMessages().size() > 0) {
+					if (mItem.getMessage(firstVisibleItem) != null) {
+						dateView.setText(getDateString(mItem.getMessage(
+								firstVisibleItem).getCreatedAt()));
+					}
 				}
 			}
 
@@ -292,6 +389,9 @@ public class ChatDetailFragment extends Fragment {
 					.findViewById(android.R.id.empty);
 			emptyView.setVisibility(View.VISIBLE);
 		}
+		
+		Log.i("error check", mItem
+				.getItemMessages().size() + " " +  getActivity().toString());
 
 		chatView.setAdapter(new TextMessageAdapter(getActivity(), mItem
 				.getItemMessages()));
@@ -349,6 +449,7 @@ public class ChatDetailFragment extends Fragment {
 		textMessage.setSenderId(pTextMessage.getSenderId());
 		textMessage.setSenderName(pTextMessage.getSenderName());
 		textMessage.setCreatedAt(currDate);
+		textMessage.setType(Constants.TYPE_NEUTRAL);
 		return textMessage;
 	}
 
@@ -362,7 +463,7 @@ public class ChatDetailFragment extends Fragment {
 				// logged in user, sync the todos
 				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
 						ParseConstants.TEXT_MESSAGE);
-				query.fromLocalDatastore();
+				query.fromPin(Constants.GROUP_NOT_SENT);
 				query.whereEqualTo("isSent", false);
 				// query.whereEqualTo("isSent", false);
 				query.findInBackground(new FindCallback<ParseObject>() {
@@ -373,7 +474,7 @@ public class ChatDetailFragment extends Fragment {
 							for (final ParseObject message : messages) {
 								// Set is draft flag to false before
 								// syncing to Parse
-								
+
 								message.saveInBackground(new SaveCallback() {
 
 									@Override
@@ -385,13 +486,18 @@ public class ChatDetailFragment extends Fragment {
 													""
 															+ message
 																	.getBoolean("isSent"));
+											Log.i("sys check ", "inserting...") ;
 											mMessageDataSource
 													.insert(createTextMessage(message));
 											prevDate = null;
 											currDate = null;
-											loadChatItemMessagesFromDatabase();
+											Log.i("sys check ", "loading...") ;
+											if(getActivity() != null) {
+												loadChatItemMessagesFromDatabase();
+											}
+											
 											// unpin the message
-											message.unpinInBackground();
+											message.unpinInBackground(Constants.GROUP_NOT_SENT);
 											sendNotification(message);
 										} else {
 											// Reset the is draft flag locally
@@ -430,7 +536,12 @@ public class ChatDetailFragment extends Fragment {
 		textMessage.setMessage(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE));
 		Log.d("detail frag ",
-				" " +  pTextMessage.getString(ParseConstants.KEY_MESSAGE) + ": " + pTextMessage.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME )+ ", " + pTextMessage.getBoolean("isSent"));
+				" "
+						+ pTextMessage.getString(ParseConstants.KEY_MESSAGE)
+						+ ": "
+						+ pTextMessage
+								.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME)
+						+ ", " + pTextMessage.getBoolean("isSent"));
 		textMessage.setMessageId(pTextMessage.getObjectId());
 		textMessage.setReceiverId(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
@@ -444,6 +555,12 @@ public class ChatDetailFragment extends Fragment {
 			textMessage.setCreatedAt(getDateTime(pTextMessage.getCreatedAt()));
 		} else {
 			textMessage.setCreatedAt(new Date());
+		}
+		if (textMessage.getSenderId() == ParseUser.getCurrentUser()
+				.getObjectId()) {
+			textMessage.setType(Constants.TYPE_SENT);
+		} else {
+			textMessage.setType(Constants.TYPE_RECEIVED);
 		}
 
 		textMessage.setSent(pTextMessage.getBoolean("isSent"));
@@ -461,14 +578,13 @@ public class ChatDetailFragment extends Fragment {
 	private void addNotSentMessages(final ChatItem item) {
 		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
 				ParseConstants.TEXT_MESSAGE);
-		query.fromLocalDatastore();
+		query.fromPin(Constants.GROUP_NOT_SENT);
 		query.whereEqualTo("isSent", false);
 		query.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID, item.id);
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
 			public void done(List<ParseObject> messages, ParseException e) {
-				// TODO Auto-generated method stub
 				if (e == null) {
 					Log.i("not sent ", "" + messages.size());
 					for (ParseObject message : messages) {
@@ -481,16 +597,19 @@ public class ChatDetailFragment extends Fragment {
 			}
 		});
 	}
+
 	protected void sendNotification(ParseObject message) {
 		ParseQuery<ParseInstallation> query = ParseInstallation.getQuery();
-		query.whereEqualTo(ParseConstants.KEY_USER_ID, message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
-		
+		query.whereEqualTo(ParseConstants.KEY_USER_ID,
+				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
+
 		ParsePush push = new ParsePush();
 		push.setQuery(query);
-		push.setMessage("" + message.getString(ParseConstants.KEY_SENDER_NAME) + ": " + message.getString(ParseConstants.KEY_MESSAGE));
+		push.setMessage("" + message.getString(ParseConstants.KEY_SENDER_NAME)
+				+ ": " + message.getString(ParseConstants.KEY_MESSAGE));
 		push.setData(createJSONObject(message));
 		push.sendInBackground(new SendCallback() {
-			
+
 			@Override
 			public void done(ParseException arg0) {
 				// msg sent!
@@ -498,31 +617,45 @@ public class ChatDetailFragment extends Fragment {
 			}
 		});
 	}
+
 	protected JSONObject createJSONObject(ParseObject message) {
-		JSONObject jsonMessage= new JSONObject();
+		JSONObject jsonMessage = new JSONObject();
 		try {
-		jsonMessage.put("alert",  message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME) + ": " + message.getString(ParseConstants.KEY_MESSAGE));
-		jsonMessage.put(ParseConstants.KEY_MESSAGE,
-				message.getString(ParseConstants.KEY_MESSAGE));
-		jsonMessage.put(ParseConstants.KEY_MESSAGE_ID, message.getObjectId());
-		jsonMessage.put(ParseConstants.KEY_SENDER_NAME,
-				message.getParseUser(ParseConstants.KEY_MESSAGE_SENDER).getUsername());
-		jsonMessage.put(ParseConstants.KEY_SENDER_ID,
-				message.getParseUser(ParseConstants.KEY_MESSAGE_SENDER).getObjectId());
-		jsonMessage.put(
-				ParseConstants.KEY_MESSAGE_RECEIVER_ID,
-				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
-		jsonMessage.put(
-				ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
-				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-		jsonMessage.put("isSent", message.getBoolean("isSent"));
-		jsonMessage.put(ParseConstants.KEY_CREATED_AT, getDateTime(message.getCreatedAt()));
-		
-		Log.d("Json message", jsonMessage.toString());
-		return jsonMessage;}
-		catch (Exception e) {
+			jsonMessage.put(
+					"alert",
+					message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME)
+							+ ": "
+							+ message.getString(ParseConstants.KEY_MESSAGE));
+			jsonMessage.put(ParseConstants.KEY_MESSAGE,
+					message.getString(ParseConstants.KEY_MESSAGE));
+			jsonMessage.put(ParseConstants.KEY_MESSAGE_ID,
+					message.getObjectId());
+			jsonMessage.put(ParseConstants.KEY_SENDER_NAME, message
+					.getParseUser(ParseConstants.KEY_MESSAGE_SENDER)
+					.getUsername());
+			jsonMessage.put(ParseConstants.KEY_SENDER_ID,
+					message.getParseUser(ParseConstants.KEY_MESSAGE_SENDER)
+							.getObjectId());
+			jsonMessage.put(ParseConstants.KEY_MESSAGE_RECEIVER_ID,
+					message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
+			jsonMessage
+					.put(ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
+							message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
+			jsonMessage.put("isSent", message.getBoolean("isSent"));
+			jsonMessage.put(ParseConstants.KEY_CREATED_AT,
+					getDateTime(message.getCreatedAt()));
+
+			Log.d("Json message", jsonMessage.toString());
+			return jsonMessage;
+		} catch (Exception e) {
 			Log.e("JSON ERROR", "error creating message");
 		}
 		return null;
+	}
+	private void deleteMessages(ArrayList<String> ids) {
+		for(String id : ids) {
+			mMessageDataSource.deleteMessage(id);
+		}
+		loadChatItemMessagesFromDatabase();
 	}
 }

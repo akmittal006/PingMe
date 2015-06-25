@@ -26,7 +26,7 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ankurmittal.learning.adapters.CopyOfUserAdapter;
+import com.ankurmittal.learning.adapters.UserAdapter;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.ankurmittal.learning.util.TypefaceSpan;
 import com.parse.FindCallback;
@@ -188,7 +188,7 @@ public class SearchResultsActivity extends ListActivity {
 	private void showQueryResults() {
 		Log.d(TAG, "frndreqSiz :" + isFrndReqSent.size() + "  mUsers Size: "
 				+ mUsers.size());
-		CopyOfUserAdapter adapter = new CopyOfUserAdapter(
+		UserAdapter adapter = new UserAdapter(
 				SearchResultsActivity.this, mUsers);
 		Log.i("dipslaying", "search results");
 		getListView().setAdapter(adapter);
@@ -206,10 +206,12 @@ public class SearchResultsActivity extends ListActivity {
 				
 				// TODO Auto-generated method stub
 				if(usersList.size() >0) {
+					//already frnds
 					mProgBar.setVisibility(View.INVISIBLE);
 					Log.i("searching..", "frnd found");
 					result = false;
 				}else {
+					//not frnds 
 					ParseQuery<ParseObject> getFriendReqs = new ParseQuery<ParseObject>(
 							ParseConstants.KEY_FRIENDS_REQUEST);
 					getFriendReqs.whereEqualTo(ParseConstants.KEY_REQUEST_SENDER,
@@ -222,9 +224,11 @@ public class SearchResultsActivity extends ListActivity {
 							mProgBar.setVisibility(View.INVISIBLE);
 							// TODO Auto-generated method stub
 							if(usersList.size() >0) {
+								//not frnds, but frnd req sent
 								Log.i("searching..", "frnd req found");
 								result = false;
 							}else {
+								// show dialog to ask to add frnd
 								String friendName = mUsernames[position];
 								final ParseUser friend = mUsers.get(position);
 								AlertDialog.Builder builder = new AlertDialog.Builder(SearchResultsActivity.this);

@@ -3,7 +3,7 @@ package com.ankurmittal.learning.util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
@@ -62,6 +62,8 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver{
 			mMessageDataSource.open();
 			mMessageDataSource.insert(createTextMessageFromJsonData(jsonMessage));
 			mMessageDataSource.close();
+			
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

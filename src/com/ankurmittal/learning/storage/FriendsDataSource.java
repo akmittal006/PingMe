@@ -42,6 +42,9 @@ public class FriendsDataSource {
 
 	// INSERT
 	public void insert(ParseUser friend) {
+		if(!mDatabase.isOpen()) {
+			open();
+		}
 
 		Cursor cursor = isFriendNew(friend);
 		if (cursor.getCount() == 0) {
@@ -53,6 +56,12 @@ public class FriendsDataSource {
 				values.put(FriendsHelper.COLUMN_NAME, friend.getUsername());
 				values.put(FriendsHelper.COLUMN_OBJECT_ID, friend.getObjectId());
 				values.put(FriendsHelper.COLUMN_EMAIL, friend.getEmail());
+				if(friend.getParseFile(ParseConstants.KEY_PROFILE_IMAGE) != null) {
+					values.put(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS, friend.getParseFile(ParseConstants.KEY_PROFILE_IMAGE).getUrl()); 
+				}else {
+					values.put(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS, "null"); 
+				}
+				
 				mDatabase.insert(FriendsHelper.TABLE_FRIENDS, null, values);
 				mDatabase.setTransactionSuccessful();
 				//Log.d("INSERTED", "ROW ADDED");
@@ -122,7 +131,10 @@ public class FriendsDataSource {
 	// mNotifyMgr.notify(mNotificationId, mBuilder.build());
 	// }
 
-	private Cursor isFriendNew(ParseUser friend) {
+	public Cursor isFriendNew(ParseUser friend) {
+		if(!mDatabase.isOpen()) {
+			open();
+		}
 		String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
 
 		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
@@ -137,18 +149,26 @@ public class FriendsDataSource {
 	}
 
 	public void deleteAll() {
+		if(!mDatabase.isOpen()) {
+			open();
+		}
 		mDatabase.delete(FriendsHelper.TABLE_FRIENDS, // table
 				null, // where clause
 				null // where params
 				);
+		
 	}
 
 	public Cursor selectAll() {
+		if(!mDatabase.isOpen()) {
+			open();
+		}
 
 		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
 				new String[] { FriendsHelper.COLUMN_NAME,
 						FriendsHelper.COLUMN_OBJECT_ID,
-						FriendsHelper.COLUMN_EMAIL }, // column names
+						FriendsHelper.COLUMN_EMAIL,
+						FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS}, // column names
 				null, // where clause
 				null, // where params
 				null, // groupby
@@ -160,7 +180,9 @@ public class FriendsDataSource {
 	}
 
 	public ArrayList<ParseUser> getAllFriends() {
-		
+		if(!mDatabase.isOpen()) {
+			open();
+		}
 		Cursor cursor = selectAll();
 		ArrayList<ParseUser> mFriends = new ArrayList<ParseUser>();
 
@@ -183,11 +205,15 @@ public class FriendsDataSource {
 				mFriends.get(row).setUsername(cursor.getString(i));
 				i = cursor.getColumnIndex(FriendsHelper.COLUMN_EMAIL);
 				mFriends.get(row).setEmail(cursor.getString(i));
+				i = cursor.getColumnIndex(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS);
+				mFriends.get(row).put(ParseConstants.KEY_PROFILE_IMAGE, cursor.getString(i));
+				Log.d("frnds data source", "profile url- " + cursor.getString(i) );
 
 				cursor.moveToNext();
 				row++;
 				
 			}
+			mDatabase.close();
 			return mFriends;
 		}
 

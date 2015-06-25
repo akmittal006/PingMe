@@ -2,13 +2,13 @@
 <resources>
 
     <string name="app_name">Learning</string>
-    <string name = "facebook_app_id">1519106185037424</string>
+    <string name="facebook_app_id">1519106185037424</string>
     <string name="title_inbox_fragment">Inbox</string>
     <string name="title_friends_fragment">Friends</string>
     <string name="title_section3">Section 3</string>
     <string name="hello_world">Hello world!</string>
     <string name="sign_out">Sign out</string>
-    <string name = "empty_text">Type something to send</string>
+    <string name="empty_text">Type something to send</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="username_hint">    Username</string>
     <string name="error_title">Oops! Sorry!</string>
@@ -43,8 +43,7 @@
     <string name="title_chat_detail">Chat Detail</string>
     <string name="title_facebook_login">Fb login</string>
     <string name="empty_search">Type to search people</string>
-    <string name = "chat_detail_empty_text">Send message to start conversation</string>
- 
+    <string name="chat_detail_empty_text">Send message to start conversation</string>
     <string name="com_facebook_dialogloginactivity_ok_button">OK</string>
     <string name="com_facebook_like_button_not_liked">Like</string>
     <string name="com_facebook_like_button_liked">Liked</string>
@@ -74,5 +73,6 @@
     <string name="com_facebook_requesterror_permissions">This app doesn’t have permission to do this. To change permissions, try logging into the app again.</string>
     <string name="com_facebook_tooltip_default">New! You\'re in control - choose what info you want to share with apps.</string>
     <string name="com_facebook_image_download_unknown_error">Unexpected error while downloading an image.</string>
+    <string name="title_activity_profile">Profile</string>
 
 </resources>
