@@ -1,16 +1,20 @@
 package com.ankurmittal.learning;
 
+import java.security.acl.LastOwnerException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ListFragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -22,6 +26,7 @@ import android.widget.Toast;
 
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
+import com.ankurmittal.learning.storage.ChatItemDataSource;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
@@ -93,13 +98,16 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private TextMessageDataSource mMessageDataSource;
+	private ChatItemDataSource mChatItemDataSource;
+	private ArrayList<TextMessage> latestMessages;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (ParseUser.getCurrentUser() != null) {
 			// retrieveMessages();
-		}else {
+			mChatItemDataSource = new ChatItemDataSource(getActivity());
+		} else {
 			Intent intent2 = new Intent(getActivity(), LoginActivity.class);
 			intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -107,6 +115,7 @@ public class ChatListFragment extends ListFragment {
 		}
 
 		mMessageDataSource = new TextMessageDataSource(getActivity());
+		latestMessages = new ArrayList<TextMessage>();
 
 		// TODO: replace with a real list adapter.
 		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
@@ -127,26 +136,49 @@ public class ChatListFragment extends ListFragment {
 		}
 	}
 
+	private BroadcastReceiver notificationMessageReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			try {
+				// Extract data included in the Intent
+				String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
+				JSONObject jsonMessage = new JSONObject(jsonData);
+				Log.d("chat List Activity", "hurray updating activity");
+				updateView();
+			} catch (Exception e) {
+				Log.i("chat List error", "error while receiving notification");
+			}
+			// do other stuff here
+		}
+	};
+
 	@Override
 	public void onPause() {
+		getActivity().unregisterReceiver(notificationMessageReceiver);
 		super.onPause();
 		// close database connection
 		// mMessageDataSource.close();
+		mMessageDataSource.close();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+
+		getActivity().registerReceiver(notificationMessageReceiver,
+				new IntentFilter(Constants.PUSH_TO_CHAT));
 		// open database connection
 		mMessageDataSource.open();
+		mChatItemDataSource.open();
 		if (ParseUser.getCurrentUser() != null) {
-			
-			if(!(getActivity().isFinishing())) {
+
+			if (!(getActivity().isFinishing())) {
 				retrieveMessages();
 				deletePinnedMessages();
 				sortMessagesFromDatabase();
 			}
-			
+
 		}
 
 		setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
@@ -217,7 +249,7 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private void retrieveMessages() {
-		 Log.i("chat lis", "retrieving");
+		Log.i("chat lis", "retrieving");
 		ParseQuery<ParseObject> messagesQuery = new ParseQuery<ParseObject>(
 				ParseConstants.TEXT_MESSAGE);
 		messagesQuery.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID,
@@ -233,7 +265,7 @@ public class ChatListFragment extends ListFragment {
 			public void done(List<ParseObject> pTextMessages, ParseException e) {
 				Date prevDate = null;
 				Date currDate = null;
-				 Log.i("chat lis", "retrieved");
+				Log.i("chat lis", "retrieved");
 
 				if (e == null) {
 					Log.d("Retrieved messages", "NO. :-" + pTextMessages.size());
@@ -241,48 +273,94 @@ public class ChatListFragment extends ListFragment {
 					for (ParseObject pTextMessage : pTextMessages) {
 						// create a text message and save it to database
 						TextMessage textmessage = createTextMessage(pTextMessage);
-						if(ParseUser.getCurrentUser() != null) {
+						latestMessages.add(textmessage);
+						if (ParseUser.getCurrentUser() != null) {
 							mMessageDataSource.insert(textmessage);
-							pTextMessage.pinInBackground("Delete Messages", new SaveCallback() {
-								
-								@Override
-								public void done(ParseException e) {
-									if(e == null) {
-										Log.i("cht list", "to delete pinned");
-									} else {
-										Log.i("cht list", "not delete pinned");
-									}
-									
-								}
-							});
+
+							pTextMessage.pinInBackground("Delete Messages",
+									new SaveCallback() {
+
+										@Override
+										public void done(ParseException e) {
+											if (e == null) {
+												Log.i("cht list",
+														"to delete pinned");
+											} else {
+												Log.i("cht list",
+														"not delete pinned");
+											}
+
+										}
+									});
 						}
 					}
-					if(ParseUser.getCurrentUser() != null) {
-						sortMessagesFromDatabase();
+					if (ParseUser.getCurrentUser() != null) {
+						 sortMessagesFromDatabase();
+						 updateChatItemsFromMessages(latestMessages);
+
 						updateView();
-					}if (getActivity() != null) {
+					}
+					if (getActivity() != null) {
 						deletePinnedMessages();
 					}
-					
+
 				} else {
 					Log.d("REtrieval errror", "" + e.getMessage());
 				}
 			}
+
 		});
 	}
-	private String getDateTime(java.util.Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        //Date date = new Date();
-        return dateFormat.format(date);
-}
 	
+	private void updateChatItemsFromMessages(ArrayList<TextMessage> messages) {
+		Log.i("after receiving msgs", "updating chat items");
+		for(TextMessage message : messages) {
+			updateChatItem(message);
+			latestMessages.remove(message);
+		}
+	}
+
+	private void updateChatItem(TextMessage textmessage) {
+		// TODO Auto-generated method stub
+		String id;
+		String content;
+		if (textmessage.getSenderId().equals(
+				ParseUser.getCurrentUser().getObjectId())) {
+			id = textmessage.getReceiverId(); // equivalent to item id
+			content = textmessage.getReceiverName();
+
+		} else {
+			id = textmessage.getSenderId(); // equivalent to item id
+			content = textmessage.getSenderName();
+		}
+
+		ChatItem chatItem = new ChatItem(id, content);
+		chatItem.setLastMessage(textmessage);
+		
+		mChatItemDataSource.insert(chatItem);
+		
+
+	}
+
+	private String getDateTime(java.util.Date date) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		// Date date = new Date();
+		return dateFormat.format(date);
+	}
+
 	private TextMessage createTextMessage(ParseObject pTextMessage) {
 		TextMessage textMessage = new TextMessage();
 		textMessage.setMessage(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE));
 		Log.d("list frag ",
-				" " + pTextMessage.getString(ParseConstants.KEY_MESSAGE) + ": " + pTextMessage.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME + ", ") + pTextMessage.getBoolean("isSent"));
+				" "
+						+ pTextMessage.getString(ParseConstants.KEY_MESSAGE)
+						+ ": "
+						+ pTextMessage
+								.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME
+										+ ", ")
+						+ pTextMessage.getBoolean("isSent"));
 		textMessage.setMessageId(pTextMessage.getObjectId());
 		textMessage.setReceiverId(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
@@ -298,24 +376,26 @@ public class ChatListFragment extends ListFragment {
 		return textMessage;
 	}
 
+	@Deprecated
 	private void sortMessagesFromDatabase() {
-		
+
 		if (mMessageDataSource.selectAll().getCount() != 0) {
+			// getting all stored messages
 			ArrayList<TextMessage> allMessages = mMessageDataSource
 					.getAllMessages();
 
 			for (TextMessage message : allMessages) {
 				String id;
 				String content;
-				if (message.getSenderId().equals(ParseUser.getCurrentUser().getObjectId()) ) {
+				if (message.getSenderId().equals(
+						ParseUser.getCurrentUser().getObjectId())) {
 					id = message.getReceiverId(); // equivalent to item id
 					content = message.getReceiverName();
-					
-				}else {
-					 id = message.getSenderId(); // equivalent to item id
-					 content = message.getSenderName();
+
+				} else {
+					id = message.getSenderId(); // equivalent to item id
+					content = message.getSenderName();
 				}
-				
 
 				if (ChatContent.ITEM_MAP.containsKey(id)) {
 					if (mMessageDataSource.isMessageNew(message).getCount() == 0) {
@@ -325,8 +405,7 @@ public class ChatListFragment extends ListFragment {
 					}
 				} else {
 					// new chat item is created
-					ChatItem chatItem = new ChatItem(id,
-							content);
+					ChatItem chatItem = new ChatItem(id, content);
 					chatItem.getEmail();
 					Log.d("chat list", "new chat item created :" + content);
 					chatItem.addMessage(message);
@@ -338,13 +417,13 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	public void updateView() {
-		if(getActivity() != null && !(getActivity().isFinishing())) {
+		if (getActivity() != null && !(getActivity().isFinishing())) {
 			Log.i("chat list frag", "............updating view...........");
 			setListAdapter(new ArrayAdapter<ChatItem>(getActivity(),
 					android.R.layout.simple_list_item_activated_1,
 					android.R.id.text1, ChatContent.ITEMS));
 		}
-		
+
 	}
 
 	@Override
@@ -353,9 +432,9 @@ public class ChatListFragment extends ListFragment {
 		super.onDestroy();
 
 	}
-	
+
 	private void deletePinnedMessages() {
-		
+
 		ConnectivityManager cm = (ConnectivityManager) getActivity()
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo ni = cm.getActiveNetworkInfo();
@@ -371,7 +450,7 @@ public class ChatListFragment extends ListFragment {
 							Log.i("pinned to delete msgs", "" + messages.size());
 							for (final ParseObject message : messages) {
 								message.deleteEventually(new DeleteCallback() {
-									
+
 									@Override
 									public void done(ParseException arg0) {
 										// TODO Auto-generated method stub
@@ -402,7 +481,5 @@ public class ChatListFragment extends ListFragment {
 					Toast.LENGTH_SHORT).show();
 		}
 	}
-	
-	
 
 }

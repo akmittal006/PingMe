@@ -290,7 +290,7 @@ containing a value of this type.
         public static final int com_facebook_list_section_header_background=0x7f02001b;
         public static final int com_facebook_loginbutton_silver=0x7f02001c;
         public static final int com_facebook_logo=0x7f02001d;
-        public static final int com_facebook_picker_default_separator_color=0x7f020046;
+        public static final int com_facebook_picker_default_separator_color=0x7f020047;
         public static final int com_facebook_picker_item_background=0x7f02001e;
         public static final int com_facebook_picker_list_focused=0x7f02001f;
         public static final int com_facebook_picker_list_longpressed=0x7f020020;
@@ -327,10 +327,11 @@ containing a value of this type.
         public static final int ic_action_wait=0x7f02003f;
         public static final int ic_launcher=0x7f020040;
         public static final int ping_logo=0x7f020041;
-        public static final int profile_empty=0x7f020042;
-        public static final int rounded_square=0x7f020043;
-        public static final int rounded_square_brown=0x7f020044;
-        public static final int rounded_square_pink=0x7f020045;
+        public static final int pingme_logo=0x7f020042;
+        public static final int profile_empty=0x7f020043;
+        public static final int rounded_square=0x7f020044;
+        public static final int rounded_square_brown=0x7f020045;
+        public static final int rounded_square_pink=0x7f020046;
     }
     public static final class id {
         public static final int accept_frnd_req_btn=0x7f0a004c;

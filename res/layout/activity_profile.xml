@@ -18,7 +18,7 @@
         android:id="@+id/profileImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/usernameView"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/usernameView"
         android:src="@drawable/profile_empty" />
 

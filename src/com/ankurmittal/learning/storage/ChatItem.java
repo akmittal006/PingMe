@@ -16,10 +16,57 @@ import com.parse.ParseUser;
  */
 public class ChatItem {
 	public String id;
+	
 	public String content;
+	public TextMessage lastMessage;
+
 	public ArrayList<TextMessage> mMessages;
 	public String email;
+	public String imgUrl;
+
 	private ParseUser senderUser;
+	
+	public ChatItem() {
+		
+	}
+	
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	public String getImgUrl() {
+		return imgUrl;
+	}
+
+
+	public void setImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
+	}
+	
+
+	public TextMessage getLastMessage() {
+		return lastMessage;
+	}
+
+	public void setLastMessage(String lastMessage) {
+		this.lastMessage.setMessage(lastMessage);
+	}
+	
+	public void setLastMessage(TextMessage lastMessage) {
+		this.lastMessage = lastMessage;
+	}
+	
+	public void setLastMessageCreatedAt(String dateString) {
+		this.lastMessage.setCreatedAt(dateString);
+	}
+	
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
 
 	public String getEmail() {
 		return email;

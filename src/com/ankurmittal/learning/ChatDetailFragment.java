@@ -9,9 +9,12 @@ import java.util.Locale;
 import org.json.JSONObject;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -101,9 +104,27 @@ public class ChatDetailFragment extends Fragment {
 		}
 		mMessageDataSource = new TextMessageDataSource(getActivity());
 	}
+	
+	private BroadcastReceiver notificationMessageReceiver = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	
+	    	try {
+	    		   // Extract data included in the Intent
+		        String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
+		        JSONObject jsonMessage = new JSONObject(jsonData);
+		        Log.d("chat detail Activity", "hurray updating activity");
+		        loadChatItemMessagesFromDatabase();
+	    	} catch (Exception e) {
+	    		Log.i("chat detail error", "error while receiving notification");
+	    	}
+	        //do other stuff here
+	    }
+	};
 
 	@Override
 	public void onPause() {
+		getActivity().unregisterReceiver(notificationMessageReceiver);
 		mMessageDataSource.close();
 		super.onPause();
 	}
@@ -117,6 +138,7 @@ public class ChatDetailFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		// open database connection
+		getActivity().registerReceiver(notificationMessageReceiver, new IntentFilter(Constants.PUSH_TO_CHAT));
 		mMessageDataSource.open();
 		loadChatItemMessagesFromDatabase();
 		syncMsgsToParse();
@@ -604,6 +626,7 @@ public class ChatDetailFragment extends Fragment {
 				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
 
 		ParsePush push = new ParsePush();
+		
 		push.setQuery(query);
 		push.setMessage("" + message.getString(ParseConstants.KEY_SENDER_NAME)
 				+ ": " + message.getString(ParseConstants.KEY_MESSAGE));

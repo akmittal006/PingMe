@@ -96,7 +96,7 @@ int drawable com_facebook_list_divider 0x7f02001a
 int drawable com_facebook_list_section_header_background 0x7f02001b
 int drawable com_facebook_loginbutton_silver 0x7f02001c
 int drawable com_facebook_logo 0x7f02001d
-int drawable com_facebook_picker_default_separator_color 0x7f020046
+int drawable com_facebook_picker_default_separator_color 0x7f020047
 int drawable com_facebook_picker_item_background 0x7f02001e
 int drawable com_facebook_picker_list_focused 0x7f02001f
 int drawable com_facebook_picker_list_longpressed 0x7f020020
@@ -133,10 +133,11 @@ int drawable ic_action_sent 0x7f02003e
 int drawable ic_action_wait 0x7f02003f
 int drawable ic_launcher 0x7f020040
 int drawable ping_logo 0x7f020041
-int drawable profile_empty 0x7f020042
-int drawable rounded_square 0x7f020043
-int drawable rounded_square_brown 0x7f020044
-int drawable rounded_square_pink 0x7f020045
+int drawable pingme_logo 0x7f020042
+int drawable profile_empty 0x7f020043
+int drawable rounded_square 0x7f020044
+int drawable rounded_square_brown 0x7f020045
+int drawable rounded_square_pink 0x7f020046
 int id accept_frnd_req_btn 0x7f0a004c
 int id action_settings 0x7f0a0055
 int id actionbar_notifcation_textview 0x7f0a000d

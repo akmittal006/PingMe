@@ -178,6 +178,34 @@ public class FriendsDataSource {
 		
 		return cursor;
 	}
+	
+	public String getImageUrlFromId(Context context, String id) {
+		mFriendsHelper = new FriendsHelper(context);
+		mDatabase = mFriendsHelper.getWritableDatabase();
+		if(!mDatabase.isOpen()) {
+			open();
+		}
+		String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
+
+		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
+				new String[] { FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS }, // column names
+				whereClause, // where clause
+				new String[] { id }, // where params
+				null, // groupby
+				null, // having
+				null // orderby
+				);
+		if(cursor.getCount() >0) {
+			Log.i("frnds data source", "getting img url from id ... cursor count- " + cursor.getCount());
+			cursor.moveToFirst();
+			return cursor.getString(cursor.getColumnIndex(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS));
+		} else {
+			Log.i("frnds data source", "getting img url from id ... cursor count- " + 0);
+			return null;
+		}
+		
+		
+	}
 
 	public ArrayList<ParseUser> getAllFriends() {
 		if(!mDatabase.isOpen()) {

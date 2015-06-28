@@ -1,12 +1,19 @@
 package com.ankurmittal.learning;
 
+import org.json.JSONObject;
+
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.ankurmittal.learning.util.Constants;
 
 /**
  * An activity representing a single Chat detail screen. This activity is only
@@ -50,6 +57,17 @@ public class ChatDetailActivity extends Activity {
 		}
 		mMessageDataSource = new TextMessageDataSource(this);
 	}
+	
+
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		
+		super.onResume();
+	}
+
+
 
 	@Override
 	protected void onPause() {
