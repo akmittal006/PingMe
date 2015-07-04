@@ -64,7 +64,7 @@ public class TextMessageDataSource {
 				values.put(TextMessageHelper.COLUMN_MESSAGE,
 						textMessage.getMessage());
 				values.put(TextMessageHelper.COLUMN_IS_SENT,
-						textMessage.isSent() + "");
+						textMessage.getMessageStatus() + "");
 				Log.d("inseting", textMessage.getCreatedAtString());
 				values.put(TextMessageHelper.COLUMN_CREATED_AT,
 						textMessage.getCreatedAtString());
@@ -254,11 +254,8 @@ public class TextMessageDataSource {
 				mTextMessages.get(row).setCreatedAt(cursor.getString(i));
 
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_IS_SENT);
-				boolean sent = false;
-				if (cursor.getString(i).equals("true")) {
-					sent = true;
-				}
-				mTextMessages.get(row).setSent(sent);
+
+				mTextMessages.get(row).setMessageStatus(cursor.getString(i));
 
 				// Log.d("Database check", "retrieving :" +
 				// mTextMessages.get(row).getSenderName());
@@ -354,12 +351,8 @@ public class TextMessageDataSource {
 				mTextMessages.get(row).setCreatedAt(cursor.getString(i));
 
 				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_IS_SENT);
-				boolean sent = false;
-				if (cursor.getString(i).equals("true")) {
-					sent = true;
-				}
-				//Log.i("SENT", "" + sent);
-				mTextMessages.get(row).setSent(sent);
+
+				mTextMessages.get(row).setMessageStatus(cursor.getString(i));
 
 				cursor.moveToNext();
 				row++;

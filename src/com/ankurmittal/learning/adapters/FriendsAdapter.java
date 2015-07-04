@@ -107,13 +107,13 @@ public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 					Log.i("image loaded from mobile", Uri.fromFile(file).toString());
 					Picasso.with(mContext).load(Uri.fromFile(file))
 							.placeholder(R.drawable.avatar_empty)
-							.resize(75, 75).centerCrop()
+							.resize(96, 96).centerCrop()
 							.into(holder.userImageView);
 				} else {
 					Log.i("image loaded from net", Uri.fromFile(file).toString());
 					Picasso.with(mContext).load(imgUrl)
 							.placeholder(R.drawable.avatar_empty)
-							.resize(75, 75).centerCrop()
+							.resize(96, 96).centerCrop()
 							.into(holder.userImageView);
 					Picasso.with(mContext).load(imgUrl).into(target);
 				}

@@ -11,5 +11,9 @@ public class Constants {
 	public static final String PUSH_INTENT_CHAT_DETAIL = "pushNotifictaionToChatDetail";
 	public static final String PUSH_INTENT_FLAG = "pushFlag";
 	public static final String PUSH_INTENT_TYPE = "pushIntentType";
+	public static final String MESSAGE_STATUS_PENDING = "pendingPingMeMessage10123452";
+	public static final String MESSAGE_STATUS_SENT = "sentPingMeMessage10123452";
+	public static final String MESSAGE_STATUS_DELIVERED = "deliveredPingMeMessage10123452";
+	public static final String MESSAGE_STATUS_READ = "readPingMeMessage10123452";
 
 }

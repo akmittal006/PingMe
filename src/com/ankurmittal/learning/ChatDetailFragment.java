@@ -281,7 +281,7 @@ public class ChatDetailFragment extends Fragment {
 //						Log.i("chehck ",
 //								pTextMessage
 //										.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-						pTextMessage.put("isSent", false);
+						pTextMessage.put("isSent", Constants.MESSAGE_STATUS_PENDING);
 						pTextMessage.pinInBackground(Constants.GROUP_NOT_SENT, new SaveCallback() {
 							@Override
 							public void done(ParseException e) {
@@ -300,7 +300,7 @@ public class ChatDetailFragment extends Fragment {
 									message.setReceiverName(mItem.content);
 									Log.d("check", mItem.content);
 									message.setCreatedAt(new Date());
-									message.setSent(false);
+									message.setMessageStatus(Constants.MESSAGE_STATUS_PENDING);
 
 									// add to chat item
 									String id = mItem.id;
@@ -486,7 +486,7 @@ public class ChatDetailFragment extends Fragment {
 				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
 						ParseConstants.TEXT_MESSAGE);
 				query.fromPin(Constants.GROUP_NOT_SENT);
-				query.whereEqualTo("isSent", false);
+				query.whereEqualTo("isSent", Constants.MESSAGE_STATUS_PENDING);
 				// query.whereEqualTo("isSent", false);
 				query.findInBackground(new FindCallback<ParseObject>() {
 					public void done(List<ParseObject> messages,
@@ -503,7 +503,7 @@ public class ChatDetailFragment extends Fragment {
 									public void done(ParseException e) {
 										if (e == null) {
 											// message sent
-											message.put("isSent", true);
+											message.put("isSent", Constants.MESSAGE_STATUS_SENT);
 											Log.i("saving",
 													""
 															+ message
@@ -524,7 +524,7 @@ public class ChatDetailFragment extends Fragment {
 										} else {
 											// Reset the is draft flag locally
 											// to true
-											message.put("isSent", false);
+											message.put("isSent", Constants.MESSAGE_STATUS_PENDING);
 										}
 									}
 
@@ -563,7 +563,7 @@ public class ChatDetailFragment extends Fragment {
 						+ ": "
 						+ pTextMessage
 								.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME)
-						+ ", " + pTextMessage.getBoolean("isSent"));
+						+ ", " + pTextMessage.getString("isSent"));
 		textMessage.setMessageId(pTextMessage.getObjectId());
 		textMessage.setReceiverId(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
@@ -585,7 +585,7 @@ public class ChatDetailFragment extends Fragment {
 			textMessage.setType(Constants.TYPE_RECEIVED);
 		}
 
-		textMessage.setSent(pTextMessage.getBoolean("isSent"));
+		textMessage.setMessageStatus(pTextMessage.getString("isSent"));
 
 		return textMessage;
 	}
@@ -601,7 +601,7 @@ public class ChatDetailFragment extends Fragment {
 		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
 				ParseConstants.TEXT_MESSAGE);
 		query.fromPin(Constants.GROUP_NOT_SENT);
-		query.whereEqualTo("isSent", false);
+		query.whereEqualTo("isSent", Constants.MESSAGE_STATUS_PENDING);
 		query.whereEqualTo(ParseConstants.KEY_MESSAGE_RECEIVER_ID, item.id);
 		query.findInBackground(new FindCallback<ParseObject>() {
 
@@ -664,7 +664,7 @@ public class ChatDetailFragment extends Fragment {
 			jsonMessage
 					.put(ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 							message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-			jsonMessage.put("isSent", message.getBoolean("isSent"));
+			jsonMessage.put("isSent", message.getString("isSent"));
 			jsonMessage.put(ParseConstants.KEY_CREATED_AT,
 					getDateTime(message.getCreatedAt()));
 

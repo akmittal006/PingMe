@@ -27,6 +27,7 @@ public class ChatItemDataSource {
 	 */
 	public void open() throws SQLException {
 		mDatabase = mChatItemHelper.getWritableDatabase();
+	
 		// Log.d("TEXT Databse check", "database opened");
 	}
 

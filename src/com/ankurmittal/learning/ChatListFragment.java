@@ -1,6 +1,5 @@
 package com.ankurmittal.learning;
 
-import java.security.acl.LastOwnerException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -360,7 +359,7 @@ public class ChatListFragment extends ListFragment {
 						+ pTextMessage
 								.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME
 										+ ", ")
-						+ pTextMessage.getBoolean("isSent"));
+						+ pTextMessage.getString("isSent"));
 		textMessage.setMessageId(pTextMessage.getObjectId());
 		textMessage.setReceiverId(pTextMessage
 				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
@@ -371,12 +370,12 @@ public class ChatListFragment extends ListFragment {
 		textMessage.setSenderName(pTextMessage.getParseUser(
 				ParseConstants.KEY_MESSAGE_SENDER).getUsername());
 		textMessage.setCreatedAt(getDateTime(pTextMessage.getCreatedAt()));
-		textMessage.setSent(pTextMessage.getBoolean("isSent"));
+		textMessage.setMessageStatus(pTextMessage.getString("isSent"));
 
 		return textMessage;
 	}
 
-	@Deprecated
+	@Deprecated 
 	private void sortMessagesFromDatabase() {
 
 		if (mMessageDataSource.selectAll().getCount() != 0) {

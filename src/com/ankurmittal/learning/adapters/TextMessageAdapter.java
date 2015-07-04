@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.storage.TextMessage;
+import com.ankurmittal.learning.util.Constants;
 import com.parse.ParseUser;
 
 public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
@@ -82,7 +83,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			holder.sentView = (ImageView) convertView.findViewById(R.id.sentStatusView);
 			convertView.setTag(holder);
 			holder.messageView.setText(message.getMessage());
-			if (message.isSent) {
+			if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_SENT)) {
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 				holder.sentView.setImageResource(R.drawable.ic_action_read);
 			} else {
@@ -102,7 +103,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 					.findViewById(R.id.createdAtTextView);
 			convertView.setTag(holder);
 			holder.messageView.setText(message.getMessage());
-			if (message.isSent) {
+			if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_SENT)) {
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 			} else {
 				holder.messageView.setTypeface(null, Typeface.ITALIC);

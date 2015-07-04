@@ -114,7 +114,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 					.getString(ParseConstants.KEY_SENDER_ID));
 			textMessage.setSenderName(message
 					.getString(ParseConstants.KEY_SENDER_NAME));
-			textMessage.setSent(true);
+			textMessage.setMessageStatus(Constants.MESSAGE_STATUS_DELIVERED);
 			return textMessage;
 		} catch (Exception e) {
 			e.printStackTrace();
