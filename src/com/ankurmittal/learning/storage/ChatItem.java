@@ -27,7 +27,8 @@ public class ChatItem {
 	private ParseUser senderUser;
 	
 	public ChatItem() {
-		
+		lastMessage = new TextMessage();
+		mMessages = new  ArrayList<TextMessage>();
 	}
 	
 	public void setId(String id) {

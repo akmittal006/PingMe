@@ -25,4 +25,6 @@ public class ParseConstants {
 	public static final String KEY_PROFILE_IMAGE="Profile_Image";
 
 	public static final String KEY_LOWER_USERNAME = "lowercaseUsername";
+	
+	public static final String GROUP_MESSAGE_DELIVERED = "messageDelivered123156";
 }

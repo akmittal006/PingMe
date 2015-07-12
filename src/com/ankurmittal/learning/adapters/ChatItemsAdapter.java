@@ -92,7 +92,10 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		holder.nameLabel.setText(chatItem.getContent());
 		
 		//3. Subtitle label
-		holder.chatSubtitle.setText(chatItem.getLastMessage().toString());
+		if(chatItem.getLastMessage() != null) {
+			holder.chatSubtitle.setText(chatItem.getLastMessage().getMessage().toString());
+		}
+		
 		
 		//4. new msg num view
 		holder.newMsgNumView.setVisibility(View.INVISIBLE);

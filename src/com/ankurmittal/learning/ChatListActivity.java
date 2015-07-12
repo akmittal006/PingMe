@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -52,7 +52,7 @@ import com.parse.ParseUser;
  * This activity also implements the required {@link ChatListFragment.Callbacks}
  * interface to listen for item selections.
  */
-public class ChatListActivity extends Activity implements
+public class ChatListActivity extends FragmentActivity implements
 		ChatListFragment.Callbacks  {
 
 	/**
@@ -70,6 +70,14 @@ public class ChatListActivity extends Activity implements
 		setContentView(R.layout.activity_chat_list);
 		friendRequests = new ArrayList<ParseObject>();
 		getActionBar().setDisplayShowHomeEnabled(false);
+		
+		ChatListFragment fragment = new ChatListFragment();
+//		fragment.setArguments(arguments);
+		getFragmentManager().beginTransaction()
+				.add(R.id.chat_list_container, fragment).commit();
+		
+		
+		
 		if (findViewById(R.id.chat_detail_container) != null) {
 			// The detail container view will be present only in the
 			// large-screen layouts (res/values-large and
@@ -79,8 +87,7 @@ public class ChatListActivity extends Activity implements
 
 			// In two-pane mode, list items should be given the
 			// 'activated' state when touched.
-			((ChatListFragment) getFragmentManager().findFragmentById(
-					R.id.chat_list)).setActivateOnItemClick(true);
+			fragment.setActivateOnItemClick(true);
 		}
 		
 	}

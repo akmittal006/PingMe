@@ -187,7 +187,10 @@ public class ChatItemDataSource {
 				// mChatItems.get(row).setReceiverName(cursor.getString(i));
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_LAST_MESSAGE);
-				mChatItems.get(row).setLastMessage(cursor.getString(i));
+				if(cursor.getString(i) != null) {
+					Log.i("quick check", cursor.getString(i));
+					mChatItems.get(row).setLastMessage(cursor.getString(i));
+				}
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_CREATED_AT);
 				mChatItems.get(row).setLastMessageCreatedAt(cursor.getString(i));

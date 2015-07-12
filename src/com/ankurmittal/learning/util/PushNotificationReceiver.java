@@ -59,17 +59,29 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 
 		try {
 			JSONObject jsonMessage = new JSONObject(jsonData);
-			
 			TextMessageDataSource mMessageDataSource = new TextMessageDataSource(
 					context);
-			mMessageDataSource.open();
-			mMessageDataSource
-					.insert(createTextMessageFromJsonData(jsonMessage));
-			mMessageDataSource.close();
+			if(!mMessageDataSource.isOpen()) {
+				mMessageDataSource.open();
+			}
 			
-			updateChatItem(context, createTextMessageFromJsonData(jsonMessage));
+			if(jsonMessage.getString("type").equals("message")) {
+				//Push type is message
+				mMessageDataSource
+						.insert(createTextMessageFromJsonData(jsonMessage));
+				mMessageDataSource.close();
+				
+				updateChatItem(context, createTextMessageFromJsonData(jsonMessage));
+				
+				updateMyActivity(context, jsonData);
+			} else {
+				//Push type is update message status
+				Log.i("update push received4", "yayy");
+				mMessageDataSource.updateMessageStatus(jsonMessage.getString("ObjectId"),jsonMessage.getString("messageStatus"));
+				updateMyActivity(context, jsonData);
+			}
 			
-			updateMyActivity(context, jsonData);
+			
 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

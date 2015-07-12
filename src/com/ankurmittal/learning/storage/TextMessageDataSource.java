@@ -25,7 +25,10 @@ public class TextMessageDataSource {
 	 * Open the db. Will create if it doesn't exist
 	 */
 	public void open() throws SQLException {
-		mDatabase = mTextMessageHelper.getWritableDatabase();
+		
+			mDatabase = mTextMessageHelper.getWritableDatabase();
+		
+		
 		// Log.d("TEXT Databse check", "database opened");
 	}
 
@@ -359,5 +362,34 @@ public class TextMessageDataSource {
 			}
 			return mTextMessages;
 		}
+	}
+	
+	public int updateMessageStatus(String messageId, String mMsgStatus) {
+		TextMessage tMessage = new TextMessage();
+		if (!mDatabase.isOpen()) {
+			Log.i("text msg data source", "opening before select all method");
+			open();
+		}
+		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
+		
+		ContentValues values = new ContentValues();
+        values.put(TextMessageHelper.COLUMN_IS_SENT, mMsgStatus);
+        int rowsUpdated = mDatabase.update(
+        		TextMessageHelper.TABLE_MESSAGES, // table
+                values, // values
+                whereClause,   // where clause
+                new String[] {messageId }   // where params
+        );
+        
+		
+		mDatabase.close();
+		Log.e("text msg data source", "updating message status");
+
+        return rowsUpdated;
+
+	}
+	
+	public boolean isOpen() {
+		return mDatabase.isOpen();
 	}
 }

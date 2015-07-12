@@ -43,6 +43,7 @@ import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.FindCallback;
+import com.parse.ParseAnalytics;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -110,9 +111,15 @@ public class ChatDetailFragment extends Fragment {
 	    public void onReceive(Context context, Intent intent) {
 	    	
 	    	try {
+	    		ParseAnalytics.trackAppOpenedInBackground(getActivity().getIntent());
 	    		   // Extract data included in the Intent
 		        String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
 		        JSONObject jsonMessage = new JSONObject(jsonData);
+		        if(jsonMessage.getString("type").equals("message")) {
+		        	Log.d("chat list","message push received");
+		        } else if (jsonMessage.getString("type").equals("message")) {
+		        	Log.e("chat list","update  push received");
+		        }
 		        Log.d("chat detail Activity", "hurray updating activity");
 		        loadChatItemMessagesFromDatabase();
 	    	} catch (Exception e) {
@@ -157,7 +164,6 @@ public class ChatDetailFragment extends Fragment {
 			chatView = (ListView) rootView.findViewById(R.id.chatListView);
 			chatView.setDivider(null);
 			chatView.setDividerHeight(0);
-
 			chatView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 			chatView.setMultiChoiceModeListener(new ListView.MultiChoiceModeListener() {
 
@@ -612,9 +618,12 @@ public class ChatDetailFragment extends Fragment {
 					for (ParseObject message : messages) {
 						item.addMessage(createTextMessage(message));
 					}
-					chatView.setAdapter(new TextMessageAdapter(getActivity(),
-							mItem.getItemMessages()));
-					chatView.setSelection(chatView.getAdapter().getCount() - 1);
+					if(!getActivity().isFinishing()) {
+						chatView.setAdapter(new TextMessageAdapter(getActivity(),
+								mItem.getItemMessages()));
+						chatView.setSelection(chatView.getAdapter().getCount() - 1);
+					}
+					
 				}
 			}
 		});
@@ -667,6 +676,7 @@ public class ChatDetailFragment extends Fragment {
 			jsonMessage.put("isSent", message.getString("isSent"));
 			jsonMessage.put(ParseConstants.KEY_CREATED_AT,
 					getDateTime(message.getCreatedAt()));
+			jsonMessage.put("type", "message");
 
 			Log.d("Json message", jsonMessage.toString());
 			return jsonMessage;

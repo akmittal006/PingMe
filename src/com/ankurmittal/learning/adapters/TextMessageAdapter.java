@@ -85,9 +85,16 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			holder.messageView.setText(message.getMessage());
 			if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_SENT)) {
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
+				holder.sentView.setImageResource(R.drawable.ic_action_delivered);
+			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
+				holder.messageView.setTypeface(null, Typeface.NORMAL);
+				holder.sentView.setImageResource(R.drawable.ic_action_sent);
+			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_READ)) {
+				holder.messageView.setTypeface(null, Typeface.NORMAL);
 				holder.sentView.setImageResource(R.drawable.ic_action_read);
 			} else {
 				holder.messageView.setTypeface(null, Typeface.ITALIC);
+				holder.sentView.setImageResource(R.drawable.ic_action_wait);
 			}
 			holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
 		} else {
