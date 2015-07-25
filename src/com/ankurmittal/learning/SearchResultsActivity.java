@@ -257,7 +257,7 @@ public class SearchResultsActivity extends ListActivity {
 														if (e == null) {
 
 															// friend request sent
-															isFrndReqSent.set(position, 10);
+															//isFrndReqSent.set(position, 10);
 															Toast.makeText(
 																	SearchResultsActivity.this,
 																	R.string.friend_request_sent_label,

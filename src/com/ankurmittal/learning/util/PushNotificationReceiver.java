@@ -61,9 +61,9 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 			JSONObject jsonMessage = new JSONObject(jsonData);
 			TextMessageDataSource mMessageDataSource = new TextMessageDataSource(
 					context);
-			if(!mMessageDataSource.isOpen()) {
+
 				mMessageDataSource.open();
-			}
+			
 			
 			if(jsonMessage.getString("type").equals("message")) {
 				//Push type is message

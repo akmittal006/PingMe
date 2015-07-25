@@ -25,10 +25,9 @@ public class TextMessageDataSource {
 	 * Open the db. Will create if it doesn't exist
 	 */
 	public void open() throws SQLException {
-		
-			mDatabase = mTextMessageHelper.getWritableDatabase();
-		
-		
+
+		mDatabase = mTextMessageHelper.getWritableDatabase();
+
 		// Log.d("TEXT Databse check", "database opened");
 	}
 
@@ -36,8 +35,10 @@ public class TextMessageDataSource {
 	 * We always need to close our db connections
 	 */
 	public void close() {
-		mDatabase.close();
-		// Log.d("TEXT Databse check", "database closed");
+		if (mDatabase != null) {
+			mDatabase.close();
+		}
+
 	}
 
 	// INSERT
@@ -84,7 +85,6 @@ public class TextMessageDataSource {
 			Log.d(" NOT INSERTED", "ROW NOT ADDED");
 		}
 
-		
 	}
 
 	// public void insertByMain(ParseUser friend) {
@@ -144,12 +144,12 @@ public class TextMessageDataSource {
 	// }
 
 	public Cursor isMessageNew(TextMessage textMessage) {
-//		Log.i("error",
-//				textMessage.getMessage() 
-//						+ "");
+		// Log.i("error",
+		// textMessage.getMessage()
+		// + "");
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
- 
-		if(mDatabase.isOpen()) {
+
+		if (mDatabase.isOpen()) {
 			Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 					new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
 																			// names
@@ -173,7 +173,7 @@ public class TextMessageDataSource {
 					);
 			return cursor;
 		}
-		
+
 	}
 
 	public void deleteAll() {
@@ -182,14 +182,14 @@ public class TextMessageDataSource {
 				null // where params
 				);
 	}
-	
+
 	public void deleteMessage(String id) {
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
 		mDatabase.delete(TextMessageHelper.TABLE_MESSAGES, // table
 				whereClause, // where clause
 				new String[] { id } // where params
 				);
-		
+
 	}
 
 	public Cursor selectAll() {
@@ -213,12 +213,11 @@ public class TextMessageDataSource {
 				null, // having
 				null // orderby
 				);
-		
+
 		return cursor;
 	}
 
 	public ArrayList<TextMessage> getAllMessages() {
-		
 
 		Cursor cursor = selectAll();
 		ArrayList<TextMessage> mTextMessages = new ArrayList<TextMessage>();
@@ -271,53 +270,39 @@ public class TextMessageDataSource {
 			// //Log.d("Database check", "added" +
 			// mTextMessages.get(i).getSenderName());
 			// }
-			
+
 			return mTextMessages;
 		}
 
 	}
 
+	// get messages for
 	public ArrayList<TextMessage> getMessagesFrom(String senderId) {
-		
+
 		String whereClause = TextMessageHelper.COLUMN_SENDER_ID + " = ? OR "
 				+ TextMessageHelper.COLUMN_RECEIVER_ID + " = ?";
 
 		Cursor cursor;
-		//check if database is open 
-		if(mDatabase.isOpen()) {
-			cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
-					new String[] { TextMessageHelper.COLUMN_SENDER_ID,
-							TextMessageHelper.COLUMN_RECEIVER_ID,
-							TextMessageHelper.COLUMN_SENDER_NAME,
-							TextMessageHelper.COLUMN_RECEIVER_NAME,
-							TextMessageHelper.COLUMN_MESSAGE_ID,
-							TextMessageHelper.COLUMN_MESSAGE,
-							TextMessageHelper.COLUMN_IS_SENT,
-							TextMessageHelper.COLUMN_CREATED_AT }, // column names
-					whereClause, // where clause
-					new String[] { senderId, senderId }, // where params
-					null, // groupby
-					null, // having
-					null // orderby
-					);
-		} else {
+		// check if database is open
+		if (!mDatabase.isOpen()) {
 			open();
-			cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
-					new String[] { TextMessageHelper.COLUMN_SENDER_ID,
-							TextMessageHelper.COLUMN_RECEIVER_ID,
-							TextMessageHelper.COLUMN_SENDER_NAME,
-							TextMessageHelper.COLUMN_RECEIVER_NAME,
-							TextMessageHelper.COLUMN_MESSAGE_ID,
-							TextMessageHelper.COLUMN_MESSAGE,
-							TextMessageHelper.COLUMN_IS_SENT,
-							TextMessageHelper.COLUMN_CREATED_AT }, // column names
-					whereClause, // where clause
-					new String[] { senderId, senderId }, // where params
-					null, // groupby
-					null, // having
-					null // orderby
-					);
 		}
+		cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
+						TextMessageHelper.COLUMN_RECEIVER_ID,
+						TextMessageHelper.COLUMN_SENDER_NAME,
+						TextMessageHelper.COLUMN_RECEIVER_NAME,
+						TextMessageHelper.COLUMN_MESSAGE_ID,
+						TextMessageHelper.COLUMN_MESSAGE,
+						TextMessageHelper.COLUMN_IS_SENT,
+						TextMessageHelper.COLUMN_CREATED_AT }, // column names
+				whereClause, // where clause
+				new String[] { senderId, senderId }, // where params
+				null, // groupby
+				null, // having
+				TextMessageHelper.COLUMN_CREATED_AT + " ASC" // orderby
+		);
+
 		ArrayList<TextMessage> mTextMessages = new ArrayList<TextMessage>();
 
 		if (cursor.getCount() == 0) {
@@ -363,7 +348,7 @@ public class TextMessageDataSource {
 			return mTextMessages;
 		}
 	}
-	
+
 	public int updateMessageStatus(String messageId, String mMsgStatus) {
 		TextMessage tMessage = new TextMessage();
 		if (!mDatabase.isOpen()) {
@@ -371,25 +356,93 @@ public class TextMessageDataSource {
 			open();
 		}
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
-		
+
 		ContentValues values = new ContentValues();
-        values.put(TextMessageHelper.COLUMN_IS_SENT, mMsgStatus);
-        int rowsUpdated = mDatabase.update(
-        		TextMessageHelper.TABLE_MESSAGES, // table
-                values, // values
-                whereClause,   // where clause
-                new String[] {messageId }   // where params
-        );
-        
-		
+		values.put(TextMessageHelper.COLUMN_IS_SENT, mMsgStatus);
+		int rowsUpdated = mDatabase.update(TextMessageHelper.TABLE_MESSAGES, // table
+				values, // values
+				whereClause, // where clause
+				new String[] { messageId } // where params
+				);
+
 		mDatabase.close();
 		Log.e("text msg data source", "updating message status");
 
-        return rowsUpdated;
+		return rowsUpdated;
 
 	}
-	
+
 	public boolean isOpen() {
 		return mDatabase.isOpen();
+	}
+
+	public TextMessage getLastMessageFrom(String senderId) {
+
+		String whereClause = TextMessageHelper.COLUMN_SENDER_ID + " = ? OR "
+				+ TextMessageHelper.COLUMN_RECEIVER_ID + " = ?";
+
+		Cursor cursor;
+		// check if database is open
+		if (!mDatabase.isOpen()) {
+			open();
+		}
+		cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
+						TextMessageHelper.COLUMN_RECEIVER_ID,
+						TextMessageHelper.COLUMN_SENDER_NAME,
+						TextMessageHelper.COLUMN_RECEIVER_NAME,
+						TextMessageHelper.COLUMN_MESSAGE_ID,
+						TextMessageHelper.COLUMN_MESSAGE,
+						TextMessageHelper.COLUMN_IS_SENT,
+						TextMessageHelper.COLUMN_CREATED_AT }, // column names
+				whereClause, // where clause
+				new String[] { senderId, senderId }, // where params
+				null, // groupby
+				null, // having
+				TextMessageHelper.COLUMN_CREATED_AT + " DESC", // orderby
+				"1");
+
+		TextMessage textMessage = new TextMessage();
+
+		if (cursor.getCount() == 0) {
+			return null;
+		} else {
+			cursor.moveToFirst();
+			int row = 0;
+			while (!cursor.isAfterLast()) {
+
+				int i = cursor
+						.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE_ID);
+				textMessage.setMessageId(cursor.getString(i));
+				// do stuff
+
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_SENDER_ID);
+				textMessage.setSenderId(cursor.getString(i));
+
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_SENDER_NAME);
+				textMessage.setSenderName(cursor.getString(i));
+
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_RECEIVER_ID);
+				textMessage.setReceiverId(cursor.getString(i));
+
+				i = cursor
+						.getColumnIndex(TextMessageHelper.COLUMN_RECEIVER_NAME);
+				textMessage.setReceiverName(cursor.getString(i));
+
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE);
+				textMessage.setMessage(cursor.getString(i));
+
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_CREATED_AT);
+				textMessage.setCreatedAt(cursor.getString(i));
+
+				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_IS_SENT);
+
+				textMessage.setMessageStatus(cursor.getString(i));
+
+				cursor.moveToNext();
+				row++;
+			}
+			return textMessage;
+		}
 	}
 }

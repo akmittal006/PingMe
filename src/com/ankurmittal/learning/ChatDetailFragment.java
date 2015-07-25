@@ -82,6 +82,7 @@ public class ChatDetailFragment extends Fragment {
 	boolean mIsScrollingUp;
 	ArrayList<Long> selectedIds;
 	private ArrayList<String> toDeleteMessages;
+	protected View emptyView;
 
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
@@ -162,6 +163,7 @@ public class ChatDetailFragment extends Fragment {
 			// ((EditText) rootView.findViewById(R.id.chatEditText))
 			// .setText(mItem.content);
 			chatView = (ListView) rootView.findViewById(R.id.chatListView);
+			emptyView = (TextView) rootView.findViewById(android.R.id.empty);
 			chatView.setDivider(null);
 			chatView.setDividerHeight(0);
 			chatView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -265,6 +267,7 @@ public class ChatDetailFragment extends Fragment {
 
 				@Override
 				public void onClick(View arg0) {
+					emptyView.setVisibility(View.GONE);
 					newTextMessage = mTextMessage.getText().toString();
 					if (newTextMessage.equals("")) {
 						mTextMessage.setError(getString(R.string.empty_text));

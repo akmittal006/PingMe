@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.storage.ChatItem;
+import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.CustomTarget;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.ParseUser;
@@ -29,6 +30,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 	Context mContext;
 	String[] usernames;
 	ArrayList<ChatItem> mChatItems;
+	ArrayList<String> mSubtitles;
 	protected String userID;
 
 	public ChatItemsAdapter(Context context, ArrayList<ChatItem> chatItems) {
@@ -36,13 +38,30 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		super(context, R.layout.chat_item, chatItems);
 		mContext = context;
 		mChatItems = chatItems;
-		usernames = new String[mChatItems.size()];
+	
+		mSubtitles = new ArrayList<String>();
+		TextMessageDataSource textMessageDataSource = new TextMessageDataSource(mContext);
+		textMessageDataSource.open();
 		int i = 0;
 		//getting username array
-		for (ChatItem chatItem : mChatItems) {
-			//usernames[i] = chatItem.;
-			i++;
+		if(mChatItems!= null) {
+			for (ChatItem chatItem : mChatItems) {
+				//usernames[i] = chatItem.;
+				if(textMessageDataSource.getLastMessageFrom(chatItem.getId()) == null) {
+					mSubtitles.add("No Messages!");
+				} else {
+					mSubtitles.add(textMessageDataSource.getLastMessageFrom(chatItem.getId()).getMessage());
+				}
+				
+				i++;
+			}
+			if(i == mChatItems.size()) {
+				textMessageDataSource.close();
+			}
 		}
+		
+		
+		
 	}
 
 	@Override
@@ -92,9 +111,12 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		holder.nameLabel.setText(chatItem.getContent());
 		
 		//3. Subtitle label
-		if(chatItem.getLastMessage() != null) {
-			holder.chatSubtitle.setText(chatItem.getLastMessage().getMessage().toString());
-		}
+		Log.i("subtitle check", mSubtitles.get(position));
+		holder.chatSubtitle.setText(mSubtitles.get(position));
+		
+//		if(chatItem.getLastMessage() != null) {
+//			holder.chatSubtitle.setText(chatItem.getLastMessage().getMessage().toString());
+//		}
 		
 		
 		//4. new msg num view
