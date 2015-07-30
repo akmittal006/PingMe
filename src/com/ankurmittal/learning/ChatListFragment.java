@@ -491,8 +491,16 @@ public class ChatListFragment extends ListFragment {
 
 	public void updateView() {
 		if (getActivity() != null && !(getActivity().isFinishing())) {
-			Log.i("chat list frag", "............updating view...........");
-			adapter.refill(mChatItems);
+			
+			if(mChatItemDataSource != null) {
+				Log.i("chat list frag", "............updating view...........");
+				mChatItems.clear();
+				mChatItems = mChatItemDataSource.getAllChatItems();
+			}
+			if(mChatItems != null) {
+				adapter.refill(mChatItems);
+			}
+			
 			
 		}
 
@@ -525,62 +533,6 @@ public class ChatListFragment extends ListFragment {
 							for (final ParseObject message : messages) {
 								params.put(message.getObjectId(), message.getObjectId().toString());
 								i++;
-//								JSONObject updateMessage = new JSONObject();
-//								try {
-//									updateMessage.put("ObjectId", message.getObjectId());
-//									updateMessage.put("type", "update");
-//									updateMessage.put("messageStatus", Constants.MESSAGE_STATUS_DELIVERED);
-//								} catch (JSONException e1) {
-//									// TODO Auto-generated catch block
-//									e1.printStackTrace();
-//								}
-//								
-//								message.put("isSent", Constants.MESSAGE_STATUS_DELIVERED);
-//								ParseQuery<ParseInstallation> query = ParseInstallation.getQuery();
-//								
-//								query.whereEqualTo(ParseConstants.KEY_USER_ID,
-//										message.getParseUser(ParseConstants.KEY_MESSAGE_SENDER).getObjectId());
-//
-//								final ParsePush push = new ParsePush();
-//								
-//								push.setQuery(query);
-//								push.setData(updateMessage);
-//								message.saveEventually(new SaveCallback() {
-//									
-//									@Override
-//									public void done(ParseException e) {
-//										// TODO Auto-generated method stub
-//										if(e ==null) {
-//											//message updated
-//											Log.e("chatList", "updated message");
-//											push.sendInBackground(new SendCallback() {
-//												
-//												@Override
-//												public void done(ParseException arg0) {
-//													// TODO Auto-generated method stub
-//													
-//													Log.i("chatList", "update push sent");
-//													message.unpinInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED, new DeleteCallback() {
-//														
-//														@Override
-//														public void done(ParseException e) {
-//															// TODO Auto-generated method stub
-//															if(e == null) {
-//																Log.i("chat list", "message unpined");
-//															}
-//														}
-//													});
-//												}
-//											});
-//											
-//										} else {
-//											//message update failed
-//											Log.e("chatList", "ërror updating message");
-//										}
-//										
-//									}
-//								});
-								
 
 							}
 							if(i == messages.size()) {

@@ -1,5 +1,7 @@
 package com.ankurmittal.learning.util;
 
+import java.util.HashMap;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,11 +10,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.ChatItemDataSource;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseUser;
 
@@ -56,6 +63,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 		Log.i("push received2", "yayy  " + intent.toString() + "   Uri- "
 				+ intent.toURI());
 		String jsonData = intent.getExtras().getString("com.parse.Data");
+		Toast.makeText(context, "Push Received", Toast.LENGTH_LONG).show();
 
 		try {
 			JSONObject jsonMessage = new JSONObject(jsonData);
@@ -66,18 +74,39 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 			
 			
 			if(jsonMessage.getString("type").equals("message")) {
+				
+				TextMessage receivedMessage = createTextMessageFromJsonData(jsonMessage);
 				//Push type is message
 				mMessageDataSource
-						.insert(createTextMessageFromJsonData(jsonMessage));
+						.insert(receivedMessage);
 				mMessageDataSource.close();
+				
+				final HashMap<String, String> params = new HashMap<String, String>();
+					params.put(receivedMessage.getMessageId(), receivedMessage.getMessageId());
+
+					Log.i("calling cloud", "now");
+					ParseCloud.callFunctionInBackground("updateMessages",params, new FunctionCallback<String>() {
+
+						@Override
+						public void done(String arg0, ParseException e) {
+							// TODO Auto-generated method stub
+							if(e == null) {
+								Log.i("Cloud code2", "Yay it worked! "+ arg0);
+								ParseObject.unpinAllInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED);
+							} else {
+								Log.i("Cloud Code2", "Some error" + e.getMessage());
+							}
+						}
+					});
+				
 				
 				updateChatItem(context, createTextMessageFromJsonData(jsonMessage));
 				
 				updateMyActivity(context, jsonData);
 			} else {
 				//Push type is update message status
-				Log.i("update push received4", "yayy");
-				mMessageDataSource.updateMessageStatus(jsonMessage.getString("ObjectId"),jsonMessage.getString("messageStatus"));
+				int updated = mMessageDataSource.updateMessageStatus(jsonMessage.getString("ObjectId"),jsonMessage.getString("messageStatus"));
+				Log.i("update push received4", "yayy " + updated);
 				updateMyActivity(context, jsonData);
 			}
 			

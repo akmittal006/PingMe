@@ -350,7 +350,6 @@ public class TextMessageDataSource {
 	}
 
 	public int updateMessageStatus(String messageId, String mMsgStatus) {
-		TextMessage tMessage = new TextMessage();
 		if (!mDatabase.isOpen()) {
 			Log.i("text msg data source", "opening before select all method");
 			open();
