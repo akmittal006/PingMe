@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.Html;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +42,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 		TextMessage message = mMessages.get(position);
 		// if (convertView == null) {
 
-		if (message.getReceiverName().equals("pingMe")) {
+		if (message.getReceiverName().equals("pingMe9872719390")) {
 			
 			//neutral message
 			
@@ -82,6 +84,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 					.findViewById(R.id.createdAtTextView);
 			holder.sentView = (ImageView) convertView.findViewById(R.id.sentStatusView);
 			convertView.setTag(holder);
+			CharSequence messageText = Html.fromHtml("&#128522;");
 			holder.messageView.setText(message.getMessage());
 			if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_SENT)) {
 				holder.messageView.setTypeface(null, Typeface.NORMAL);

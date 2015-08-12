@@ -3,6 +3,7 @@ package com.ankurmittal.learning;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,8 +44,10 @@ import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.ParseAnalytics;
 import com.parse.ParseAnonymousUtils;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -82,6 +85,7 @@ public class ChatDetailFragment extends Fragment {
 	boolean mIsScrollingUp;
 	ArrayList<Long> selectedIds;
 	private ArrayList<String> toDeleteMessages;
+	private ArrayList<TextMessage> notReadMessages;
 	protected View emptyView;
 
 	/**
@@ -105,29 +109,31 @@ public class ChatDetailFragment extends Fragment {
 
 		}
 		mMessageDataSource = new TextMessageDataSource(getActivity());
+		notReadMessages = new ArrayList<TextMessage>();
 	}
-	
+
 	private BroadcastReceiver notificationMessageReceiver = new BroadcastReceiver() {
-	    @Override
-	    public void onReceive(Context context, Intent intent) {
-	    	
-	    	try {
-	    		ParseAnalytics.trackAppOpenedInBackground(getActivity().getIntent());
-	    		   // Extract data included in the Intent
-		        String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
-		        JSONObject jsonMessage = new JSONObject(jsonData);
-		        if(jsonMessage.getString("type").equals("message")) {
-		        	Log.d("chat list","message push received");
-		        } else if (jsonMessage.getString("type").equals("message")) {
-		        	Log.e("chat list","update  push received");
-		        }
-		        Log.d("chat detail Activity", "hurray updating activity");
-		        loadChatItemMessagesFromDatabase();
-	    	} catch (Exception e) {
-	    		Log.i("chat detail error", "error while receiving notification");
-	    	}
-	        //do other stuff here
-	    }
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			try {
+				ParseAnalytics.trackAppOpenedInBackground(getActivity()
+						.getIntent());
+				// Extract data included in the Intent
+				String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
+				JSONObject jsonMessage = new JSONObject(jsonData);
+				if (jsonMessage.getString("type").equals("message")) {
+					Log.d("chat list", "message push received");
+				} else if (jsonMessage.getString("type").equals("message")) {
+					Log.e("chat list", "update  push received");
+				}
+				Log.d("chat detail Activity", "hurray updating activity");
+				loadChatItemMessagesFromDatabase();
+			} catch (Exception e) {
+				Log.i("chat detail error", "error while receiving notification");
+			}
+			// do other stuff here
+		}
 	};
 
 	@Override
@@ -146,9 +152,11 @@ public class ChatDetailFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		// open database connection
-		getActivity().registerReceiver(notificationMessageReceiver, new IntentFilter(Constants.PUSH_TO_CHAT));
+		getActivity().registerReceiver(notificationMessageReceiver,
+				new IntentFilter(Constants.PUSH_TO_CHAT));
 		mMessageDataSource.open();
 		loadChatItemMessagesFromDatabase();
+		updateReadMessages();
 		syncMsgsToParse();
 	}
 
@@ -178,7 +186,6 @@ public class ChatDetailFragment extends Fragment {
 
 				@Override
 				public void onDestroyActionMode(ActionMode mode) {
-					
 
 				}
 
@@ -187,38 +194,44 @@ public class ChatDetailFragment extends Fragment {
 					selectedIds = new ArrayList<Long>();
 					Log.i("create called", "called");
 					MenuInflater inflater = getActivity().getMenuInflater();
-		            inflater.inflate(R.menu.list_select_menu, menu);
-		            mode.setTitle("Select Messages");
-		            return true;
+					inflater.inflate(R.menu.list_select_menu, menu);
+					mode.setTitle("Select Messages");
+					return true;
 				}
 
 				@Override
 				public boolean onActionItemClicked(ActionMode mode,
 						MenuItem item) {
 					Log.i("called", "called");
-					if(selectedIds.size() >0) {
+					if (selectedIds.size() > 0) {
 						toDeleteMessages = new ArrayList<String>();
-						if(item.getItemId() == R.id.delete) {
-							for(long i : selectedIds) {
+						if (item.getItemId() == R.id.delete) {
+							for (long i : selectedIds) {
 								int j = (int) i;
-								toDeleteMessages.add(mItem.getMessage(j).getMessageId());
-								Log.i("to delete", mItem.getMessage(j).getMessageId() + " " + toDeleteMessages.size());
+								toDeleteMessages.add(mItem.getMessage(j)
+										.getMessageId());
+								Log.i("to delete", mItem.getMessage(j)
+										.getMessageId()
+										+ " "
+										+ toDeleteMessages.size());
 							}
 							deleteMessages(toDeleteMessages);
-							
-					} else if(item.getItemId() == R.id.copy) {
-						String copyString = "";
-						for(long i : selectedIds) {
-							int j = (int) i;
-							copyString += " " + mItem.getMessage(j).getMessage();
+
+						} else if (item.getItemId() == R.id.copy) {
+							String copyString = "";
+							for (long i : selectedIds) {
+								int j = (int) i;
+								copyString += " "
+										+ mItem.getMessage(j).getMessage();
+							}
+							Log.i("copy success", "" + copyString);
+							ClipboardManager clipboard = (ClipboardManager) getActivity()
+									.getSystemService(Context.CLIPBOARD_SERVICE);
+							ClipData clip = ClipData.newPlainText("copyString",
+									copyString);
+							clipboard.setPrimaryClip(clip);
 						}
-						Log.i("copy success", "" + copyString);
-						ClipboardManager clipboard = (ClipboardManager)
-						        getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-						ClipData clip = ClipData.newPlainText("copyString", copyString);
-						clipboard.setPrimaryClip(clip);
-					}
-					
+
 					}
 					mode.finish();
 
@@ -229,23 +242,23 @@ public class ChatDetailFragment extends Fragment {
 				public void onItemCheckedStateChanged(ActionMode mode,
 						int position, long id, boolean checked) {
 					final int checkedCount = chatView.getCheckedItemCount();
-		            switch (checkedCount) {
-		                case 0:
-		                    mode.setSubtitle(null);
-		                    break;
-		                case 1:
-		                    mode.setSubtitle("1 message selected");
-		                    break;
-		                default:
-		                    mode.setSubtitle("" + checkedCount + " messages selected");
-		                    break;
-		            }
-		            if(checked) {
-		            	selectedIds.add(id);
-		            }else {
-		            	selectedIds.remove(id);
-		            }
-		            
+					switch (checkedCount) {
+					case 0:
+						mode.setSubtitle(null);
+						break;
+					case 1:
+						mode.setSubtitle("1 message selected");
+						break;
+					default:
+						mode.setSubtitle("" + checkedCount
+								+ " messages selected");
+						break;
+					}
+					if (checked) {
+						selectedIds.add(id);
+					} else {
+						selectedIds.remove(id);
+					}
 
 					Log.i("" + id, "something checked " + selectedIds.size());
 				}
@@ -287,60 +300,68 @@ public class ChatDetailFragment extends Fragment {
 						pTextMessage.put(
 								ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 								mItem.content);
-//						Log.i("chehck ",
-//								pTextMessage
-//										.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-						pTextMessage.put("isSent", Constants.MESSAGE_STATUS_PENDING);
-						pTextMessage.pinInBackground(Constants.GROUP_NOT_SENT, new SaveCallback() {
-							@Override
-							public void done(ParseException e) {
+						// Log.i("chehck ",
+						// pTextMessage
+						// .getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
+						pTextMessage.put("isSent",
+								Constants.MESSAGE_STATUS_PENDING);
+						pTextMessage.pinInBackground(Constants.GROUP_NOT_SENT,
+								new SaveCallback() {
+									@Override
+									public void done(ParseException e) {
 
-								if (e == null) {
-									Log.i("written msg pinned", "pinned");
-									message = new TextMessage();
-									message.setMessage(newTextMessage);
-									message.setMessageId(pTextMessage
-											.getObjectId());
-									message.setSenderId(ParseUser
-											.getCurrentUser().getObjectId());
-									message.setSenderName(ParseUser
-											.getCurrentUser().getUsername());
-									message.setReceiverId(mItem.id);
-									message.setReceiverName(mItem.content);
-									Log.d("check", mItem.content);
-									message.setCreatedAt(new Date());
-									message.setMessageStatus(Constants.MESSAGE_STATUS_PENDING);
+										if (e == null) {
+											Log.i("written msg pinned",
+													"pinned");
+											message = new TextMessage();
+											message.setMessage(newTextMessage);
+											message.setMessageId(pTextMessage
+													.getObjectId());
+											message.setSenderId(ParseUser
+													.getCurrentUser()
+													.getObjectId());
+											message.setSenderName(ParseUser
+													.getCurrentUser()
+													.getUsername());
+											message.setReceiverId(mItem.id);
+											message.setReceiverName(mItem.content);
+											Log.d("check", mItem.content);
+											message.setCreatedAt(new Date());
+											message.setMessageStatus(Constants.MESSAGE_STATUS_PENDING);
 
-									// add to chat item
-									String id = mItem.id;
-									if (ChatContent.ITEM_MAP.containsKey(id)) {
-										ChatItem chatItem = ChatContent.ITEM_MAP
-												.get(id);
-										maintainDate(message, chatItem);
-										chatItem.addMessage(message);
-									} else {
-										Log.d("ChatDetail",
-												"this shud not b called");
-										ChatItem chatItem = new ChatItem(id,
-												ParseUser.getCurrentUser()
-														.getUsername());
-										maintainDate(message, chatItem);
-										chatItem.addMessage(message);
+											// add to chat item
+											String id = mItem.id;
+											if (ChatContent.ITEM_MAP
+													.containsKey(id)) {
+												ChatItem chatItem = ChatContent.ITEM_MAP
+														.get(id);
+												maintainDate(message, chatItem);
+												chatItem.addMessage(message);
+											} else {
+												Log.d("ChatDetail",
+														"this shud not b called");
+												ChatItem chatItem = new ChatItem(
+														id,
+														ParseUser
+																.getCurrentUser()
+																.getUsername());
+												maintainDate(message, chatItem);
+												chatItem.addMessage(message);
+											}
+											chatView.setAdapter(new TextMessageAdapter(
+													getActivity(), mItem
+															.getItemMessages()));
+											chatView.setSelection(chatView
+													.getAdapter().getCount() - 1);
+
+										} else {
+
+										}
+										Log.i("sys check",
+												"calling sync msgs to parse method");
+										syncMsgsToParse();
 									}
-									chatView.setAdapter(new TextMessageAdapter(
-											getActivity(), mItem
-													.getItemMessages()));
-									chatView.setSelection(chatView.getAdapter()
-											.getCount() - 1);
-
-								} else {
-
-								}
-								Log.i("sys check", "calling sync msgs to parse method");
-								syncMsgsToParse();
-							}
-						});
-						
+								});
 
 					}
 				}
@@ -420,9 +441,9 @@ public class ChatDetailFragment extends Fragment {
 					.findViewById(android.R.id.empty);
 			emptyView.setVisibility(View.VISIBLE);
 		}
-		
-		Log.i("error check", mItem
-				.getItemMessages().size() + " " +  getActivity().toString());
+
+		Log.i("error check", mItem.getItemMessages().size() + " "
+				+ getActivity().toString());
 
 		chatView.setAdapter(new TextMessageAdapter(getActivity(), mItem
 				.getItemMessages()));
@@ -476,7 +497,7 @@ public class ChatDetailFragment extends Fragment {
 		Log.d("list frag ", " " + pTextMessage.getMessage());
 		textMessage.setMessageId(currDate.toString());
 		textMessage.setReceiverId(pTextMessage.getReceiverId());
-		textMessage.setReceiverName("pingMe");
+		textMessage.setReceiverName("pingMe9872719390");
 		textMessage.setSenderId(pTextMessage.getSenderId());
 		textMessage.setSenderName(pTextMessage.getSenderName());
 		textMessage.setCreatedAt(currDate);
@@ -512,28 +533,32 @@ public class ChatDetailFragment extends Fragment {
 									public void done(ParseException e) {
 										if (e == null) {
 											// message sent
-											message.put("isSent", Constants.MESSAGE_STATUS_SENT);
+											message.put(
+													"isSent",
+													Constants.MESSAGE_STATUS_SENT);
 											Log.i("saving",
 													""
 															+ message
 																	.getBoolean("isSent"));
-											Log.i("sys check ", "inserting...") ;
+											Log.i("sys check ", "inserting...");
 											mMessageDataSource
 													.insert(createTextMessage(message));
 											prevDate = null;
 											currDate = null;
-											Log.i("sys check ", "loading...") ;
-											if(getActivity() != null) {
+											Log.i("sys check ", "loading...");
+											if (getActivity() != null) {
 												loadChatItemMessagesFromDatabase();
 											}
-											
+
 											// unpin the message
 											message.unpinInBackground(Constants.GROUP_NOT_SENT);
 											sendNotification(message);
 										} else {
 											// Reset the is draft flag locally
 											// to true
-											message.put("isSent", Constants.MESSAGE_STATUS_PENDING);
+											message.put(
+													"isSent",
+													Constants.MESSAGE_STATUS_PENDING);
 										}
 									}
 
@@ -621,12 +646,12 @@ public class ChatDetailFragment extends Fragment {
 					for (ParseObject message : messages) {
 						item.addMessage(createTextMessage(message));
 					}
-					if(!getActivity().isFinishing()) {
-						chatView.setAdapter(new TextMessageAdapter(getActivity(),
-								mItem.getItemMessages()));
+					if (!getActivity().isFinishing()) {
+						chatView.setAdapter(new TextMessageAdapter(
+								getActivity(), mItem.getItemMessages()));
 						chatView.setSelection(chatView.getAdapter().getCount() - 1);
 					}
-					
+
 				}
 			}
 		});
@@ -638,7 +663,7 @@ public class ChatDetailFragment extends Fragment {
 				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
 
 		ParsePush push = new ParsePush();
-		
+
 		push.setQuery(query);
 		push.setMessage("" + message.getString(ParseConstants.KEY_SENDER_NAME)
 				+ ": " + message.getString(ParseConstants.KEY_MESSAGE));
@@ -688,10 +713,110 @@ public class ChatDetailFragment extends Fragment {
 		}
 		return null;
 	}
+
 	private void deleteMessages(ArrayList<String> ids) {
-		for(String id : ids) {
+		for (String id : ids) {
 			mMessageDataSource.deleteMessage(id);
 		}
 		loadChatItemMessagesFromDatabase();
 	}
+
+	private ArrayList<TextMessage> getNotReadMessages() {
+		
+		ArrayList<TextMessage> allMessages = new ArrayList<TextMessage>();
+		allMessages = mItem.getItemMessages();
+		for (TextMessage message : allMessages) {
+			if (message.getMessageStatus().equals("readPingMeMessage10123452")) {
+
+			} else {
+				if(message.getSenderId().equals(mItem.id)) {
+					//received message
+					
+					if( !message.getReceiverName().equals("pingMe9872719390")) {
+						
+						notReadMessages.add(message);
+					} 
+					
+				}
+				
+			}
+		}
+		Log.e("chat list", "total messages- " + allMessages.size()
+				+ " Not read messages" + notReadMessages.size());
+		return notReadMessages;
+	}
+
+	private void updateReadMessages() {
+		Log.i("chat detail", "update read message");
+
+		ConnectivityManager cm = (ConnectivityManager) getActivity()
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+		if ((ni != null) && (ni.isConnected())) {
+			if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
+				ArrayList<TextMessage> messages = getNotReadMessages();
+				if (messages.size() > 0) {
+					Log.i("pinned to update msgs", "" + messages.size());
+					final HashMap<String, String> params = new HashMap<String, String>();
+					int i = 0;
+					for (final TextMessage message : messages) {
+						params.put(message.getMessageId(), message
+								.getMessageId().toString());
+						i++;
+
+					}
+					if (i == messages.size()) {
+						Log.i("calling cloud", "now");
+						ParseCloud.callFunctionInBackground(
+								"updateReadMessages", params,
+								new FunctionCallback<String>() {
+
+									@Override
+									public void done(String arg0,
+											ParseException e) {
+										// TODO Auto-generated method
+										// stub
+										if (e == null) {
+											Log.i("Cloud code2",
+													"Yay it worked! "
+															+ arg0);
+											//set Read Message status
+											int h=0;
+											for (TextMessage message : notReadMessages) {
+												int updated = mMessageDataSource.updateMessageStatus(message.getMessageId(), Constants.MESSAGE_STATUS_READ);
+												Log.e("chat detail", " updated to chat read MEssage "+ updated);
+												h++;
+											}
+											if( h == notReadMessages.size()) {
+												notReadMessages.clear();
+											}
+										} else {
+											Log.i("Cloud Code2",
+													"Some error"
+															+ e.getMessage());
+										}
+									}
+								});
+					}
+
+				} else {
+					// Log.i("To update pinned messages",
+					// " Error finding pinned messages "
+					// + e.getMessage());
+				}
+			} else {
+				// If we have a network connection but no logged in user, direct
+				// the person to log in or sign up.
+
+			}
+		} else {
+			// If there is no connection, let the user know the sync didn't
+			// happen
+			Toast.makeText(
+					getActivity().getApplicationContext(),
+					"Your device appears to be offline. Some Messages may not have been synced .",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+
 }
