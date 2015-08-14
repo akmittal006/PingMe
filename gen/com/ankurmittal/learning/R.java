@@ -581,6 +581,8 @@ containing a value of this type.
          */
         public static final int AppBaseTheme=0x7f080003;
         /**  Application theme. 
+ your theme inherits from the material theme 
+ theme customizations 
          */
         public static final int AppTheme=0x7f080004;
         /**  the theme applied to the application or activity 
