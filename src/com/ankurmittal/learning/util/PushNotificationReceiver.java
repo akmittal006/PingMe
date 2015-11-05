@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.ChatItemDataSource;
+import com.ankurmittal.learning.storage.MessageStatus;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.parse.FunctionCallback;
@@ -57,11 +58,10 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 
 	@Override
 	protected void onPushReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
-		Log.i("push received3", "yayy");
+		// Push received it can be one of following cases
+		// 1. New Message
+		//2. Message Status Update
 		super.onPushReceive(context, intent);
-		Log.i("push received2", "yayy  " + intent.toString() + "   Uri- "
-				+ intent.toURI());
 		String jsonData = intent.getExtras().getString("com.parse.Data");
 		Toast.makeText(context, "Push Received", Toast.LENGTH_LONG).show();
 
@@ -72,29 +72,33 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 
 				mMessageDataSource.open();
 			
-			
+			//CASE -- 1. NEW MESSAGE
 			if(jsonMessage.getString("type").equals("message")) {
 				
 				TextMessage receivedMessage = createTextMessageFromJsonData(jsonMessage);
 				//Push type is message
+				
+				//1. saving new message in database
 				mMessageDataSource
 						.insert(receivedMessage);
 				mMessageDataSource.close();
 				
+				
+				//2. sending push back to update message status to delivered
 				final HashMap<String, String> params = new HashMap<String, String>();
-					params.put(receivedMessage.getMessageId(), receivedMessage.getMessageId());
+					params.put(receivedMessage.getMessageId(), Constants.MESSAGE_STATUS_DELIVERED);
 
 					Log.i("calling cloud", "now");
-					ParseCloud.callFunctionInBackground("updateMessages",params, new FunctionCallback<String>() {
+					ParseCloud.callFunctionInBackground("updateMessages",params,  new FunctionCallback<String>() {
 
 						@Override
 						public void done(String arg0, ParseException e) {
 							// TODO Auto-generated method stub
 							if(e == null) {
-								Log.i("Cloud code2", "Yay it worked! "+ arg0);
+								Log.i("Notification receiver Cloud Code", "Yay it worked! "+ arg0);
 								ParseObject.unpinAllInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED);
 							} else {
-								Log.i("Cloud Code2", "Some error" + e.getMessage());
+								Log.i("Notification receiver Cloud Code", "Some error" + e.getMessage());
 							}
 						}
 					});
@@ -103,10 +107,12 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 				updateChatItem(context, createTextMessageFromJsonData(jsonMessage));
 				
 				updateMyActivity(context, jsonData);
-			} else {
+			} 
+			//CASE -- 2. MESSAGE STATUS UPDATE
+			else {
 				//Push type is update message status
 				int updated = mMessageDataSource.updateMessageStatus(jsonMessage.getString("ObjectId"),jsonMessage.getString("messageStatus"));
-				Log.i("update push received4", "yayy " + updated);
+				Log.e("update push received4", " " + jsonMessage.getString("messageStatus")   + "  " + updated);
 				updateMyActivity(context, jsonData);
 			}
 			

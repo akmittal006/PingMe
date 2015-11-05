@@ -179,6 +179,7 @@ public class ChatItemDataSource {
 				ChatItem chatItem = new ChatItem();
 				int i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_IMG);
 				chatItem.setImgUrl(cursor.getString(i));
+				Log.e("MChatItem data source", "url-" + cursor.getString(i));
 				// do stuff
 				mChatItems.add(chatItem);
 

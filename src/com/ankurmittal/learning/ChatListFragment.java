@@ -111,7 +111,8 @@ public class ChatListFragment extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (ParseUser.getCurrentUser() != null) {
-			// retrieveMessages();
+			//throw new RuntimeException("Test Exception!");
+			 retrieveMessages();
 			mChatItemDataSource = new ChatItemDataSource(getActivity());
 			mChatItemDataSource.open();
 		} else {
@@ -192,7 +193,9 @@ public class ChatListFragment extends ListFragment {
 		public void onReceive(Context context, Intent intent) {
 
 			try {
+				Log.e("chat list ", "intent received + " + intent.getAction());
 				// Extract data included in the Intent
+
 				String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
 				JSONObject jsonMessage = new JSONObject(jsonData);
 				Log.e("chat list","push received" + jsonMessage.getString("type"));
@@ -234,8 +237,7 @@ public class ChatListFragment extends ListFragment {
 
 		getActivity().registerReceiver(notificationMessageReceiver,
 				new IntentFilter(Constants.PUSH_TO_CHAT));
-		
-		
+	
 		// open database connection
 		if(mMessageDataSource != null && mChatItemDataSource != null) {
 			mMessageDataSource.open();
@@ -315,8 +317,10 @@ public class ChatListFragment extends ListFragment {
 
 		mActivatedPosition = position;
 	}
+	
+	///either we receive message by push or by forcefully updating this fragment
 
-	////////receiving messages
+	////////forcefully receiving messages
 	private void retrieveMessages() {
 		Log.i("chat lis", "retrieving");
 		ParseQuery<ParseObject> messagesQuery = new ParseQuery<ParseObject>(
@@ -492,12 +496,12 @@ public class ChatListFragment extends ListFragment {
 	public void updateView() {
 		if (getActivity() != null && !(getActivity().isFinishing())) {
 			
-			if(mChatItemDataSource != null) {
+			if(mChatItemDataSource != null && mChatItems !=null) {
 				Log.i("chat list frag", "............updating view...........");
 				mChatItems.clear();
 				mChatItems = mChatItemDataSource.getAllChatItems();
 			}
-			if(mChatItems != null) {
+			if(mChatItems != null && mChatItems.size() != 0) {
 				adapter.refill(mChatItems);
 			}
 			
@@ -531,7 +535,7 @@ public class ChatListFragment extends ListFragment {
 							final HashMap<String, String> params = new HashMap<String, String>();
 							int i=0;
 							for (final ParseObject message : messages) {
-								params.put(message.getObjectId(), message.getObjectId().toString());
+								params.put(message.getObjectId(), Constants.MESSAGE_STATUS_DELIVERED);
 								i++;
 
 							}

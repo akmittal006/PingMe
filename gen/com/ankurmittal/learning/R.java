@@ -204,6 +204,7 @@ containing a value of this type.
         public static final int title_text=0x7f010003;
     }
     public static final class color {
+        public static final int accent=0x7f06000f;
         public static final int colorPrimary=0x7f06000d;
         public static final int com_facebook_blue=0x7f060002;
         public static final int com_facebook_likeboxcountview_border_color=0x7f060009;
@@ -218,6 +219,7 @@ containing a value of this type.
         public static final int com_facebook_usersettingsfragment_not_connected_text_color=0x7f060005;
         public static final int holo_dark=0x7f06000b;
         public static final int pressed_gray=0x7f06000c;
+        public static final int primary_dark=0x7f06000e;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -583,6 +585,7 @@ containing a value of this type.
          */
         public static final int AppBaseTheme=0x7f080003;
         /**  Application theme. 
+ your theme inherits from the material theme 
          */
         public static final int AppTheme=0x7f080004;
         /**  the theme applied to the application or activity 

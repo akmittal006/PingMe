@@ -31,6 +31,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 	String[] usernames;
 	ArrayList<ChatItem> mChatItems;
 	ArrayList<String> mSubtitles;
+	TextMessageDataSource textMessageDataSource;
 	protected String userID;
 
 	public ChatItemsAdapter(Context context, ArrayList<ChatItem> chatItems) {
@@ -40,7 +41,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		mChatItems = chatItems;
 	
 		mSubtitles = new ArrayList<String>();
-		TextMessageDataSource textMessageDataSource = new TextMessageDataSource(mContext);
+		textMessageDataSource = new TextMessageDataSource(mContext);
 		textMessageDataSource.open();
 		int i = 0;
 		//getting username array
@@ -136,6 +137,18 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 	public void refill(List<ChatItem> chatItems) {
 		mChatItems.clear();
 		mChatItems.addAll(chatItems);
+		mSubtitles.clear();
+		//refreshing subtitles
+		for (ChatItem chatItem : mChatItems) {
+			//usernames[i] = chatItem.;
+			if(textMessageDataSource.getLastMessageFrom(chatItem.getId()) == null) {
+				mSubtitles.add("No Messages!");
+			} else {
+				mSubtitles.add(textMessageDataSource.getLastMessageFrom(chatItem.getId()).getMessage());
+			}
+			
+			
+		}
 		notifyDataSetChanged();
 	}
 

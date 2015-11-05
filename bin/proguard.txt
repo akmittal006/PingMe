@@ -1,0 +1,48 @@
+# view AndroidManifest.xml #generated:95
+-keep class com.ankurmittal.learning.ChatDetailActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:86
+-keep class com.ankurmittal.learning.ChatListActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:49
+-keep class com.ankurmittal.learning.LoginActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:45
+-keep class com.ankurmittal.learning.MainActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:138
+-keep class com.ankurmittal.learning.ProfileActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:57
+-keep class com.ankurmittal.learning.SearchResultsActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:70
+-keep class com.ankurmittal.learning.ShowFrndReqs { <init>(...); }
+
+# view AndroidManifest.xml #generated:78
+-keep class com.ankurmittal.learning.ShowFrndReqsActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:53
+-keep class com.ankurmittal.learning.SignUpActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:32
+-keep class com.ankurmittal.learning.application.PingMeApplication { <init>(...); }
+
+# view AndroidManifest.xml #generated:116
+-keep class com.ankurmittal.learning.util.PushNotificationReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:103
+-keep class com.facebook.LoginActivity { <init>(...); }
+
+# view res/layout/com_facebook_usersettingsfragment.xml #generated:48
+-keep class com.facebook.widget.LoginButton { <init>(...); }
+
+# view AndroidManifest.xml #generated:125
+-keep class com.parse.GcmBroadcastReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:110
+-keep class com.parse.ParseBroadcastReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:108
+-keep class com.parse.PushService { <init>(...); }
+

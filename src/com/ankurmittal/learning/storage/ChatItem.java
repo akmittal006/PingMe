@@ -21,6 +21,7 @@ public class ChatItem {
 	public TextMessage lastMessage;
 
 	public ArrayList<TextMessage> mMessages;
+	public ArrayList<TextMessage> notReadMessages;
 	public String email;
 	public String imgUrl;
 
@@ -29,6 +30,7 @@ public class ChatItem {
 	public ChatItem() {
 		lastMessage = new TextMessage();
 		mMessages = new  ArrayList<TextMessage>();
+		notReadMessages = new  ArrayList<TextMessage>();
 	}
 	
 	public void setId(String id) {
@@ -132,5 +134,30 @@ public class ChatItem {
 	}
 	public void clearMessages() {
 		mMessages.clear();
+	}
+	
+	public ArrayList<TextMessage> getNotReadMessages() {
+		
+		ArrayList<TextMessage> allMessages = new ArrayList<TextMessage>();
+		allMessages = getItemMessages();
+		for (TextMessage message : allMessages) {
+			if (message.getMessageStatus().equals("readPingMeMessage10123452")) {
+
+			} else {
+				if(message.getSenderId().equals(id)) {
+					//received message
+					
+					if( !message.getReceiverName().equals("pingMe9872719390")) {
+						
+						notReadMessages.add(message);
+					} 
+					
+				}
+				
+			}
+		}
+		Log.e("chat ITEM", "total messages- " + allMessages.size()
+				+ " Not read messages" + notReadMessages.size());
+		return notReadMessages;
 	}
 }

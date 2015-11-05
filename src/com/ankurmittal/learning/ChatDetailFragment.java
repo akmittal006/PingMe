@@ -657,7 +657,7 @@ public class ChatDetailFragment extends Fragment {
 		});
 	}
 
-	protected void sendNotification(ParseObject message) {
+	protected void sendNotification(final ParseObject message) {
 		ParseQuery<ParseInstallation> query = ParseInstallation.getQuery();
 		query.whereEqualTo(ParseConstants.KEY_USER_ID,
 				message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
@@ -673,7 +673,7 @@ public class ChatDetailFragment extends Fragment {
 			@Override
 			public void done(ParseException arg0) {
 				// msg sent!
-				Log.i("Message Push sent", "hurray");
+				Log.e("Message Push sent", "hurray + " + message.getString("isSent"));
 			}
 		});
 	}
@@ -721,31 +721,6 @@ public class ChatDetailFragment extends Fragment {
 		loadChatItemMessagesFromDatabase();
 	}
 
-	private ArrayList<TextMessage> getNotReadMessages() {
-		
-		ArrayList<TextMessage> allMessages = new ArrayList<TextMessage>();
-		allMessages = mItem.getItemMessages();
-		for (TextMessage message : allMessages) {
-			if (message.getMessageStatus().equals("readPingMeMessage10123452")) {
-
-			} else {
-				if(message.getSenderId().equals(mItem.id)) {
-					//received message
-					
-					if( !message.getReceiverName().equals("pingMe9872719390")) {
-						
-						notReadMessages.add(message);
-					} 
-					
-				}
-				
-			}
-		}
-		Log.e("chat list", "total messages- " + allMessages.size()
-				+ " Not read messages" + notReadMessages.size());
-		return notReadMessages;
-	}
-
 	private void updateReadMessages() {
 		Log.i("chat detail", "update read message");
 
@@ -754,21 +729,20 @@ public class ChatDetailFragment extends Fragment {
 		NetworkInfo ni = cm.getActiveNetworkInfo();
 		if ((ni != null) && (ni.isConnected())) {
 			if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
-				ArrayList<TextMessage> messages = getNotReadMessages();
+				ArrayList<TextMessage> messages = mItem.getNotReadMessages();
 				if (messages.size() > 0) {
 					Log.i("pinned to update msgs", "" + messages.size());
 					final HashMap<String, String> params = new HashMap<String, String>();
 					int i = 0;
 					for (final TextMessage message : messages) {
-						params.put(message.getMessageId(), message
-								.getMessageId().toString());
+						params.put(message.getMessageId(), Constants.MESSAGE_STATUS_READ);
 						i++;
 
 					}
 					if (i == messages.size()) {
 						Log.i("calling cloud", "now");
 						ParseCloud.callFunctionInBackground(
-								"updateReadMessages", params,
+								"updateMessages", params,
 								new FunctionCallback<String>() {
 
 									@Override

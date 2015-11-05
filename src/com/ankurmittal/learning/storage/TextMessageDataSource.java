@@ -2,8 +2,12 @@ package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
 
+import com.ankurmittal.learning.ChatListFragment;
+import com.ankurmittal.learning.util.Constants;
+
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,7 +50,7 @@ public class TextMessageDataSource {
 
 		Cursor cursor = isMessageNew(textMessage);
 		if (cursor.getCount() == 0) {
-			// we got a new frnd since cursor cud not find it
+			// we got a new message since cursor cud not find it
 			Log.d("DATA SOURCE",
 					"INSERTING NEW Friend..." + textMessage.getSenderName());
 
@@ -69,14 +73,14 @@ public class TextMessageDataSource {
 						textMessage.getMessage());
 				values.put(TextMessageHelper.COLUMN_IS_SENT,
 						textMessage.getMessageStatus() + "");
-				Log.d("inseting", textMessage.getCreatedAtString());
+				Log.e("Inserting", textMessage.getMessageStatus());
 				values.put(TextMessageHelper.COLUMN_CREATED_AT,
 						textMessage.getCreatedAtString());
 				// friend.setViewed(false);
 				mDatabase
 						.insert(TextMessageHelper.TABLE_MESSAGES, null, values);
 				mDatabase.setTransactionSuccessful();
-				Log.d("INSERTED", "ROW ADDED");
+				Log.e("INSERTED", "ROW ADDED");
 			} finally {
 				mDatabase.endTransaction();
 			}
@@ -355,14 +359,20 @@ public class TextMessageDataSource {
 			open();
 		}
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
+		
+		
 
 		ContentValues values = new ContentValues();
+		Log.e("msg source", "updating status to -" +mMsgStatus );
 		values.put(TextMessageHelper.COLUMN_IS_SENT, mMsgStatus);
+		
 		int rowsUpdated = mDatabase.update(TextMessageHelper.TABLE_MESSAGES, // table
 				values, // values
 				whereClause, // where clause
 				new String[] { messageId } // where params
 				);
+		
+		
 
 		mDatabase.close();
 		Log.e("text msg data source", "updating message status");
@@ -444,4 +454,5 @@ public class TextMessageDataSource {
 			return textMessage;
 		}
 	}
+	
 }

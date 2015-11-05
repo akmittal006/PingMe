@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.Html;
-import android.text.SpannableString;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -92,7 +92,9 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 				holder.sentView.setImageResource(R.drawable.ic_action_sent);
+				Log.e("Text MEssage Adapter", "Setting WHITE icon");
 			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_READ)) {
+				Log.e("Text MEssage Adapter", "Setting red icon");
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 				holder.sentView.setImageResource(R.drawable.ic_action_read);
 			} else {
