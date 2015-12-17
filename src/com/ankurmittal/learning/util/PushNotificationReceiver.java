@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.ChatItemDataSource;
-import com.ankurmittal.learning.storage.MessageStatus;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.parse.FunctionCallback;
@@ -89,8 +88,21 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver {
 					params.put(receivedMessage.getMessageId(), Constants.MESSAGE_STATUS_DELIVERED);
 
 					Log.i("calling cloud", "now");
-					ParseCloud.callFunctionInBackground("updateMessages",params,  new FunctionCallback<String>() {
-
+//					ParseCloud.callFunctionInBackground("updateMessages",params,  new FunctionCallback<String>() {
+//
+//						@Override
+//						public void done(String arg0, ParseException e) {
+//							// TODO Auto-generated method stub
+//							if(e == null) {
+//								Log.i("Notification receiver Cloud Code", "Yay it worked! "+ arg0);
+//								ParseObject.unpinAllInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED);
+//							} else {
+//								Log.i("Notification receiver Cloud Code", "Some error" + e.getMessage());
+//							}
+//						}
+//					});
+					
+					ParseCloud.callFunctionInBackground("updateMessages",params, new  FunctionCallback<String>() {
 						@Override
 						public void done(String arg0, ParseException e) {
 							// TODO Auto-generated method stub

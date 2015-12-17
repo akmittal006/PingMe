@@ -111,6 +111,7 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 		ImageView userImageView;
 		TextView nameLabel;
 		TextView frndLabel;
+		
 	}
 
 	public void refill(List<ParseUser> users,

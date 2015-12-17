@@ -138,6 +138,11 @@ public class ChatItem {
 	
 	public ArrayList<TextMessage> getNotReadMessages() {
 		
+		if(notReadMessages == null) {
+			notReadMessages = new ArrayList<TextMessage>();
+		}
+		notReadMessages.clear();
+		
 		ArrayList<TextMessage> allMessages = new ArrayList<TextMessage>();
 		allMessages = getItemMessages();
 		for (TextMessage message : allMessages) {

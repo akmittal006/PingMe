@@ -518,11 +518,12 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private void updateDeliveredMessages() {
-		Log.i("called", "update delivered message");
+		Log.i("chat list frag", "update delivered message");
 
 		ConnectivityManager cm = (ConnectivityManager) getActivity()
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo ni = cm.getActiveNetworkInfo();
+		
 		if ((ni != null) && (ni.isConnected())) {
 			if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
 				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("TextMessage");
@@ -531,7 +532,7 @@ public class ChatListFragment extends ListFragment {
 					public void done(List<ParseObject> messages,
 							ParseException e) {
 						if (e == null && messages.size() >0) {
-							Log.i("pinned to update msgs", "" + messages.size());
+							Log.e("pinned to update deliveredmsgs", "" + messages.size());
 							final HashMap<String, String> params = new HashMap<String, String>();
 							int i=0;
 							for (final ParseObject message : messages) {
@@ -540,17 +541,17 @@ public class ChatListFragment extends ListFragment {
 
 							}
 							if(i == messages.size()) {
-								Log.i("calling cloud", "now");
+								Log.e("calling cloud function update msgs ", "now+ psrsms: " + params.size());
 								ParseCloud.callFunctionInBackground("updateMessages",params, new FunctionCallback<String>() {
 
 									@Override
 									public void done(String arg0, ParseException e) {
 										// TODO Auto-generated method stub
 										if(e == null) {
-											Log.i("Cloud code2", "Yay it worked! "+ arg0);
+											Log.e("Success in updating delivered msgs", "Yay it worked! "+ arg0);
 											ParseObject.unpinAllInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED);
 										} else {
-											Log.i("Cloud Code2", "Some error" + e.getMessage());
+											Log.e("ERROR in updating delivered msgs", "Some error" + e.getMessage());
 										}
 									}
 								});

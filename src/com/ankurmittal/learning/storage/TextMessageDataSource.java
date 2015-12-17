@@ -2,12 +2,10 @@ package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
 
-import com.ankurmittal.learning.ChatListFragment;
 import com.ankurmittal.learning.util.Constants;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -49,13 +47,8 @@ public class TextMessageDataSource {
 	public void insert(TextMessage textMessage) {
 
 		Cursor cursor = isMessageNew(textMessage);
-		if (cursor.getCount() == 0) {
-			// we got a new message since cursor cud not find it
-			Log.d("DATA SOURCE",
-					"INSERTING NEW Friend..." + textMessage.getSenderName());
-
-			// sendNotification(friend);
-
+		if(cursor == null) {
+			//we got pending message
 			mDatabase.beginTransaction();
 			try {
 				ContentValues values = new ContentValues();
@@ -67,8 +60,8 @@ public class TextMessageDataSource {
 						textMessage.getReceiverId());
 				values.put(TextMessageHelper.COLUMN_RECEIVER_NAME,
 						textMessage.getReceiverName());
-				values.put(TextMessageHelper.COLUMN_MESSAGE_ID,
-						textMessage.getMessageId());
+//				values.put(TextMessageHelper.COLUMN_MESSAGE_ID,
+//						textMessage.getMessageId());
 				values.put(TextMessageHelper.COLUMN_MESSAGE,
 						textMessage.getMessage());
 				values.put(TextMessageHelper.COLUMN_IS_SENT,
@@ -85,10 +78,44 @@ public class TextMessageDataSource {
 				mDatabase.endTransaction();
 			}
 		} else {
+			if (cursor.getCount() == 0) {
+				// we got a new message since cursor cud not find it
+				Log.d("DATA SOURCE",
+						"INSERTING NEW Friend..." + textMessage.getSenderName());
 
-			Log.d(" NOT INSERTED", "ROW NOT ADDED");
+				mDatabase.beginTransaction();
+				try {
+					ContentValues values = new ContentValues();
+					values.put(TextMessageHelper.COLUMN_SENDER_ID,
+							textMessage.getSenderId());
+					values.put(TextMessageHelper.COLUMN_SENDER_NAME,
+							textMessage.getSenderName());
+					values.put(TextMessageHelper.COLUMN_RECEIVER_ID,
+							textMessage.getReceiverId());
+					values.put(TextMessageHelper.COLUMN_RECEIVER_NAME,
+							textMessage.getReceiverName());
+					values.put(TextMessageHelper.COLUMN_MESSAGE_ID,
+							textMessage.getMessageId());
+					values.put(TextMessageHelper.COLUMN_MESSAGE,
+							textMessage.getMessage());
+					values.put(TextMessageHelper.COLUMN_IS_SENT,
+							textMessage.getMessageStatus() + "");
+					Log.e("Inserting", textMessage.getMessageStatus());
+					values.put(TextMessageHelper.COLUMN_CREATED_AT,
+							textMessage.getCreatedAtString());
+					// friend.setViewed(false);
+					mDatabase
+							.insert(TextMessageHelper.TABLE_MESSAGES, null, values);
+					mDatabase.setTransactionSuccessful();
+					Log.e("INSERTED", "ROW ADDED");
+				} finally {
+					mDatabase.endTransaction();
+				}
+			} else {
+
+				Log.d(" NOT INSERTED", "ROW NOT ADDED");
+			}
 		}
-
 	}
 
 	// public void insertByMain(ParseUser friend) {
@@ -151,6 +178,10 @@ public class TextMessageDataSource {
 		// Log.i("error",
 		// textMessage.getMessage()
 		// + "");
+		if(textMessage.getMessageId() == null) {
+			return null;
+		}
+
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
 
 		if (mDatabase.isOpen()) {
@@ -359,23 +390,44 @@ public class TextMessageDataSource {
 			open();
 		}
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
-		
-		
 
 		ContentValues values = new ContentValues();
-		Log.e("msg source", "updating status to -" +mMsgStatus );
+		Log.e("msg source", "updating status to -" + mMsgStatus);
 		values.put(TextMessageHelper.COLUMN_IS_SENT, mMsgStatus);
-		
+
 		int rowsUpdated = mDatabase.update(TextMessageHelper.TABLE_MESSAGES, // table
 				values, // values
 				whereClause, // where clause
 				new String[] { messageId } // where params
 				);
-		
-		
 
 		mDatabase.close();
 		Log.e("text msg data source", "updating message status");
+
+		return rowsUpdated;
+
+	}
+	
+	public int updatePendingMessage(String message, String mMsgId) {
+		if (!mDatabase.isOpen()) {
+			Log.i("text msg data source", "opening before select all method");
+			open();
+		}
+		String whereClause = TextMessageHelper.COLUMN_IS_SENT + " = ? AND " + TextMessageHelper.COLUMN_MESSAGE + " = ?";
+
+		ContentValues values = new ContentValues();
+		Log.e("msg source", "updating PENDING MSG -" + message);
+		values.put(TextMessageHelper.COLUMN_IS_SENT, Constants.MESSAGE_STATUS_SENT);
+		values.put(TextMessageHelper.COLUMN_MESSAGE_ID, mMsgId);
+
+		int rowsUpdated = mDatabase.update(TextMessageHelper.TABLE_MESSAGES, // table
+				values, // values
+				whereClause, // where clause
+				new String[] { Constants.MESSAGE_STATUS_PENDING, message } // where params
+				);
+
+		mDatabase.close();
+		Log.e("text msg data source", "updating PENDING msg to sent");
 
 		return rowsUpdated;
 
@@ -454,5 +506,5 @@ public class TextMessageDataSource {
 			return textMessage;
 		}
 	}
-	
+
 }

@@ -1,11 +1,9 @@
 package com.ankurmittal.learning.adapters;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,137 +15,165 @@ import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.storage.ChatItem;
+import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
-import com.ankurmittal.learning.util.CustomTarget;
+import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
-import com.parse.ParseUser;
+import com.ankurmittal.learning.util.Utils;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.squareup.picasso.Picasso;
 
 public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
-	
+
 	private static final String TAG = "Chat Item Adapter";
 
 	Context mContext;
 	String[] usernames;
 	ArrayList<ChatItem> mChatItems;
-	ArrayList<String> mSubtitles;
+	ArrayList<TextMessage> mLastMessages;
 	TextMessageDataSource textMessageDataSource;
+	TextMessage lastMessage = new TextMessage();
+	ViewHolder holder;
+	int counter = 0;
 	protected String userID;
+	int temp;
 
 	public ChatItemsAdapter(Context context, ArrayList<ChatItem> chatItems) {
 
 		super(context, R.layout.chat_item, chatItems);
 		mContext = context;
 		mChatItems = chatItems;
-	
-		mSubtitles = new ArrayList<String>();
+
+		mLastMessages = new ArrayList<TextMessage>();
 		textMessageDataSource = new TextMessageDataSource(mContext);
 		textMessageDataSource.open();
-		int i = 0;
-		//getting username array
-		if(mChatItems!= null) {
-			for (ChatItem chatItem : mChatItems) {
-				//usernames[i] = chatItem.;
-				if(textMessageDataSource.getLastMessageFrom(chatItem.getId()) == null) {
-					mSubtitles.add("No Messages!");
-				} else {
-					mSubtitles.add(textMessageDataSource.getLastMessageFrom(chatItem.getId()).getMessage());
-				}
-				
-				i++;
-			}
-			if(i == mChatItems.size()) {
-				textMessageDataSource.close();
-			}
-		}
-		
-		
-		
+
+		// getting last messages
+		refreshSubtitles();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder;
+
+		temp = position;
 
 		if (convertView == null) {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item, null);
 			holder = new ViewHolder();
-			
-			//add views to layout
+
+			// add views to layout
 			holder.userImageView = (ImageView) convertView
 					.findViewById(R.id.userImageView);
+			holder.chatSubtitleStatus = (ImageView) convertView
+					.findViewById(R.id.sentStatusView);
 			holder.nameLabel = (TextView) convertView
 					.findViewById(R.id.usernameTextView);
-			holder.chatSubtitle = (TextView) convertView.findViewById(R.id.subtitleView);
-			holder.newMsgNumView = (TextView) convertView.findViewById(R.id.newMessageNumView);
-			
+			holder.chatSubtitle = (TextView) convertView
+					.findViewById(R.id.subtitleView);
+			holder.newMsgNumView = (TextView) convertView
+					.findViewById(R.id.newMessageNumView);
+
 			convertView.setTag(holder);
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
 		ChatItem chatItem = mChatItems.get(position);
-		
-		//1. Image View
+
+		// 1. Image View
 		String imgUrl = chatItem.getImgUrl();
 		Log.d("chat item adapter", "img url- " + imgUrl);
-		
 
 		if (imgUrl.equals("null")) {
 			holder.userImageView.setImageResource(R.drawable.avatar_empty);
 			Log.i(TAG, imgUrl + " img set - " + position);
-		} else if(imgUrl != null) {
+		} else if (imgUrl != null) {
 			Log.i("url check", imgUrl);
 
 			Picasso.with(mContext).setIndicatorsEnabled(true);
 			Picasso.with(mContext).load(imgUrl)
-			.placeholder(R.drawable.avatar_empty)
-			.resize(88, 88).centerInside()
-			.into(holder.userImageView);
+					.placeholder(R.drawable.avatar_empty).resize(88, 88)
+					.centerInside().into(holder.userImageView);
 
 		}
-		
+
 		// 2. Username label
 		holder.nameLabel.setText(chatItem.getContent());
-		
-		//3. Subtitle label
-		Log.i("subtitle check", mSubtitles.get(position));
-		holder.chatSubtitle.setText(mSubtitles.get(position));
-		
-//		if(chatItem.getLastMessage() != null) {
-//			holder.chatSubtitle.setText(chatItem.getLastMessage().getMessage().toString());
-//		}
-		
-		
-		//4. new msg num view
-		holder.newMsgNumView.setVisibility(View.INVISIBLE);
+		refreshSubtitles();
 
+		// 3. Subtitle label
+		lastMessage = mLastMessages.get(position);
+		
+
+		// 4. subtitle status
+		if (!lastMessage.getSenderId().equals(chatItem.id)) {
+			// it is a sent message
+
+			Log.i("subtitle check", lastMessage.getMessageStatus());
+			if(lastMessage.getMessage().length() >20) {
+				holder.chatSubtitle.setText("You: " + lastMessage.getMessage().substring(0, 20) + "...");
+			} else {
+				holder.chatSubtitle.setText("You: " + lastMessage.getMessage());
+			}
+			
+			holder.newMsgNumView.setVisibility(View.INVISIBLE);
+			String status = lastMessage.getMessageStatus();
+			if (status.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
+				holder.chatSubtitleStatus
+						.setImageResource(R.drawable.ic_action_send_now);
+			} else if (status.equals(Constants.MESSAGE_STATUS_READ)) {
+				holder.chatSubtitleStatus
+						.setImageResource(R.drawable.ic_action_read);
+			} else if (status.equals(Constants.MESSAGE_STATUS_PENDING)) {
+				holder.chatSubtitleStatus
+						.setImageResource(R.drawable.ic_action_time);
+			} else {
+				holder.chatSubtitleStatus.setVisibility(View.INVISIBLE);
+			}
+
+		} else {
+			// received message
+
+			if(lastMessage.getMessage().length() >20) {
+				holder.chatSubtitle.setText(lastMessage.getMessage().substring(0, 20) + "...");
+			} else {
+				holder.chatSubtitle.setText(lastMessage.getMessage());
+			}
+			if (!lastMessage.getMessageStatus().equals(
+					Constants.MESSAGE_STATUS_READ)) {
+				holder.chatSubtitle.setTextColor(mContext.getResources()
+						.getColor(android.R.color.holo_green_dark));
+				holder.newMsgNumView.setText(chatItem.getNotReadMessages()
+						.size() + "");
+				holder.newMsgNumView.setVisibility(View.VISIBLE);
+			}
+
+			holder.chatSubtitleStatus.setVisibility(View.INVISIBLE);
+
+		}
 		return convertView;
 	}
 
-
 	private static class ViewHolder {
 		ImageView userImageView;
+		ImageView chatSubtitleStatus;
 		TextView nameLabel;
-	    TextView chatSubtitle;
-	    TextView newMsgNumView;
+		TextView chatSubtitle;
+		TextView newMsgNumView;
 	}
 
 	public void refill(List<ChatItem> chatItems) {
 		mChatItems.clear();
 		mChatItems.addAll(chatItems);
-		mSubtitles.clear();
-		//refreshing subtitles
+		mLastMessages.clear();
+		// refreshing subtitles
 		for (ChatItem chatItem : mChatItems) {
-			//usernames[i] = chatItem.;
-			if(textMessageDataSource.getLastMessageFrom(chatItem.getId()) == null) {
-				mSubtitles.add("No Messages!");
-			} else {
-				mSubtitles.add(textMessageDataSource.getLastMessageFrom(chatItem.getId()).getMessage());
-			}
-			
-			
+			// usernames[i] = chatItem.;
+			refreshSubtitles();
 		}
 		notifyDataSetChanged();
 	}
@@ -159,6 +185,25 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 			return true;
 		} else {
 			return false;
+		}
+	}
+
+	private void refreshSubtitles() {
+		counter = 0;
+		if (mChatItems != null) {
+			for (ChatItem chatItem : mChatItems) {
+				chatItem.mMessages.clear();
+				chatItem.mMessages = textMessageDataSource
+						.getMessagesFrom(chatItem.id);
+				// usernames[i] = chatItem.;
+				mLastMessages.add(counter,
+						textMessageDataSource.getLastMessageFrom(chatItem.id));
+
+				counter++;
+			}
+			if (counter == mChatItems.size()) {
+				textMessageDataSource.close();
+			}
 		}
 	}
 }

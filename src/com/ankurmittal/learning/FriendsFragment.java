@@ -1,12 +1,19 @@
 package com.ankurmittal.learning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListFragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +28,8 @@ import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -56,6 +65,17 @@ public class FriendsFragment extends ListFragment {
 		public void onItemSelected(String id) {
 		}
 	};
+	
+	
+	BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// TODO Auto-generated method stub
+			adapter.refill(mFriendsDataSource.getAllFriends());
+		}
+		
+	};
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,6 +95,10 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		getActivity().registerReceiver(broadcastReceiver,
+				new IntentFilter("Custom target refresh"));
+		
 		// open frnds databse connection
 		Log.d("frinds activity", "on resume");
 		mFriends = new ArrayList<ParseUser>();
@@ -133,6 +157,7 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		getActivity().unregisterReceiver(broadcastReceiver);
 		// close frnds database connection
 		mChatItemDataSource.close();
 		mFriendsDataSource.close();
@@ -249,6 +274,8 @@ public class FriendsFragment extends ListFragment {
 							}
 
 							if (i >= friends.size()) {
+								
+								
 								mFriendsDataSource.close();
 								if (getActivity() != null) {
 									if (getListAdapter() == null) {
@@ -260,6 +287,8 @@ public class FriendsFragment extends ListFragment {
 												getActivity(), mFriends);
 
 										getListView().setAdapter(adapter);
+										
+										updateFriendPics();
 									} else {
 										((FriendsAdapter) getListAdapter())
 												.refill(mFriends);
@@ -284,9 +313,15 @@ public class FriendsFragment extends ListFragment {
 							}
 
 						}
+						
 					}
 				});
+				Log.i("Friends frag", "updating profile pics");
+				//Fucking awsm
+				
 			}
+
+			
 		});
 	}
 
@@ -296,6 +331,31 @@ public class FriendsFragment extends ListFragment {
 		// chatItem.setLastMessage(textmessage);
 
 		mChatItemDataSource.insert(chatItem);
+	}
+	
+	
+	
+	private void updateFriendPics() {
+		ParseCloud.callFunctionInBackground("updateFriendsPics", new HashMap<String, String>() , new FunctionCallback<ArrayList<HashMap<String, String>>>() {
+
+			@Override
+			public void done(ArrayList<HashMap<String, String>> results, ParseException e) {
+				// TODO Auto-generated method stub
+				if(e ==null) {
+					if(results.size() >0) {
+						Log.e("frnds frag","updating pics successfull  " + results.get(0).get("img_url"));
+						if(!getActivity().isFinishing() && !getActivity().isDestroyed()) {
+							mFriendsDataSource.updateImageUrlFromId(getActivity(), results);
+							adapter.refill(mFriendsDataSource.getAllFriends());
+						}
+						
+					}
+					
+				} else {
+					Log.e("frnds frag","ERROR updating pics successfull  " + e.getMessage());
+				}
+			}
+		});
 	}
 
 }

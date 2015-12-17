@@ -92,9 +92,9 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 				holder.sentView.setImageResource(R.drawable.ic_action_sent);
-				Log.e("Text MEssage Adapter", "Setting WHITE icon");
+				//Log.e("Text MEssage Adapter", "Setting WHITE icon");
 			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_READ)) {
-				Log.e("Text MEssage Adapter", "Setting red icon");
+				//Log.e("Text MEssage Adapter", "Setting red icon");
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 				holder.sentView.setImageResource(R.drawable.ic_action_read);
 			} else {

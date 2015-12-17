@@ -1,6 +1,7 @@
 package com.ankurmittal.learning;
 
 import java.io.File;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,13 +17,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.util.FileHelper;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -34,6 +37,7 @@ public class ProfileActivity extends Activity {
 	protected static final int GALLERY_INTENT_CALLED = 50;
 	protected static final int GALLERY_KITKAT_INTENT_CALLED = 51;
 	private ImageView profileView;
+	private ImageButton editProfileImageBtn;
 	private TextView usernameView;
 	//private Button saveProfileBtn;
 	private ParseUser currentUser;
@@ -45,6 +49,7 @@ public class ProfileActivity extends Activity {
 
 		// initialize components
 		profileView = (ImageView) findViewById(R.id.profileImageView);
+		editProfileImageBtn = (ImageButton) findViewById(R.id.editProfileImageButton);
 		usernameView = (TextView) findViewById(R.id.usernameView);
 		//saveProfileBtn = (Button) findViewById(R.id.saveProfileButton);
 
@@ -59,14 +64,14 @@ public class ProfileActivity extends Activity {
 				Picasso.with(this)
 						.load(currentUser.getParseFile(
 								ParseConstants.KEY_PROFILE_IMAGE).getUrl())
-						.placeholder(R.drawable.profile_empty).resize(550, 550)
+						.placeholder(R.drawable.profile_empty).resize(756, 550)
 						.centerCrop().into(profileView);
 			}
 
 		}
 
 		// start image intent on click on image
-		profileView.setOnClickListener(new OnClickListener() {
+		editProfileImageBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
@@ -121,7 +126,7 @@ public class ProfileActivity extends Activity {
 			 
 			 Log.e("path", picturePath); // use selectedImagePath
 				Picasso.with(this).load(Uri.fromFile(file))
-						.placeholder(R.drawable.profile_empty).resize(550, 550)
+						.placeholder(R.drawable.profile_empty).resize(756, 550)
 						.centerCrop().into(profileView);
 
 				byte[] fileBytes = FileHelper.getByteArrayFromFile(this,
@@ -142,6 +147,7 @@ public class ProfileActivity extends Activity {
 							Toast.makeText(ProfileActivity.this,
 									"Profile photo updated", Toast.LENGTH_SHORT)
 									.show();
+							triggerFriendsUpdate();
 						} else {
 							Log.d("profile activity", "aww not uploaded");
 							Toast.makeText(ProfileActivity.this,
@@ -188,7 +194,7 @@ public class ProfileActivity extends Activity {
 			}
 			Log.e("path", selectedImagePath); // use selectedImagePath
 			Picasso.with(this).load(Uri.fromFile(new File(selectedImagePath)))
-					.placeholder(R.drawable.profile_empty).resize(550, 550)
+					.placeholder(R.drawable.profile_empty).resize(756, 550)
 					.centerCrop().into(profileView);
 
 			byte[] fileBytes = FileHelper.getByteArrayFromFile(this,
@@ -209,6 +215,7 @@ public class ProfileActivity extends Activity {
 						Toast.makeText(ProfileActivity.this,
 								"Profile photo updated", Toast.LENGTH_SHORT)
 								.show();
+						triggerFriendsUpdate();
 					} else {
 						Log.d("profile activity", "aww not uploaded");
 						Toast.makeText(ProfileActivity.this,
@@ -272,4 +279,24 @@ public class ProfileActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	private void triggerFriendsUpdate() {
+		Log.e("profile activity", "Triggered frnd update");
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("id", ParseUser.getCurrentUser().getObjectId());
+		ParseCloud.callFunctionInBackground("triggerUpdateInFriends", params, new FunctionCallback<String>() {
+
+			@Override
+			public void done(String arg0, ParseException e) {
+				// TODO Auto-generated method stub
+				if(e == null) {
+					Log.e("profile activity", arg0);
+				} else {
+					Log.e("profile activity", e.getMessage());
+				}
+				
+			}
+		});
+	}
+	
 }

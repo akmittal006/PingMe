@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -53,7 +53,7 @@ import com.parse.ParseUser;
  * This activity also implements the required {@link ChatListFragment.Callbacks}
  * interface to listen for item selections.
  */
-public class ChatListActivity extends FragmentActivity implements
+public class ChatListActivity extends Activity implements
 		ChatListFragment.Callbacks  {
 
 	/**

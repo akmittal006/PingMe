@@ -8,5 +8,6 @@
     <color name = "colorPrimary">#39BDB6</color>
     <color name = "primary_dark">#2D9792</color>
      <color name = "accent">#33AAA4</color>
+     <color name = "transparent">#33AAA422</color>
     
 </resources>

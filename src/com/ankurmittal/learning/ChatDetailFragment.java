@@ -43,6 +43,7 @@ import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.Utils;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseAnalytics;
@@ -56,6 +57,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SendCallback;
+import com.pubnub.api.Pubnub;
 
 /**
  * A fragment representing a single Chat detail screen. This fragment is either
@@ -87,6 +89,8 @@ public class ChatDetailFragment extends Fragment {
 	private ArrayList<String> toDeleteMessages;
 	private ArrayList<TextMessage> notReadMessages;
 	protected View emptyView;
+	Pubnub pubnub;
+	String myChannelName;
 
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
@@ -110,6 +114,35 @@ public class ChatDetailFragment extends Fragment {
 		}
 		mMessageDataSource = new TextMessageDataSource(getActivity());
 		notReadMessages = new ArrayList<TextMessage>();
+
+		/*
+		 * pubnub = new Pubnub("pub-c-72023601-94db-4a47-93e0-a1a111212e14",
+		 * "sub-c-7728d700-3dd7-11e5-b53d-0619f8945a4f"); myChannelName =
+		 * ParseUser.getCurrentUser().getObjectId(); try {
+		 * pubnub.subscribe(myChannelName , new Callback() {
+		 * 
+		 * @Override public void connectCallback(String channel, Object message)
+		 * { pubnub.publish(myChannelName, "Hello from the PubNub Java SDK", new
+		 * Callback() {}); }
+		 * 
+		 * @Override public void disconnectCallback(String channel, Object
+		 * message) { System.out.println("SUBSCRIBE : DISCONNECT on channel:" +
+		 * channel + " : " + message.getClass() + " : " + message.toString()); }
+		 * 
+		 * public void reconnectCallback(String channel, Object message) {
+		 * System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel +
+		 * " : " + message.getClass() + " : " + message.toString()); }
+		 * 
+		 * @Override public void successCallback(String channel, Object message)
+		 * { System.out.println("SUBSCRIBE : " + channel + " : " +
+		 * message.getClass() + " : " + message.toString()); }
+		 * 
+		 * @Override public void errorCallback(String channel, PubnubError
+		 * error) { System.out.println("SUBSCRIBE : ERROR on channel " + channel
+		 * + " : " + error.toString()); } } ); } catch (PubnubException e) {
+		 * System.out.println(e.toString()); }
+		 */
+
 	}
 
 	private BroadcastReceiver notificationMessageReceiver = new BroadcastReceiver() {
@@ -123,11 +156,11 @@ public class ChatDetailFragment extends Fragment {
 				String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
 				JSONObject jsonMessage = new JSONObject(jsonData);
 				if (jsonMessage.getString("type").equals("message")) {
-					Log.d("chat list", "message push received");
+					// Log.d("chat list", "message push received");
 				} else if (jsonMessage.getString("type").equals("message")) {
-					Log.e("chat list", "update  push received");
+					// Log.e("chat list", "update  push received");
 				}
-				Log.d("chat detail Activity", "hurray updating activity");
+				// Log.d("chat detail Activity", "hurray updating activity");
 				loadChatItemMessagesFromDatabase();
 			} catch (Exception e) {
 				Log.i("chat detail error", "error while receiving notification");
@@ -293,16 +326,12 @@ public class ChatDetailFragment extends Fragment {
 								newTextMessage);
 						pTextMessage.put(ParseConstants.KEY_MESSAGE_SENDER,
 								ParseUser.getCurrentUser());
-
 						pTextMessage.put(
 								ParseConstants.KEY_MESSAGE_RECEIVER_ID,
 								getArguments().getString(ARG_ITEM_ID));
 						pTextMessage.put(
 								ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 								mItem.content);
-						// Log.i("chehck ",
-						// pTextMessage
-						// .getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
 						pTextMessage.put("isSent",
 								Constants.MESSAGE_STATUS_PENDING);
 						pTextMessage.pinInBackground(Constants.GROUP_NOT_SENT,
@@ -314,20 +343,8 @@ public class ChatDetailFragment extends Fragment {
 											Log.i("written msg pinned",
 													"pinned");
 											message = new TextMessage();
-											message.setMessage(newTextMessage);
-											message.setMessageId(pTextMessage
-													.getObjectId());
-											message.setSenderId(ParseUser
-													.getCurrentUser()
-													.getObjectId());
-											message.setSenderName(ParseUser
-													.getCurrentUser()
-													.getUsername());
-											message.setReceiverId(mItem.id);
-											message.setReceiverName(mItem.content);
-											Log.d("check", mItem.content);
-											message.setCreatedAt(new Date());
-											message.setMessageStatus(Constants.MESSAGE_STATUS_PENDING);
+											message = Utils.createTextMessage(pTextMessage);
+											mMessageDataSource.insert(message);
 
 											// add to chat item
 											String id = mItem.id;
@@ -375,7 +392,7 @@ public class ChatDetailFragment extends Fragment {
 				if (view.getId() == lw.getId()
 						&& mItem.getItemMessages().size() > 0) {
 					if (mItem.getMessage(firstVisibleItem) != null) {
-						dateView.setText(getDateString(mItem.getMessage(
+						dateView.setText(Utils.getDateString(mItem.getMessage(
 								firstVisibleItem).getCreatedAt()));
 					}
 				}
@@ -402,6 +419,7 @@ public class ChatDetailFragment extends Fragment {
 			String id = mItem.id; // equivalent to item id
 			ArrayList<TextMessage> allMessages = mMessageDataSource
 					.getMessagesFrom(mItem.id);
+			
 			if (ChatContent.ITEM_MAP.containsKey(mItem.id)) {
 				// clear all prev msgs
 				ChatItem chatItem = ChatContent.ITEM_MAP.get(mItem.id);
@@ -416,8 +434,8 @@ public class ChatDetailFragment extends Fragment {
 					Log.d("message sender name", message.getSenderName());
 					maintainDate(message, chatItem);
 					chatItem.addMessage(message);
-					Log.d("IMPPP chat frag",
-							"msg added " + message.getCreatedAtString());
+//					Log.d("IMPPP chat frag",
+//							"msg added " + message.getCreatedAtString());
 				} else {
 					// new chat item is created
 					ChatItem chatItem = new ChatItem(id,
@@ -427,14 +445,14 @@ public class ChatDetailFragment extends Fragment {
 					maintainDate(message, chatItem);
 					chatItem.addMessage(message);
 					ChatContent.addItem(chatItem);
-					Log.d("IMPPP chat frag", "msg added");
+//					Log.d("IMPPP chat frag", "msg added");
 				}
 			}
 			if (ChatContent.ITEM_MAP.containsKey(id)) {
 				// messages from that sender exist
-				ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
-				addNotSentMessages(chatItem);
-				Log.i("added", "not sent messages");
+//				ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
+////				addNotSentMessages(chatItem);
+////				Log.i("added", "not sent messages");
 			}
 		} else {
 			TextView emptyView = (TextView) rootView
@@ -455,12 +473,12 @@ public class ChatDetailFragment extends Fragment {
 		prevDate = currDate;
 		currDate = getDate(pTextMessage.getCreatedAt());
 		if (prevDate == null) {
-			TextMessage dateMessage = createNeutralMessage(currDate,
+			TextMessage dateMessage = Utils.createNeutralMessage(currDate,
 					pTextMessage);
 			chatItem.addMessage(dateMessage);
 		} else {
 			if (currDate.after(prevDate)) {
-				TextMessage dateMessage = createNeutralMessage(currDate,
+				TextMessage dateMessage = Utils.createNeutralMessage(currDate,
 						pTextMessage);
 				chatItem.addMessage(dateMessage);
 			}
@@ -483,28 +501,6 @@ public class ChatDetailFragment extends Fragment {
 		return resDate;
 	}
 
-	private String getDateString(Date date) {
-		String strDate = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		strDate = dateFormat.format(date);
-		return strDate;
-	}
-
-	private TextMessage createNeutralMessage(Date currDate,
-			TextMessage pTextMessage) {
-		TextMessage textMessage = new TextMessage();
-		textMessage.setMessage(getDateString(currDate));
-		Log.d("list frag ", " " + pTextMessage.getMessage());
-		textMessage.setMessageId(currDate.toString());
-		textMessage.setReceiverId(pTextMessage.getReceiverId());
-		textMessage.setReceiverName("pingMe9872719390");
-		textMessage.setSenderId(pTextMessage.getSenderId());
-		textMessage.setSenderName(pTextMessage.getSenderName());
-		textMessage.setCreatedAt(currDate);
-		textMessage.setType(Constants.TYPE_NEUTRAL);
-		return textMessage;
-	}
-
 	private void syncMsgsToParse() {
 		ConnectivityManager cm = (ConnectivityManager) getActivity()
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -517,12 +513,11 @@ public class ChatDetailFragment extends Fragment {
 						ParseConstants.TEXT_MESSAGE);
 				query.fromPin(Constants.GROUP_NOT_SENT);
 				query.whereEqualTo("isSent", Constants.MESSAGE_STATUS_PENDING);
-				// query.whereEqualTo("isSent", false);
 				query.findInBackground(new FindCallback<ParseObject>() {
 					public void done(List<ParseObject> messages,
 							ParseException e) {
 						if (e == null) {
-							Log.i("pinned msgs", "" + messages.size());
+							Log.i("pending msgs", "" + messages.size());
 							for (final ParseObject message : messages) {
 								// Set is draft flag to false before
 								// syncing to Parse
@@ -536,13 +531,7 @@ public class ChatDetailFragment extends Fragment {
 											message.put(
 													"isSent",
 													Constants.MESSAGE_STATUS_SENT);
-											Log.i("saving",
-													""
-															+ message
-																	.getBoolean("isSent"));
-											Log.i("sys check ", "inserting...");
-											mMessageDataSource
-													.insert(createTextMessage(message));
+											mMessageDataSource.updatePendingMessage(message.getString(ParseConstants.KEY_MESSAGE), message.getObjectId());
 											prevDate = null;
 											currDate = null;
 											Log.i("sys check ", "loading...");
@@ -587,50 +576,6 @@ public class ChatDetailFragment extends Fragment {
 		}
 	}
 
-	private TextMessage createTextMessage(ParseObject pTextMessage) {
-		TextMessage textMessage = new TextMessage();
-		textMessage.setMessage(pTextMessage
-				.getString(ParseConstants.KEY_MESSAGE));
-		Log.d("detail frag ",
-				" "
-						+ pTextMessage.getString(ParseConstants.KEY_MESSAGE)
-						+ ": "
-						+ pTextMessage
-								.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME)
-						+ ", " + pTextMessage.getString("isSent"));
-		textMessage.setMessageId(pTextMessage.getObjectId());
-		textMessage.setReceiverId(pTextMessage
-				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
-		textMessage.setReceiverName(pTextMessage
-				.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-		textMessage.setSenderId(pTextMessage.getParseUser(
-				ParseConstants.KEY_MESSAGE_SENDER).getObjectId());
-		textMessage.setSenderName(pTextMessage.getParseUser(
-				ParseConstants.KEY_MESSAGE_SENDER).getUsername());
-		if (pTextMessage.getCreatedAt() != null) {
-			textMessage.setCreatedAt(getDateTime(pTextMessage.getCreatedAt()));
-		} else {
-			textMessage.setCreatedAt(new Date());
-		}
-		if (textMessage.getSenderId() == ParseUser.getCurrentUser()
-				.getObjectId()) {
-			textMessage.setType(Constants.TYPE_SENT);
-		} else {
-			textMessage.setType(Constants.TYPE_RECEIVED);
-		}
-
-		textMessage.setMessageStatus(pTextMessage.getString("isSent"));
-
-		return textMessage;
-	}
-
-	private String getDateTime(java.util.Date date) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-		// Date date = new Date();
-		return dateFormat.format(date);
-	}
-
 	private void addNotSentMessages(final ChatItem item) {
 		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
 				ParseConstants.TEXT_MESSAGE);
@@ -644,7 +589,7 @@ public class ChatDetailFragment extends Fragment {
 				if (e == null) {
 					Log.i("not sent ", "" + messages.size());
 					for (ParseObject message : messages) {
-						item.addMessage(createTextMessage(message));
+						item.addMessage(Utils.createTextMessage(message));
 					}
 					if (!getActivity().isFinishing()) {
 						chatView.setAdapter(new TextMessageAdapter(
@@ -667,51 +612,16 @@ public class ChatDetailFragment extends Fragment {
 		push.setQuery(query);
 		push.setMessage("" + message.getString(ParseConstants.KEY_SENDER_NAME)
 				+ ": " + message.getString(ParseConstants.KEY_MESSAGE));
-		push.setData(createJSONObject(message));
+		push.setData(Utils.createJSONObject(message));
 		push.sendInBackground(new SendCallback() {
 
 			@Override
 			public void done(ParseException arg0) {
 				// msg sent!
-				Log.e("Message Push sent", "hurray + " + message.getString("isSent"));
+				Log.e("Message Push sent",
+						"hurray + " + message.getString("isSent"));
 			}
 		});
-	}
-
-	protected JSONObject createJSONObject(ParseObject message) {
-		JSONObject jsonMessage = new JSONObject();
-		try {
-			jsonMessage.put(
-					"alert",
-					message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME)
-							+ ": "
-							+ message.getString(ParseConstants.KEY_MESSAGE));
-			jsonMessage.put(ParseConstants.KEY_MESSAGE,
-					message.getString(ParseConstants.KEY_MESSAGE));
-			jsonMessage.put(ParseConstants.KEY_MESSAGE_ID,
-					message.getObjectId());
-			jsonMessage.put(ParseConstants.KEY_SENDER_NAME, message
-					.getParseUser(ParseConstants.KEY_MESSAGE_SENDER)
-					.getUsername());
-			jsonMessage.put(ParseConstants.KEY_SENDER_ID,
-					message.getParseUser(ParseConstants.KEY_MESSAGE_SENDER)
-							.getObjectId());
-			jsonMessage.put(ParseConstants.KEY_MESSAGE_RECEIVER_ID,
-					message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
-			jsonMessage
-					.put(ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
-							message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-			jsonMessage.put("isSent", message.getString("isSent"));
-			jsonMessage.put(ParseConstants.KEY_CREATED_AT,
-					getDateTime(message.getCreatedAt()));
-			jsonMessage.put("type", "message");
-
-			Log.d("Json message", jsonMessage.toString());
-			return jsonMessage;
-		} catch (Exception e) {
-			Log.e("JSON ERROR", "error creating message");
-		}
-		return null;
 	}
 
 	private void deleteMessages(ArrayList<String> ids) {
@@ -731,19 +641,25 @@ public class ChatDetailFragment extends Fragment {
 			if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
 				ArrayList<TextMessage> messages = mItem.getNotReadMessages();
 				if (messages.size() > 0) {
-					Log.i("pinned to update msgs", "" + messages.size());
+					Log.i("pinned to update read msgs", "" + messages.size());
+
+					// create cloud function parameter which maps not read
+					// messages to thier id
 					final HashMap<String, String> params = new HashMap<String, String>();
 					int i = 0;
 					for (final TextMessage message : messages) {
-						params.put(message.getMessageId(), Constants.MESSAGE_STATUS_READ);
+						params.put(message.getMessageId(),
+								Constants.MESSAGE_STATUS_READ);
 						i++;
 
 					}
+
+					// call cloud function
 					if (i == messages.size()) {
-						Log.i("calling cloud", "now");
-						ParseCloud.callFunctionInBackground(
-								"updateMessages", params,
-								new FunctionCallback<String>() {
+						Log.i("update read msgs calling cloud with params ",
+								"now + params : " + params.size());
+						ParseCloud.callFunctionInBackground("updateMessages",
+								params, new FunctionCallback<String>() {
 
 									@Override
 									public void done(String arg0,
@@ -751,26 +667,65 @@ public class ChatDetailFragment extends Fragment {
 										// TODO Auto-generated method
 										// stub
 										if (e == null) {
-											Log.i("Cloud code2",
-													"Yay it worked! "
-															+ arg0);
-											//set Read Message status
-											int h=0;
-											for (TextMessage message : notReadMessages) {
-												int updated = mMessageDataSource.updateMessageStatus(message.getMessageId(), Constants.MESSAGE_STATUS_READ);
-												Log.e("chat detail", " updated to chat read MEssage "+ updated);
+											Log.i("Read Msgs update Cloud code2",
+													"Yay it worked! " + arg0);
+											// set Read Message status
+											int h = 0;
+											for (TextMessage message : mItem
+													.getNotReadMessages()) {
+												int updated = mMessageDataSource.updateMessageStatus(
+														message.getMessageId(),
+														Constants.MESSAGE_STATUS_READ);
+												Log.e("chat detail",
+														" updated to chat read MEssage "
+																+ updated);
 												h++;
 											}
-											if( h == notReadMessages.size()) {
-												notReadMessages.clear();
+											if (h == mItem.getNotReadMessages()
+													.size()) {
+												mItem.getNotReadMessages()
+														.clear();
 											}
 										} else {
-											Log.i("Cloud Code2",
+											Log.i("Read Msgs update Cloud Code2",
 													"Some error"
 															+ e.getMessage());
 										}
 									}
 								});
+
+						/*
+						 * pubnub.publish(mItem.id, "messages seen", new
+						 * Callback() {
+						 * 
+						 * @Override public void connectCallback(String channel,
+						 * Object message) { pubnub.publish(myChannelName,
+						 * "Hello from the other user", new Callback() { }); }
+						 * 
+						 * @Override public void disconnectCallback( String
+						 * channel, Object message) { Log.e("pubnub",
+						 * "SUBSCRIBE 2 : DISCONNECT on channel:" + channel +
+						 * " : " + message.getClass() + " : " +
+						 * message.toString()); }
+						 * 
+						 * public void reconnectCallback( String channel, Object
+						 * message) { Log.e("pubnub",
+						 * "SUBSCRIBE 2 : RECONNECT on channel:" + channel +
+						 * " : " + message.getClass() + " : " +
+						 * message.toString()); }
+						 * 
+						 * @Override public void successCallback(String channel,
+						 * Object message) { Log.e("pubnub",
+						 * "SUBSCRIBE SUCCESS : " + channel + " : " +
+						 * message.getClass() + " : " + message.toString()); }
+						 * 
+						 * @Override public void errorCallback(String channel,
+						 * PubnubError error) { Log.e("pubnub",
+						 * "SUBSCRIBE : ERROR on channel " + channel + " : " +
+						 * error.toString()); }
+						 * 
+						 * });
+						 */
 					}
 
 				} else {

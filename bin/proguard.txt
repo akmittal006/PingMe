@@ -34,9 +34,6 @@
 # view AndroidManifest.xml #generated:103
 -keep class com.facebook.LoginActivity { <init>(...); }
 
-# view res/layout/com_facebook_usersettingsfragment.xml #generated:48
--keep class com.facebook.widget.LoginButton { <init>(...); }
-
 # view AndroidManifest.xml #generated:125
 -keep class com.parse.GcmBroadcastReceiver { <init>(...); }
 

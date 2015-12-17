@@ -74,5 +74,6 @@
     <string name="com_facebook_tooltip_default">New! You\'re in control - choose what info you want to share with apps.</string>
     <string name="com_facebook_image_download_unknown_error">Unexpected error while downloading an image.</string>
     <string name="title_activity_profile">Profile</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
