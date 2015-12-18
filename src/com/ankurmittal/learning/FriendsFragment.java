@@ -137,6 +137,8 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+		
+		((ChatListActivity) activity).onSectionAttached(2);
 
 		// Activities containing this fragment must implement its callbacks.
 		if (!(activity instanceof Callbacks)) {

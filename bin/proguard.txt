@@ -1,3 +1,6 @@
+# view res/layout/activity_chat_list.xml #generated:2
+-keep class android.support.v4.widget.DrawerLayout { <init>(...); }
+
 # view AndroidManifest.xml #generated:95
 -keep class com.ankurmittal.learning.ChatDetailActivity { <init>(...); }
 
@@ -9,6 +12,9 @@
 
 # view AndroidManifest.xml #generated:45
 -keep class com.ankurmittal.learning.MainActivity { <init>(...); }
+
+# view res/layout/activity_chat_list.xml #generated:35
+-keep class com.ankurmittal.learning.NavigationDrawerFragment { <init>(...); }
 
 # view AndroidManifest.xml #generated:138
 -keep class com.ankurmittal.learning.ProfileActivity { <init>(...); }

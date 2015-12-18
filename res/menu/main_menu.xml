@@ -23,10 +23,6 @@
         android:icon="@drawable/ic_action_add_person"
         android:showAsAction="always"
         android:title="@string/friend_req_title"/>
-    <item
-        android:id="@+id/friends"
-        android:icon="@drawable/ic_action_group"
-        android:showAsAction="always"
-        android:title="@string/friends_label"/>
+    
 
 </menu>

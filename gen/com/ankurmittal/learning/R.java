@@ -31,8 +31,14 @@ public final class R {
          */
         public static final int activity_horizontal_margin=0x7f060001;
         public static final int activity_vertical_margin=0x7f060002;
-        public static final int com_facebook_picker_divider_width=0x7f060003;
+        public static final int com_facebook_picker_divider_width=0x7f060004;
         public static final int com_facebook_picker_place_image_size=0x7f060000;
+        /** 
+         Per the design guidelines, navigation drawers should be between 240dp and 320dp:
+         https://developer.android.com/design/patterns/navigation-drawer.html
+    
+         */
+        public static final int navigation_drawer_width=0x7f060003;
     }
     public static final class drawable {
         public static final int action_menu_button=0x7f020000;
@@ -42,79 +48,83 @@ public final class R {
         public static final int chat_back=0x7f020004;
         public static final int chat_back2=0x7f020005;
         public static final int chat_back3=0x7f020006;
-        public static final int com_facebook_picker_default_separator_color=0x7f02001b;
-        public static final int ic_action_add_person=0x7f020007;
-        public static final int ic_action_copy=0x7f020008;
-        public static final int ic_action_delivered=0x7f020009;
-        public static final int ic_action_discard=0x7f02000a;
-        public static final int ic_action_edit=0x7f02000b;
-        public static final int ic_action_group=0x7f02000c;
-        public static final int ic_action_read=0x7f02000d;
-        public static final int ic_action_search=0x7f02000e;
-        public static final int ic_action_send_now=0x7f02000f;
-        public static final int ic_action_sent=0x7f020010;
-        public static final int ic_action_time=0x7f020011;
-        public static final int ic_action_wait=0x7f020012;
-        public static final int ic_launcher=0x7f020013;
-        public static final int ping_logo=0x7f020014;
-        public static final int pingme_logo=0x7f020015;
-        public static final int profile_empty=0x7f020016;
-        public static final int rounded_square=0x7f020017;
-        public static final int rounded_square_brown=0x7f020018;
-        public static final int rounded_square_pink=0x7f020019;
-        public static final int send_outline=0x7f02001a;
+        public static final int com_facebook_picker_default_separator_color=0x7f02001d;
+        public static final int drawer_shadow=0x7f020007;
+        public static final int ic_action_add_person=0x7f020008;
+        public static final int ic_action_copy=0x7f020009;
+        public static final int ic_action_delivered=0x7f02000a;
+        public static final int ic_action_discard=0x7f02000b;
+        public static final int ic_action_edit=0x7f02000c;
+        public static final int ic_action_group=0x7f02000d;
+        public static final int ic_action_read=0x7f02000e;
+        public static final int ic_action_search=0x7f02000f;
+        public static final int ic_action_send_now=0x7f020010;
+        public static final int ic_action_sent=0x7f020011;
+        public static final int ic_action_time=0x7f020012;
+        public static final int ic_action_wait=0x7f020013;
+        public static final int ic_drawer=0x7f020014;
+        public static final int ic_launcher=0x7f020015;
+        public static final int ping_logo=0x7f020016;
+        public static final int pingme_logo=0x7f020017;
+        public static final int profile_empty=0x7f020018;
+        public static final int rounded_square=0x7f020019;
+        public static final int rounded_square_brown=0x7f02001a;
+        public static final int rounded_square_pink=0x7f02001b;
+        public static final int send_outline=0x7f02001c;
     }
     public static final class id {
-        public static final int accept_frnd_req_btn=0x7f0a0028;
-        public static final int action_settings=0x7f0a0031;
+        public static final int accept_frnd_req_btn=0x7f0a002b;
+        public static final int action_settings=0x7f0a0033;
         public static final int actionbar_notifcation_textview=0x7f0a0001;
-        public static final int button1=0x7f0a001c;
-        public static final int button2=0x7f0a001d;
-        public static final int cancel_frnd_req_btn=0x7f0a0027;
-        public static final int chatEditText=0x7f0a001f;
-        public static final int chatList=0x7f0a0023;
-        public static final int chatListView=0x7f0a0021;
+        public static final int button1=0x7f0a001e;
+        public static final int button2=0x7f0a001f;
+        public static final int cancel_frnd_req_btn=0x7f0a002a;
+        public static final int chatEditText=0x7f0a0021;
+        public static final int chatList=0x7f0a0025;
+        public static final int chatListView=0x7f0a0023;
         public static final int chat_detail_container=0x7f0a0002;
-        public static final int chat_list_container=0x7f0a0003;
-        public static final int copy=0x7f0a002b;
-        public static final int createdAtTextView=0x7f0a0019;
-        public static final int dateTextView=0x7f0a0022;
-        public static final int delete=0x7f0a002a;
-        public static final int editProfileImageButton=0x7f0a0011;
-        public static final int editTextLayout=0x7f0a0006;
-        public static final int emailEditText=0x7f0a0013;
-        public static final int facebookLoginButton=0x7f0a000d;
-        public static final int formView=0x7f0a0005;
-        public static final int friend_req=0x7f0a002f;
-        public static final int friends=0x7f0a0030;
-        public static final int friends_container=0x7f0a000e;
-        public static final int frndReqSenderImageView=0x7f0a0025;
-        public static final int frndReqSenderTextView=0x7f0a0026;
-        public static final int frndStatus=0x7f0a0029;
+        public static final int chat_list_container=0x7f0a0004;
+        public static final int copy=0x7f0a002e;
+        public static final int createdAtTextView=0x7f0a001b;
+        public static final int dateTextView=0x7f0a0024;
+        public static final int delete=0x7f0a002d;
+        public static final int drawer_layout=0x7f0a0003;
+        public static final int editProfileImageButton=0x7f0a0013;
+        public static final int editTextLayout=0x7f0a0008;
+        public static final int emailEditText=0x7f0a0015;
+        public static final int facebookLoginButton=0x7f0a000f;
+        public static final int formView=0x7f0a0007;
+        public static final int friend_req=0x7f0a0032;
+        public static final int friends_container=0x7f0a0010;
+        public static final int frndReqSenderImageView=0x7f0a0028;
+        public static final int frndReqSenderTextView=0x7f0a0029;
+        public static final int frndStatus=0x7f0a002c;
         public static final int frnd_req_btn=0x7f0a0000;
-        public static final int imageView1=0x7f0a001a;
-        public static final int imageView2=0x7f0a001b;
-        public static final int login=0x7f0a0009;
-        public static final int loginButton=0x7f0a000a;
-        public static final int messageTextView=0x7f0a0018;
-        public static final int newMessageNumView=0x7f0a0016;
-        public static final int passwordEditText=0x7f0a0008;
-        public static final int profile=0x7f0a002d;
-        public static final int profileImageView=0x7f0a000f;
-        public static final int progressBar1=0x7f0a0004;
-        public static final int search=0x7f0a002c;
-        public static final int searchProgressBar=0x7f0a0012;
-        public static final int section_label=0x7f0a0024;
-        public static final int sendButton=0x7f0a0020;
-        public static final int sendMessageLayout=0x7f0a001e;
-        public static final int sentStatusView=0x7f0a0017;
-        public static final int sign_out=0x7f0a002e;
-        public static final int subtitleView=0x7f0a0015;
-        public static final int textView1=0x7f0a000c;
-        public static final int userImageView=0x7f0a0014;
-        public static final int usernameEditText=0x7f0a0007;
-        public static final int usernameTextView=0x7f0a000b;
-        public static final int usernameView=0x7f0a0010;
+        public static final int imageView1=0x7f0a001c;
+        public static final int imageView2=0x7f0a001d;
+        public static final int login=0x7f0a000b;
+        public static final int loginButton=0x7f0a000c;
+        public static final int messageTextView=0x7f0a001a;
+        public static final int navDrawerListView=0x7f0a0027;
+        public static final int navigation_drawer=0x7f0a0005;
+        public static final int newMessageNumView=0x7f0a0018;
+        public static final int passwordEditText=0x7f0a000a;
+        public static final int profile=0x7f0a0030;
+        public static final int profileImageView=0x7f0a0011;
+        public static final int progressBar1=0x7f0a0006;
+        public static final int search=0x7f0a002f;
+        public static final int searchProgressBar=0x7f0a0014;
+        public static final int section_label=0x7f0a0026;
+        public static final int sendButton=0x7f0a0022;
+        public static final int sendMessageLayout=0x7f0a0020;
+        public static final int sentStatusView=0x7f0a0019;
+        public static final int sign_out=0x7f0a0031;
+        public static final int subtitleView=0x7f0a0017;
+        public static final int textView1=0x7f0a000e;
+        public static final int userImageView=0x7f0a0016;
+        public static final int usernameEditText=0x7f0a0009;
+        public static final int usernameTextView=0x7f0a000d;
+        public static final int usernameView=0x7f0a0012;
     }
     public static final class layout {
         public static final int action_bar_notification=0x7f030000;
@@ -152,10 +162,11 @@ public final class R {
         public static final int fragment_chat_list2=0x7f030011;
         public static final int fragment_friends=0x7f030012;
         public static final int fragment_main=0x7f030013;
-        public static final int fragment_overlay=0x7f030014;
-        public static final int frnd_item=0x7f030015;
-        public static final int frnd_req_item=0x7f030016;
-        public static final int user_item=0x7f030017;
+        public static final int fragment_navigation_drawer=0x7f030014;
+        public static final int fragment_overlay=0x7f030015;
+        public static final int frnd_item=0x7f030016;
+        public static final int frnd_req_item=0x7f030017;
+        public static final int user_item=0x7f030018;
     }
     public static final class menu {
         public static final int list_select_menu=0x7f090000;
@@ -167,6 +178,7 @@ public final class R {
     }
     public static final class string {
         public static final int accept_label=0x7f070022;
+        public static final int action_example=0x7f07004c;
         public static final int action_settings=0x7f070018;
         public static final int add_friend_dialog_title=0x7f07001d;
         public static final int app_name=0x7f070000;
@@ -219,6 +231,8 @@ public final class R {
         public static final int hello_world=0x7f070005;
         public static final int login_button_label=0x7f07000d;
         public static final int login_text_label=0x7f07000f;
+        public static final int navigation_drawer_close=0x7f07004b;
+        public static final int navigation_drawer_open=0x7f07004a;
         public static final int no_frnd_reqs_label=0x7f070024;
         public static final int passsword_hint=0x7f07000c;
         public static final int ping_label=0x7f07001c;
