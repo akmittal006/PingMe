@@ -1,0 +1,42 @@
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.mittal.navdrawerapp.NavigationDrawerFragment"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#39BDB6"
+    >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/avatar_empty" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView1"
+        android:layout_centerHorizontal="true"
+        android:text="Ankur Mittal"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <ListView
+        android:id="@+id/navDrawerListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/textView1"
+        android:background="#33AAA4"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp" />
+
+</RelativeLayout>
+
