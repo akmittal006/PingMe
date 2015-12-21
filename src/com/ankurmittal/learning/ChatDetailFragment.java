@@ -43,6 +43,7 @@ import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.PushNotificationReceiver;
 import com.ankurmittal.learning.util.Utils;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
@@ -64,12 +65,13 @@ import com.pubnub.api.Pubnub;
  * contained in a {@link ChatListActivity} in two-pane mode (on tablets) or a
  * {@link ChatDetailActivity} on handsets.
  */
-public class ChatDetailFragment extends Fragment {
+public class ChatDetailFragment extends Fragment  {
 	/**
 	 * The fragment argument representing the item ID that this fragment
 	 * represents.
 	 */
 	public static final String ARG_ITEM_ID = "item_id";
+	private TestInterface mCallbacks;
 
 	/**
 	 * The dummy content this fragment is presenting.
@@ -90,6 +92,7 @@ public class ChatDetailFragment extends Fragment {
 	private ArrayList<TextMessage> notReadMessages;
 	protected View emptyView;
 	Pubnub pubnub;
+	
 	String myChannelName;
 
 	/**
@@ -114,6 +117,9 @@ public class ChatDetailFragment extends Fragment {
 		}
 		mMessageDataSource = new TextMessageDataSource(getActivity());
 		notReadMessages = new ArrayList<TextMessage>();
+		
+		PushNotificationReceiver mReceiver = new PushNotificationReceiver();
+		mCallbacks = (TestInterface)mReceiver;
 
 		/*
 		 * pubnub = new Pubnub("pub-c-72023601-94db-4a47-93e0-a1a111212e14",
@@ -154,6 +160,12 @@ public class ChatDetailFragment extends Fragment {
 						.getIntent());
 				// Extract data included in the Intent
 				String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
+				
+				if(jsonData.equals("refresh")) {
+					//callback from notification receiver after sending push to refresh
+					loadChatItemMessagesFromDatabase();
+				}
+				
 				JSONObject jsonMessage = new JSONObject(jsonData);
 				if (jsonMessage.getString("type").equals("message")) {
 					// Log.d("chat list", "message push received");
@@ -168,10 +180,33 @@ public class ChatDetailFragment extends Fragment {
 			// do other stuff here
 		}
 	};
+	
+	
+	private BroadcastReceiver notificationCheckReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			try {
+				ParseAnalytics.trackAppOpenedInBackground(getActivity()
+						.getIntent());
+				String id = intent.getStringExtra(Constants.JSON_MESSAGE_ID);
+				// Send callback to notification receiver
+				mCallbacks = (TestInterface) new PushNotificationReceiver();
+				mCallbacks.callbackCall(id,getActivity());
+
+				
+			} catch (Exception e) {
+				Log.e("chat detail error", "error while receiving notification check " + e.getMessage());
+			}
+			// do other stuff here
+		}
+	};
+	
 
 	@Override
 	public void onPause() {
 		getActivity().unregisterReceiver(notificationMessageReceiver);
+		getActivity().unregisterReceiver(notificationCheckReceiver);
 		mMessageDataSource.close();
 		super.onPause();
 	}
@@ -187,6 +222,9 @@ public class ChatDetailFragment extends Fragment {
 		// open database connection
 		getActivity().registerReceiver(notificationMessageReceiver,
 				new IntentFilter(Constants.PUSH_TO_CHAT));
+		
+		getActivity().registerReceiver(notificationCheckReceiver,
+				new IntentFilter(Constants.PUSH_TO_CHECK));
 		mMessageDataSource.open();
 		loadChatItemMessagesFromDatabase();
 		updateReadMessages();
@@ -344,7 +382,13 @@ public class ChatDetailFragment extends Fragment {
 													"pinned");
 											message = new TextMessage();
 											message = Utils.createTextMessage(pTextMessage);
-											mMessageDataSource.insert(message);
+											if(mMessageDataSource.isOpen()) {
+												mMessageDataSource.insert(message);
+											} else {
+												mMessageDataSource.open();
+												mMessageDataSource.insert(message);
+											}
+											
 
 											// add to chat item
 											String id = mItem.id;
@@ -427,9 +471,10 @@ public class ChatDetailFragment extends Fragment {
 			}
 			for (TextMessage message : allMessages) {
 
-				Log.d("chat frag", "" + id);
+//				Log.e("DEBUG", "" + id);
 				if (ChatContent.ITEM_MAP.containsKey(id)) {
 					// messages from that sender exist
+					
 					ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
 					Log.d("message sender name", message.getSenderName());
 					maintainDate(message, chatItem);
@@ -746,6 +791,12 @@ public class ChatDetailFragment extends Fragment {
 					"Your device appears to be offline. Some Messages may not have been synced .",
 					Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	
+	
+	public static interface TestInterface {
+		void callbackCall(String id,Context context);
 	}
 
 }

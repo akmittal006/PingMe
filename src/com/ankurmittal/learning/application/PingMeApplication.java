@@ -1,6 +1,9 @@
 package com.ankurmittal.learning.application;
 
+import android.app.Activity;
 import android.app.Application;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.Parse;
@@ -29,4 +32,44 @@ public class PingMeApplication extends Application {
 		installation.put(ParseConstants.KEY_USER_ID, user.getObjectId());
 		installation.saveInBackground();
 	}
+	
+	
+	public static class MyActivityLifecycleCallbacks implements ActivityLifecycleCallbacks {
+
+	    @Override
+	    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+	      Log.i(activity.getClass().getSimpleName(), "onCreate(Bundle)");
+	    }
+
+	    @Override
+	    public void onActivityStarted(Activity activity) {
+	      Log.i(activity.getClass().getSimpleName(), "onStart()");
+	    }
+
+	    @Override
+	    public void onActivityResumed(Activity activity) {
+	      Log.i(activity.getClass().getSimpleName(), "onResume()");
+	    }
+
+	    @Override
+	    public void onActivityPaused(Activity activity) {
+	      Log.i(activity.getClass().getSimpleName(), "onPause()");
+	    }
+
+	    @Override
+	    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+	      Log.i(activity.getClass().getSimpleName(), "onSaveInstanceState(Bundle)");
+	    }
+
+	    @Override
+	    public void onActivityStopped(Activity activity) {
+	      Log.i(activity.getClass().getSimpleName(), "onStop()");
+	    }
+
+	    @Override
+	    public void onActivityDestroyed(Activity activity) {
+	      Log.i(activity.getClass().getSimpleName(), "onDestroy()");
+	    }
+	  }
+	
 }

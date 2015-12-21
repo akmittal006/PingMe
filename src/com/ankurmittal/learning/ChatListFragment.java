@@ -15,11 +15,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.DataSetObserver;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -104,15 +107,15 @@ public class ChatListFragment extends ListFragment {
 	private ListView chatListView;
 	private ChatItemsAdapter adapter;
 	private ArrayList<ChatItem> mChatItems;
-	
+
 	private View rootView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (ParseUser.getCurrentUser() != null) {
-			//throw new RuntimeException("Test Exception!");
-			 retrieveMessages();
+			// throw new RuntimeException("Test Exception!");
+			retrieveMessages();
 			mChatItemDataSource = new ChatItemDataSource(getActivity());
 			mChatItemDataSource.open();
 		} else {
@@ -122,60 +125,58 @@ public class ChatListFragment extends ListFragment {
 			startActivity(intent2);
 		}
 		final HashMap<String, Object> params = new HashMap<String, Object>();
-		ParseCloud.callFunctionInBackground("hello",params, new FunctionCallback<String>() {
+		ParseCloud.callFunctionInBackground("hello", params,
+				new FunctionCallback<String>() {
 
-			@Override
-			public void done(String arg0, ParseException e) {
-				// TODO Auto-generated method stub
-				if(e == null) {
-					Log.i("Cloud code", "Yay it worked!");
-				} else {
-					Log.i("Cloud Code", "Some error" + e.getMessage());
-				}
-			}
-		});
+					@Override
+					public void done(String arg0, ParseException e) {
+						// TODO Auto-generated method stub
+						if (e == null) {
+							Log.i("Cloud code", "Yay it worked!");
+						} else {
+							Log.i("Cloud Code", "Some error" + e.getMessage());
+						}
+					}
+				});
 
 		mMessageDataSource = new TextMessageDataSource(getActivity());
 		mChatItems = new ArrayList<ChatItem>();
 		latestMessages = new ArrayList<TextMessage>();
-		if(mChatItemDataSource != null) {
+		if (mChatItemDataSource != null) {
 			mChatItems = mChatItemDataSource.getAllChatItems();
 		}
-		
-		if(mChatItems != null) {
-			for(ChatItem chatItem:mChatItems) {
+
+		if (mChatItems != null) {
+			for (ChatItem chatItem : mChatItems) {
+
 				ChatContent.addItem(chatItem);
+
 			}
-			
+
 		} else {
 			mChatItems = new ArrayList<ChatItem>();
 		}
-		
-		if(!getActivity().isFinishing()) {
+
+		if (!getActivity().isFinishing()) {
 			adapter = new ChatItemsAdapter(getActivity(), mChatItems);
-			
+			// Log.e("DEBUG", "Calling Adapter");
 			setListAdapter(adapter);
 		}
-		
-		
-		
 
 		// TODO: replace with a real list adapter.
-		//chatListView.setAdapter(adapter);
-		
-		
+		// chatListView.setAdapter(adapter);
 
 	}
 
-//	@Override
-//	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//			Bundle savedInstanceState) {
-//		rootView = inflater.inflate(R.layout.fragment_chat_list, container,
-//				false);
-//		chatListView = (ListView)rootView.findViewById(R.id.chatList);
-//		return rootView;
-//	}
-	
+	// @Override
+	// public View onCreateView(LayoutInflater inflater, ViewGroup container,
+	// Bundle savedInstanceState) {
+	// rootView = inflater.inflate(R.layout.fragment_chat_list, container,
+	// false);
+	// chatListView = (ListView)rootView.findViewById(R.id.chatList);
+	// return rootView;
+	// }
+
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
@@ -197,20 +198,31 @@ public class ChatListFragment extends ListFragment {
 				// Extract data included in the Intent
 
 				String jsonData = intent.getStringExtra(Constants.JSON_MESSAGE);
-				JSONObject jsonMessage = new JSONObject(jsonData);
-				Log.e("chat list","push received" + jsonMessage.getString("type"));
-		        if(jsonMessage.getString("type").equals("message")) {
-		        	Log.e("chat list","message push received");
-		        } else if (jsonMessage.getString("type").equals("update")) {
-		        	Log.e("chat list","update  push received");
-		        }
-				Log.d("chat List Activity", "hurray updating activity");
-				if(mChatItemDataSource != null) {
-					mChatItems.clear();
-					mChatItems = mChatItemDataSource.getAllChatItems();
-					Log.d("cat List", "" + mChatItems.size());
+				if (jsonData.equals("refresh")) {
+					// callback from notification receiver after sending push to
+					// refresh
+					if (mChatItemDataSource != null) {
+						mChatItems.clear();
+						mChatItems = mChatItemDataSource.getAllChatItems();
+						adapter.refill(mChatItems);
+						// Log.d("cat List", "" + mChatItems.size());
+					}
 				}
-				
+
+				JSONObject jsonMessage = new JSONObject(jsonData);
+				Log.e("chat list",
+						"push received" + jsonMessage.getString("type"));
+				if (jsonMessage.getString("type").equals("message")) {
+					// Log.e("chat list","message push received");
+				} else if (jsonMessage.getString("type").equals("update")) {
+					// Log.e("chat list","update  push received");
+				}
+				Log.e("chat List Activity", "hurray updating activity");
+				if (mChatItemDataSource != null) {
+					mChatItems.clear();
+
+				}
+
 				updateView();
 			} catch (Exception e) {
 				Log.i("chat List error", "error while receiving notification");
@@ -225,10 +237,10 @@ public class ChatListFragment extends ListFragment {
 		super.onPause();
 		// close database connection
 		// mMessageDataSource.close();
-		if(mMessageDataSource != null) {
+		if (mMessageDataSource != null) {
 			mMessageDataSource.close();
 		}
-		
+
 	}
 
 	@Override
@@ -237,9 +249,9 @@ public class ChatListFragment extends ListFragment {
 
 		getActivity().registerReceiver(notificationMessageReceiver,
 				new IntentFilter(Constants.PUSH_TO_CHAT));
-	
+
 		// open database connection
-		if(mMessageDataSource != null && mChatItemDataSource != null) {
+		if (mMessageDataSource != null && mChatItemDataSource != null) {
 			mMessageDataSource.open();
 			mChatItemDataSource.open();
 		}
@@ -248,7 +260,7 @@ public class ChatListFragment extends ListFragment {
 			if (!(getActivity().isFinishing())) {
 				retrieveMessages();
 				updateDeliveredMessages();
-				//sortMessagesFromDatabase();
+				// sortMessagesFromDatabase();
 			}
 
 		}
@@ -286,6 +298,7 @@ public class ChatListFragment extends ListFragment {
 		// Notify the active callbacks interface (the activity, if the
 		// fragment is attached to one) that an item has been selected.
 		mCallbacks.onItemSelected(mChatItems.get(position).id);
+		// Log.e("DEBUG","" + mChatItems.get(position).getContent());
 	}
 
 	@Override
@@ -318,10 +331,11 @@ public class ChatListFragment extends ListFragment {
 
 		mActivatedPosition = position;
 	}
-	
-	///either we receive message by push or by forcefully updating this fragment
 
-	////////forcefully receiving messages
+	// /either we receive message by push or by forcefully updating this
+	// fragment
+
+	// //////forcefully receiving messages
 	private void retrieveMessages() {
 		Log.i("chat lis", "retrieving");
 		ParseQuery<ParseObject> messagesQuery = new ParseQuery<ParseObject>(
@@ -353,7 +367,8 @@ public class ChatListFragment extends ListFragment {
 						if (ParseUser.getCurrentUser() != null) {
 							mMessageDataSource.insert(textmessage);
 
-							pTextMessage.pinInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED,
+							pTextMessage.pinInBackground(
+									ParseConstants.GROUP_MESSAGE_DELIVERED,
 									new SaveCallback() {
 
 										@Override
@@ -361,10 +376,9 @@ public class ChatListFragment extends ListFragment {
 											if (e == null) {
 												Log.i("cht list",
 														"to update Delivered msg pinned");
-												
+
 											} else {
-												Log.i("cht list",
-														"not  pinned");
+												Log.i("cht list", "not  pinned");
 											}
 
 										}
@@ -372,8 +386,8 @@ public class ChatListFragment extends ListFragment {
 						}
 					}
 					if (ParseUser.getCurrentUser() != null) {
-						 //sortMessagesFromDatabase();
-						 updateChatItemsFromMessages(latestMessages);
+						// sortMessagesFromDatabase();
+						updateChatItemsFromMessages(latestMessages);
 
 						updateView();
 					}
@@ -388,12 +402,12 @@ public class ChatListFragment extends ListFragment {
 
 		});
 	}
-	
+
 	private void updateChatItemsFromMessages(ArrayList<TextMessage> messages) {
 		Log.i("after receiving msgs", "updating chat items");
-		for(TextMessage message : messages) {
+		for (TextMessage message : messages) {
 			updateChatItem(message);
-			
+
 		}
 		latestMessages.clear();
 	}
@@ -414,9 +428,8 @@ public class ChatListFragment extends ListFragment {
 
 		ChatItem chatItem = new ChatItem(id, content);
 		chatItem.setLastMessage(textmessage);
-		
+
 		mChatItemDataSource.insert(chatItem);
-		
 
 	}
 
@@ -454,59 +467,60 @@ public class ChatListFragment extends ListFragment {
 		return textMessage;
 	}
 
-//	@Deprecated 
-//	private void sortMessagesFromDatabase() {
-//
-//		if (mMessageDataSource.selectAll().getCount() != 0) {
-//			// getting all stored messages
-//			ArrayList<TextMessage> allMessages = mMessageDataSource
-//					.getAllMessages();
-//
-//			for (TextMessage message : allMessages) {
-//				String id;
-//				String content;
-//				if (message.getSenderId().equals(
-//						ParseUser.getCurrentUser().getObjectId())) {
-//					id = message.getReceiverId(); // equivalent to item id
-//					content = message.getReceiverName();
-//
-//				} else {
-//					id = message.getSenderId(); // equivalent to item id
-//					content = message.getSenderName();
-//				}
-//
-//				if (ChatContent.ITEM_MAP.containsKey(id)) {
-//					if (mMessageDataSource.isMessageNew(message).getCount() == 0) {
-//						// messages from that sender exist
-//						ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
-//						chatItem.addMessage(message);
-//					}
-//				} else {
-//					// new chat item is created
-//					ChatItem chatItem = new ChatItem(id, content);
-//					chatItem.getEmail();
-//					Log.d("chat list", "new chat item created :" + content);
-//					chatItem.addMessage(message);
-//					ChatContent.addItem(chatItem);
-//				}
-//			}
-//
-//		}
-//	}
+	// @Deprecated
+	private void sortMessagesFromDatabase() {
+
+		if (mMessageDataSource.selectAll().getCount() != 0) {
+			// getting all stored messages
+			ArrayList<TextMessage> allMessages = mMessageDataSource
+					.getAllMessages();
+
+			for (TextMessage message : allMessages) {
+				String id;
+				String content;
+				if (message.getSenderId().equals(
+						ParseUser.getCurrentUser().getObjectId())) {
+					id = message.getReceiverId(); // equivalent to item id
+					content = message.getReceiverName();
+
+				} else {
+					id = message.getSenderId(); // equivalent to item id
+					content = message.getSenderName();
+				}
+
+				if (ChatContent.ITEM_MAP.containsKey(id)) {
+					if (mMessageDataSource.isMessageNew(message).getCount() == 0) {
+						// messages from that sender exist
+						ChatItem chatItem = ChatContent.ITEM_MAP.get(id);
+						chatItem.addMessage(message);
+					}
+				} else {
+					// new chat item is created
+					ChatItem chatItem = new ChatItem(id, content);
+					chatItem.getEmail();
+					Log.d("chat list", "new chat item created :" + content);
+					chatItem.addMessage(message);
+					ChatContent.addItem(chatItem);
+				}
+			}
+
+		}
+	}
 
 	public void updateView() {
 		if (getActivity() != null && !(getActivity().isFinishing())) {
-			
-			if(mChatItemDataSource != null && mChatItems !=null) {
+
+			if (mChatItemDataSource != null && mChatItems != null) {
 				Log.i("chat list frag", "............updating view...........");
 				mChatItems.clear();
 				mChatItems = mChatItemDataSource.getAllChatItems();
 			}
-			if(mChatItems != null && mChatItems.size() != 0) {
-				adapter.refill(mChatItems);
+			if (mChatItems != null && mChatItems.size() != 0) {
+				// TODO Auto-generated method stub
+				setListAdapter(new ChatItemsAdapter(getActivity(), mChatItems));
+
 			}
-			
-			
+
 		}
 
 	}
@@ -524,44 +538,57 @@ public class ChatListFragment extends ListFragment {
 		ConnectivityManager cm = (ConnectivityManager) getActivity()
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo ni = cm.getActiveNetworkInfo();
-		
+
 		if ((ni != null) && (ni.isConnected())) {
 			if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
-				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("TextMessage");
+				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+						"TextMessage");
 				query.fromPin(ParseConstants.GROUP_MESSAGE_DELIVERED);
 				query.findInBackground(new FindCallback<ParseObject>() {
 					public void done(List<ParseObject> messages,
 							ParseException e) {
-						if (e == null && messages.size() >0) {
-							Log.e("pinned to update deliveredmsgs", "" + messages.size());
+						if (e == null && messages.size() > 0) {
+							Log.e("pinned to update deliveredmsgs", ""
+									+ messages.size());
 							final HashMap<String, String> params = new HashMap<String, String>();
-							int i=0;
+							int i = 0;
 							for (final ParseObject message : messages) {
-								params.put(message.getObjectId(), Constants.MESSAGE_STATUS_DELIVERED);
+								params.put(message.getObjectId(),
+										Constants.MESSAGE_STATUS_DELIVERED);
 								i++;
 
 							}
-							if(i == messages.size()) {
-								Log.e("calling cloud function update msgs ", "now+ psrsms: " + params.size());
-								ParseCloud.callFunctionInBackground("updateMessages",params, new FunctionCallback<String>() {
+							if (i == messages.size()) {
+								Log.e("calling cloud function update msgs ",
+										"now+ psrsms: " + params.size());
+								ParseCloud.callFunctionInBackground(
+										"updateMessages", params,
+										new FunctionCallback<String>() {
 
-									@Override
-									public void done(String arg0, ParseException e) {
-										// TODO Auto-generated method stub
-										if(e == null) {
-											Log.e("Success in updating delivered msgs", "Yay it worked! "+ arg0);
-											ParseObject.unpinAllInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED);
-										} else {
-											Log.e("ERROR in updating delivered msgs", "Some error" + e.getMessage());
-										}
-									}
-								});
+											@Override
+											public void done(String arg0,
+													ParseException e) {
+												// TODO Auto-generated method
+												// stub
+												if (e == null) {
+													Log.e("Success in updating delivered msgs",
+															"Yay it worked! "
+																	+ arg0);
+													ParseObject
+															.unpinAllInBackground(ParseConstants.GROUP_MESSAGE_DELIVERED);
+												} else {
+													Log.e("ERROR in updating delivered msgs",
+															"Some error"
+																	+ e.getMessage());
+												}
+											}
+										});
 							}
-							
+
 						} else {
-//							Log.i("To update pinned messages",
-//									" Error finding pinned messages "
-//											+ e.getMessage());
+							// Log.i("To update pinned messages",
+							// " Error finding pinned messages "
+							// + e.getMessage());
 						}
 					}
 				});

@@ -14,16 +14,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
+import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
-import com.ankurmittal.learning.util.ParseConstants;
-import com.ankurmittal.learning.util.Utils;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.squareup.picasso.Picasso;
 
 public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
@@ -103,23 +98,29 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 
 		// 2. Username label
 		holder.nameLabel.setText(chatItem.getContent());
-		refreshSubtitles();
 
 		// 3. Subtitle label
 		lastMessage = mLastMessages.get(position);
-		
-
+		if (lastMessage == null) {
+			lastMessage = new TextMessage();
+			lastMessage.setMessage("No MSgs!");
+			lastMessage.setSenderId(chatItem.id);
+			lastMessage.setMessageStatus(Constants.MESSAGE_STATUS_DELIVERED);
+		}
+		// Log.e("DEBUG",chatItem.getContent() + " " +
+		// lastMessage.getMessage());
 		// 4. subtitle status
 		if (!lastMessage.getSenderId().equals(chatItem.id)) {
 			// it is a sent message
 
 			Log.i("subtitle check", lastMessage.getMessageStatus());
-			if(lastMessage.getMessage().length() >20) {
-				holder.chatSubtitle.setText("You: " + lastMessage.getMessage().substring(0, 20) + "...");
+			if (lastMessage.getMessage().length() > 20) {
+				holder.chatSubtitle.setText("You: "
+						+ lastMessage.getMessage().substring(0, 20) + "...");
 			} else {
 				holder.chatSubtitle.setText("You: " + lastMessage.getMessage());
 			}
-			
+
 			holder.newMsgNumView.setVisibility(View.INVISIBLE);
 			String status = lastMessage.getMessageStatus();
 			if (status.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
@@ -138,8 +139,10 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		} else {
 			// received message
 
-			if(lastMessage.getMessage().length() >20) {
-				holder.chatSubtitle.setText(lastMessage.getMessage().substring(0, 20) + "...");
+			if (lastMessage.getMessage().length() > 20) {
+				holder.chatSubtitle.setText(lastMessage.getMessage().substring(
+						0, 20)
+						+ "...");
 			} else {
 				holder.chatSubtitle.setText(lastMessage.getMessage());
 			}
@@ -150,6 +153,8 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 				holder.newMsgNumView.setText(chatItem.getNotReadMessages()
 						.size() + "");
 				holder.newMsgNumView.setVisibility(View.VISIBLE);
+			} else {
+				holder.newMsgNumView.setVisibility(View.INVISIBLE);
 			}
 
 			holder.chatSubtitleStatus.setVisibility(View.INVISIBLE);
@@ -171,10 +176,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		mChatItems.addAll(chatItems);
 		mLastMessages.clear();
 		// refreshing subtitles
-		for (ChatItem chatItem : mChatItems) {
-			// usernames[i] = chatItem.;
-			refreshSubtitles();
-		}
+		refreshSubtitles();
 		notifyDataSetChanged();
 	}
 
@@ -190,20 +192,18 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 
 	private void refreshSubtitles() {
 		counter = 0;
-		if (mChatItems != null) {
+		if (mChatItems != null && mChatItems.size() > 0) {
 			for (ChatItem chatItem : mChatItems) {
-				chatItem.mMessages.clear();
-				chatItem.mMessages = textMessageDataSource
-						.getMessagesFrom(chatItem.id);
+
 				// usernames[i] = chatItem.;
 				mLastMessages.add(counter,
 						textMessageDataSource.getLastMessageFrom(chatItem.id));
-
 				counter++;
 			}
-			if (counter == mChatItems.size()) {
-				textMessageDataSource.close();
-			}
+
+		}
+		if (counter == mChatItems.size()) {
+			textMessageDataSource.close();
 		}
 	}
 }

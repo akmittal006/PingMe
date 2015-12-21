@@ -6,7 +6,6 @@ import java.util.List;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.application.PingMeApplication;
+import com.ankurmittal.learning.application.PingMeApplication.MyActivityLifecycleCallbacks;
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItemDataSource;
 import com.ankurmittal.learning.storage.FriendsDataSource;
@@ -69,6 +69,8 @@ public class ChatListActivity extends Activity implements
 	private ArrayList<ParseObject> friendRequests;
 	private ParseUser currentUser;
 	private Fragment fragment;
+	
+	private final MyActivityLifecycleCallbacks mCallbacks = new MyActivityLifecycleCallbacks();
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
@@ -85,6 +87,7 @@ public class ChatListActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		 getApplication().registerActivityLifecycleCallbacks(mCallbacks);
 		// TODO: set content view
 		setContentView(R.layout.activity_chat_list);
 
@@ -130,6 +133,10 @@ public class ChatListActivity extends Activity implements
 			getFragmentManager().beginTransaction()
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
+			
+		case 2:
+			Intent intent = new Intent(this, ProfileActivity.class);
+			startActivity(intent);
 
 		default:
 			fragment = new ChatListFragment();
@@ -138,7 +145,7 @@ public class ChatListActivity extends Activity implements
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
 		}
-		
+		//mNavigationDrawerFragment.selectItem(position);
 	}
 
 	public void onSectionAttached(int number) {
@@ -341,6 +348,13 @@ public class ChatListActivity extends Activity implements
 
 		return friendRequests.size();
 	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		getApplication().unregisterActivityLifecycleCallbacks(mCallbacks);
+		super.onDestroy();
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -479,3 +493,4 @@ public class ChatListActivity extends Activity implements
 	}
 
 }
+

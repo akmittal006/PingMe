@@ -1,13 +1,13 @@
 # view res/layout/activity_chat_list.xml #generated:2
 -keep class android.support.v4.widget.DrawerLayout { <init>(...); }
 
-# view AndroidManifest.xml #generated:95
+# view AndroidManifest.xml #generated:103
 -keep class com.ankurmittal.learning.ChatDetailActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:86
+# view AndroidManifest.xml #generated:94
 -keep class com.ankurmittal.learning.ChatListActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:49
+# view AndroidManifest.xml #generated:57
 -keep class com.ankurmittal.learning.LoginActivity { <init>(...); }
 
 # view AndroidManifest.xml #generated:45
@@ -16,36 +16,48 @@
 # view res/layout/activity_chat_list.xml #generated:35
 -keep class com.ankurmittal.learning.NavigationDrawerFragment { <init>(...); }
 
-# view AndroidManifest.xml #generated:138
+# view AndroidManifest.xml #generated:146
 -keep class com.ankurmittal.learning.ProfileActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:57
+# view AndroidManifest.xml #generated:65
 -keep class com.ankurmittal.learning.SearchResultsActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:70
+# view AndroidManifest.xml #generated:78
 -keep class com.ankurmittal.learning.ShowFrndReqs { <init>(...); }
 
-# view AndroidManifest.xml #generated:78
+# view AndroidManifest.xml #generated:86
 -keep class com.ankurmittal.learning.ShowFrndReqsActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:53
+# view AndroidManifest.xml #generated:61
 -keep class com.ankurmittal.learning.SignUpActivity { <init>(...); }
 
 # view AndroidManifest.xml #generated:32
 -keep class com.ankurmittal.learning.application.PingMeApplication { <init>(...); }
 
-# view AndroidManifest.xml #generated:116
+# view AndroidManifest.xml #generated:49
+-keep class com.ankurmittal.learning.picCropper.CropImage { <init>(...); }
+
+# view res/layout/cropimage.xml #generated:7
+-keep class com.ankurmittal.learning.picCropper.CropImageView { <init>(...); }
+
+# view AndroidManifest.xml #generated:53
+-keep class com.ankurmittal.learning.picCropper.MonitoredActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:124
 -keep class com.ankurmittal.learning.util.PushNotificationReceiver { <init>(...); }
 
-# view AndroidManifest.xml #generated:103
+# view res/layout/fragment_navigation_drawer.xml #generated:29
+-keep class com.ankurmittal.learning.util.RoundedImageView { <init>(...); }
+
+# view AndroidManifest.xml #generated:111
 -keep class com.facebook.LoginActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:125
+# view AndroidManifest.xml #generated:133
 -keep class com.parse.GcmBroadcastReceiver { <init>(...); }
 
-# view AndroidManifest.xml #generated:110
+# view AndroidManifest.xml #generated:118
 -keep class com.parse.ParseBroadcastReceiver { <init>(...); }
 
-# view AndroidManifest.xml #generated:108
+# view AndroidManifest.xml #generated:116
 -keep class com.parse.PushService { <init>(...); }
 

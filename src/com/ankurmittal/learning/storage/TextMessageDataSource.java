@@ -2,14 +2,15 @@ package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
 
-import com.ankurmittal.learning.util.Constants;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.ankurmittal.learning.util.Constants;
+import com.parse.ParseUser;
 
 public class TextMessageDataSource {
 	private SQLiteDatabase mDatabase; // The actual DB!
@@ -73,7 +74,6 @@ public class TextMessageDataSource {
 				mDatabase
 						.insert(TextMessageHelper.TABLE_MESSAGES, null, values);
 				mDatabase.setTransactionSuccessful();
-				Log.e("INSERTED", "ROW ADDED");
 			} finally {
 				mDatabase.endTransaction();
 			}
@@ -202,6 +202,44 @@ public class TextMessageDataSource {
 																			// names
 					whereClause, // where clause
 					new String[] { textMessage.getMessageId() }, // where params
+					null, // groupby
+					null, // having
+					null // orderby
+					);
+			return cursor;
+		}
+
+	}
+	
+	//utility function for getting msg status
+	public Cursor getMessageCursor(String id) {
+		// Log.i("error",
+		// textMessage.getMessage()
+		// + "");
+		if(id == null) {
+			return null;
+		}
+
+		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
+
+		if (mDatabase.isOpen()) {
+			Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+					new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
+																			// names
+					whereClause, // where clause
+					new String[] {id }, // where params
+					null, // groupby
+					null, // having
+					null // orderby
+					);
+			return cursor;
+		} else {
+			open();
+			Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
+					new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
+																			// names
+					whereClause, // where clause
+					new String[] { id }, // where params
 					null, // groupby
 					null, // having
 					null // orderby
@@ -389,6 +427,22 @@ public class TextMessageDataSource {
 			Log.i("text msg data source", "opening before select all method");
 			open();
 		}
+		
+		
+		Cursor cursor = getMessageCursor(messageId);
+		cursor.moveToFirst();
+		
+		int k = cursor
+				.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE_ID);
+		if(cursor.getString(k).equals(Constants.MESSAGE_STATUS_READ)) {
+			// no need to change status 
+			return 0;
+		}
+		if(mMsgStatus.equals(Constants.MESSAGE_STATUS_READ)) {
+			//set prev sent msgs status to read
+			updatePrevMsgStatToRead();
+		}
+		
 		String whereClause = TextMessageHelper.COLUMN_MESSAGE_ID + " = ?";
 
 		ContentValues values = new ContentValues();
@@ -505,6 +559,26 @@ public class TextMessageDataSource {
 			}
 			return textMessage;
 		}
+	}
+	
+	public void updatePrevMsgStatToRead() {
+		if (!mDatabase.isOpen()) {
+			//Log.i("text msg data source", "opening before select all method");
+			open();
+		}
+		
+		//get prev unread sent msgs
+		String whereClause = TextMessageHelper.COLUMN_IS_SENT + " != ? AND " + TextMessageHelper.COLUMN_SENDER_ID + " = ?";
+
+		ContentValues values = new ContentValues();
+		values.put(TextMessageHelper.COLUMN_IS_SENT, Constants.MESSAGE_STATUS_READ);
+
+		int rowsUpdated = mDatabase.update(TextMessageHelper.TABLE_MESSAGES, // table
+				values, // values
+				whereClause, // where clause
+				new String[] { Constants.MESSAGE_STATUS_READ, ParseUser.getCurrentUser().getObjectId() } // where params
+				);
+		
 	}
 
 }

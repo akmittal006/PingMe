@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/profileImageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:minHeight="250dp"
@@ -23,23 +23,25 @@
         android:text="@string/hello_world"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:layout_alignBottom="@+id/profileImageView"
-        android:layout_centerHorizontal="true"
-        android:background="@color/transparent"
-        android:backgroundTintMode="multiply" >
+    
 
         <ImageButton
             android:id="@+id/editProfileImageButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
+            android:layout_alignBottom="@+id/profileImageView"
             
             android:src="@drawable/ic_action_edit" />
 
-    </RelativeLayout>
+    
+
+    <ProgressBar
+        android:id="@+id/uploadPprogressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/usernameView" />
 
 </RelativeLayout>

@@ -1,15 +1,19 @@
 package com.ankurmittal.learning;
 
+import java.util.ArrayList;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,9 +21,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
+
+import com.ankurmittal.learning.adapters.NavListAdapter;
+import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.RoundedImageView;
+import com.parse.ParseUser;
+import com.squareup.picasso.Picasso;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -58,6 +67,11 @@ public class NavigationDrawerFragment extends Fragment {
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
+	private ArrayList<NavListItem> options;
+	private NavListAdapter adapter;
+
+	private RoundedImageView mDrawerProfilePicView;
+	private TextView mDrawerUsernameView;
 
 	public NavigationDrawerFragment() {
 	}
@@ -65,7 +79,7 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		Log.e("nav drawer", "onCreate  called");
 		// Read in the flag indicating whether or not the user has demonstrated
 		// awareness of the
 		// drawer. See PREF_USER_LEARNED_DRAWER for details.
@@ -94,25 +108,48 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(
-				R.layout.fragment_navigation_drawer, container, false);
-		mDrawerListView = (ListView)view.findViewById(R.id.navDrawerListView);
+		View view = inflater.inflate(R.layout.fragment_navigation_drawer,
+				container, false);
+
+		mDrawerProfilePicView = (RoundedImageView) view
+				.findViewById(R.id.navProfilePicView);
+		mDrawerUsernameView = (TextView) view
+				.findViewById(R.id.navUsernameView);
+		mDrawerListView = (ListView) view.findViewById(R.id.navDrawerListView);
+
+		ParseUser currentUser = ParseUser.getCurrentUser();
+		if(currentUser != null){
+			Picasso.with(getActivity())
+			.load(currentUser.getParseFile(
+					ParseConstants.KEY_PROFILE_IMAGE).getUrl())
+			.placeholder(R.drawable.profile_empty).resize(300, 300)
+			.centerCrop().into(mDrawerProfilePicView);
+			mDrawerUsernameView.setText(currentUser.getUsername());
+		}
+		
+		
+
 		mDrawerListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id) {
 						selectItem(position);
+						mCurrentSelectedPosition = position;
+
+						// optionView.setTextColor(getResources().getColor(R.color.ping_pink));
 					}
 				});
-		mDrawerListView.setAdapter(new ArrayAdapter<String>(getActionBar()
-				.getThemedContext(),
-				android.R.layout.simple_list_item_activated_1,
-				android.R.id.text1, new String[] {
-						"Messages",
-						"Friends",
-						"Profile", }));
-		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+
+		options = new ArrayList<NavListItem>();
+		options.add(new NavListItem("Messages", true));
+		options.add(new NavListItem("Friends", false));
+		options.add(new NavListItem("Profile", false));
+
+		adapter = new NavListAdapter(getActivity(), options);
+
+		mDrawerListView.setAdapter(adapter);
+		// mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 		return view;
 	}
 
@@ -172,6 +209,10 @@ public class NavigationDrawerFragment extends Fragment {
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
+				// if(mCurrentSelectedPosition == null) {
+				// selectItem(mCurrentSelectedPosition);
+				// }
+
 				if (!isAdded()) {
 					return;
 				}
@@ -211,9 +252,24 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	private void selectItem(int position) {
+
 		mCurrentSelectedPosition = position;
 		if (mDrawerListView != null) {
 			mDrawerListView.setItemChecked(position, true);
+			Log.e("select item in anv drawer frag", "on select item called"
+					+ options.get(mCurrentSelectedPosition).getOption());
+			// for(int i = 0; i < options.size() ; i++) {
+			// options.get(i).setSelected(false);
+			// }
+			options.clear();
+			options.add(new NavListItem("Messages", false));
+			options.add(new NavListItem("Friends", false));
+			options.add(new NavListItem("Profile", false));
+			options.get(position).setSelected(true);
+			adapter = new NavListAdapter(getActivity(), options);
+			// adapter.refill(options);
+			mDrawerListView.setAdapter(adapter);
+
 		}
 		if (mDrawerLayout != null) {
 			mDrawerLayout.closeDrawer(mFragmentContainerView);
@@ -226,6 +282,7 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+		Log.e("nav drawer", "on Attach called");
 		try {
 			mCallbacks = (NavigationDrawerCallbacks) activity;
 		} catch (ClassCastException e) {
@@ -237,12 +294,14 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		Log.e("nav drawer", "on DEattach called");
 		mCallbacks = null;
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		Log.e("nav drawer", "on save bundle state");
 		outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
 	}
 
@@ -260,8 +319,8 @@ public class NavigationDrawerFragment extends Fragment {
 		// showGlobalContextActionBar, which controls the top-left area of the
 		// action bar.
 		if (mDrawerLayout != null && isDrawerOpen()) {
-			//inflater.inflate(R.menu.global, menu);
-			//showGlobalContextActionBar();
+			// inflater.inflate(R.menu.global, menu);
+			// showGlobalContextActionBar();
 		}
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -272,11 +331,11 @@ public class NavigationDrawerFragment extends Fragment {
 			return true;
 		}
 
-//		if (item.getItemId() == R.id.action_example) {
-//			Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT)
-//					.show();
-//			return true;
-//		}
+		// if (item.getItemId() == R.id.action_example) {
+		// Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT)
+		// .show();
+		// return true;
+		// }
 
 		return super.onOptionsItemSelected(item);
 	}
@@ -306,5 +365,6 @@ public class NavigationDrawerFragment extends Fragment {
 		 * Called when an item in the navigation drawer is selected.
 		 */
 		void onNavigationDrawerItemSelected(int position);
+
 	}
 }

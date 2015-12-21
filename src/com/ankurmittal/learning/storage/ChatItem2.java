@@ -2,8 +2,6 @@ package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
 
-import com.parse.ParseUser;
-
 
 /**
  * A dummy item representing a piece of content.

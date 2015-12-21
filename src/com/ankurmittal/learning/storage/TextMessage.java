@@ -8,7 +8,6 @@ import java.util.Locale;
 import android.util.Log;
 
 import com.ankurmittal.learning.util.Constants;
-import com.parse.ParseObject;
 
 public class TextMessage  {
 	

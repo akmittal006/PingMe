@@ -12,8 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -100,7 +98,7 @@ public class FriendsFragment extends ListFragment {
 				new IntentFilter("Custom target refresh"));
 		
 		// open frnds databse connection
-		Log.d("frinds activity", "on resume");
+		Log.d("frinds frag", "on resume");
 		mFriends = new ArrayList<ParseUser>();
 		loadFromDatabase();
 		loadAccepts();
@@ -171,26 +169,21 @@ public class FriendsFragment extends ListFragment {
 		super.onListItemClick(l, v, i, id);
 		if (ChatContent.ITEM_MAP.containsKey(mFriends.get(i).getString(
 				ParseConstants.KEY_USER_ID))) {
+			
 			// Notify the active callbacks interface (the activity, if the
 			// fragment is attached to one) that an item has been selected.
 			mCallbacks.onItemSelected(mFriends.get(i).getString(
 					ParseConstants.KEY_USER_ID));
 		} else {
-			// add item in database.
+			// add item 
+			
 			mChatItemDataSource.open();
 			addChatItem(mFriends.get(i).getString(ParseConstants.KEY_USER_ID),
 					mFriends.get(i).getUsername());
-			
-			ChatContent
-					.addItem(new ChatItem(mFriends.get(i).getString(
-							ParseConstants.KEY_USER_ID), mFriends.get(i)
-							.getUsername()));
 			mCallbacks.onItemSelected(mFriends.get(i).getString(
 					ParseConstants.KEY_USER_ID));
 
 		}
-		Log.d("Friends fragment item clicked",
-				"" + mFriends.get(i).getString(ParseConstants.KEY_USER_ID));
 	}
 
 	private void loadAccepts() {
@@ -333,6 +326,7 @@ public class FriendsFragment extends ListFragment {
 		// chatItem.setLastMessage(textmessage);
 
 		mChatItemDataSource.insert(chatItem);
+		ChatContent.ITEM_MAP.put(chatItem.getId(), chatItem);
 	}
 	
 	

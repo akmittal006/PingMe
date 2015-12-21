@@ -79,16 +79,16 @@ public class ChatItemDataSource {
 				if (chatItem.getLastMessage() != null) {
 					values.put(ChatItemHelper.COLUMN_LAST_MESSAGE, chatItem
 							.getLastMessage().getMessage());
-					
+
 					Log.d("inseting", chatItem.getContent());
-					
+
 					values.put(ChatItemHelper.COLUMN_CREATED_AT, chatItem
 							.getLastMessage().getCreatedAtString());
 				}
 
 				// values.put(ChatItemHelper.COLUMN_IS_SENT,
 				// chatItem.isSent() + "");
-				
+
 				// friend.setViewed(false);
 				mDatabase.insert(ChatItemHelper.TABLE_CHAT_ITEMS, null, values);
 				mDatabase.setTransactionSuccessful();
@@ -176,7 +176,16 @@ public class ChatItemDataSource {
 			int row = 0;
 			while (!cursor.isAfterLast()) {
 
+				TextMessageDataSource mMessageDataSource = new TextMessageDataSource(
+						mContext);
+				try {
+					mMessageDataSource.open();
+				} catch (Exception e) {
+					Log.e("Chat Item Data Source Line 184", "" + e.getMessage());
+				}
+				
 				ChatItem chatItem = new ChatItem();
+				
 				int i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_IMG);
 				chatItem.setImgUrl(cursor.getString(i));
 				Log.e("MChatItem data source", "url-" + cursor.getString(i));
@@ -185,6 +194,12 @@ public class ChatItemDataSource {
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_ID);
 				mChatItems.get(row).setId(cursor.getString(i));
+				
+				if(chatItem.mMessages == null) {
+					chatItem.mMessages = new ArrayList<TextMessage>();
+				}
+				chatItem.mMessages.clear();
+				chatItem.mMessages = mMessageDataSource.getMessagesFrom(cursor.getString(i));
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_NAME);
 				mChatItems.get(row).setContent(cursor.getString(i));
@@ -205,10 +220,9 @@ public class ChatItemDataSource {
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_CREATED_AT);
 				if (cursor.getString(i) != null) {
-					mChatItems.get(row)
-					.setLastMessageCreatedAt(cursor.getString(i));
+					mChatItems.get(row).setLastMessageCreatedAt(
+							cursor.getString(i));
 				}
-				
 
 				// i = cursor.getColumnIndex(ChatItemHelper.COLUMN_IS_SENT);
 				// boolean sent = false;

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
+import com.ankurmittal.learning.application.PingMeApplication.MyActivityLifecycleCallbacks;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 
 /**
@@ -15,15 +16,23 @@ import com.ankurmittal.learning.storage.TextMessageDataSource;
  * <p>
  * This activity is mostly just a 'shell' activity containing nothing more than
  * a {@link ChatDetailFragment}.
+ * 
+ * 
  */
+
+
 
 public class ChatDetailActivity extends Activity {
 	private TextMessageDataSource mMessageDataSource;
+	
+	private final MyActivityLifecycleCallbacks mCallbacks = new MyActivityLifecycleCallbacks();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_chat_detail);
+		
+		getApplication().registerActivityLifecycleCallbacks(mCallbacks);
 
 		// Show the Up button in the action bar.
 		getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -51,6 +60,13 @@ public class ChatDetailActivity extends Activity {
 		mMessageDataSource = new TextMessageDataSource(this);
 	}
 	
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		getApplication().unregisterActivityLifecycleCallbacks(mCallbacks);
+		super.onDestroy();
+	}
 
 
 	@Override
