@@ -6,7 +6,7 @@
     android:clickable="false"
     style="@style/activated" >
 
-     <TextView
+     <com.ankurmittal.learning.emojicon.EmojiconTextView
          android:id="@+id/messageTextView"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"

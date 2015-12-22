@@ -21,6 +21,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,15 +29,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.adapters.TextMessageAdapter;
+import com.ankurmittal.learning.emojicon.EmojiconEditText;
+import com.ankurmittal.learning.emojicon.EmojiconGridView.OnEmojiconClickedListener;
+import com.ankurmittal.learning.emojicon.EmojiconsPopup;
+import com.ankurmittal.learning.emojicon.EmojiconsPopup.OnEmojiconBackspaceClickedListener;
+import com.ankurmittal.learning.emojicon.EmojiconsPopup.OnSoftKeyboardOpenCloseListener;
+import com.ankurmittal.learning.emojicon.emoji.Emojicon;
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
@@ -78,10 +87,10 @@ public class ChatDetailFragment extends Fragment  {
 	 */
 	private ChatItem mItem;
 	private Button mSendButton;
-	private EditText mTextMessage;
-	TextView dateView;
+	private EmojiconEditText mTextMessage;
+	private TextView dateView;
 	private TextMessageDataSource mMessageDataSource;
-	ListView chatView;
+	private ListView chatView;
 	private View rootView;
 	Date prevDate = null;
 	Date currDate = null;
@@ -111,6 +120,7 @@ public class ChatDetailFragment extends Fragment  {
 			// Load the dummy content specified by the fragment
 			// arguments. In a real-world scenario, use a Loader
 			// to load content from a content provider.
+			Log.e("DEBUG",""  + ChatContent.ITEM_MAP.size());
 			mItem = ChatContent.ITEM_MAP.get(getArguments().getString(
 					ARG_ITEM_ID));
 
@@ -120,6 +130,8 @@ public class ChatDetailFragment extends Fragment  {
 		
 		PushNotificationReceiver mReceiver = new PushNotificationReceiver();
 		mCallbacks = (TestInterface)mReceiver;
+		
+		
 
 		/*
 		 * pubnub = new Pubnub("pub-c-72023601-94db-4a47-93e0-a1a111212e14",
@@ -239,8 +251,108 @@ public class ChatDetailFragment extends Fragment  {
 
 		// Show the dummy content as text in a TextView.
 		if (mItem != null) {
-			// ((EditText) rootView.findViewById(R.id.chatEditText))
-			// .setText(mItem.content);
+			
+			final ImageView emojiButton = (ImageView) rootView.findViewById(R.id.emojiBtn);
+
+			// Give the topmost view of your activity layout hierarchy. This will be used to measure soft keyboard height
+			final EmojiconsPopup popup = new EmojiconsPopup(rootView, getActivity());
+
+			//Will automatically set size according to the soft keyboard size        
+			popup.setSizeForSoftKeyboard();
+
+			//If the emoji popup is dismissed, change emojiButton to smiley icon
+			popup.setOnDismissListener(new OnDismissListener() {
+
+				@Override
+				public void onDismiss() {
+					changeEmojiKeyboardIcon(emojiButton, R.drawable.smiley);
+				}
+
+				
+			});
+			
+			
+
+			//If the text keyboard closes, also dismiss the emoji popup
+			popup.setOnSoftKeyboardOpenCloseListener(new OnSoftKeyboardOpenCloseListener() {
+
+				@Override
+				public void onKeyboardOpen(int keyBoardHeight) {
+
+				}
+
+				@Override
+				public void onKeyboardClose() {
+					if(popup.isShowing())
+						popup.dismiss();
+				}
+			});
+
+			//On emoji clicked, add it to edittext
+			popup.setOnEmojiconClickedListener(new OnEmojiconClickedListener() {
+
+				@Override
+				public void onEmojiconClicked(Emojicon emojicon) {
+		            if ( mTextMessage == null || emojicon == null) {
+		                return;
+		            }
+
+		            int start = mTextMessage.getSelectionStart();
+		            int end = mTextMessage.getSelectionEnd();
+		            if (start < 0) {
+		            	mTextMessage.append(emojicon.getEmoji());
+		            } else {
+		            	mTextMessage.getText().replace(Math.min(start, end),
+		                        Math.max(start, end), emojicon.getEmoji(), 0,
+		                        emojicon.getEmoji().length());
+		            }
+		        }
+			});
+
+			//On backspace clicked, emulate the KEYCODE_DEL key event
+			popup.setOnEmojiconBackspaceClickedListener(new OnEmojiconBackspaceClickedListener() {
+
+				@Override
+				public void onEmojiconBackspaceClicked(View v) {
+					KeyEvent event = new KeyEvent(
+							0, 0, 0, KeyEvent.KEYCODE_DEL, 0, 0, 0, 0, KeyEvent.KEYCODE_ENDCALL);
+					mTextMessage.dispatchKeyEvent(event);
+				}
+			});
+			
+			// To toggle between text keyboard and emoji keyboard keyboard(Popup)
+			emojiButton.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					Log.e("DEBUG","on clicked");
+					//If popup is not showing => emoji keyboard is not visible, we need to show it
+					if(!popup.isShowing()){
+						
+						//If keyboard is visible, simply show the emoji popup
+						if(popup.isKeyBoardOpen()){
+							popup.showAtBottom();
+							changeEmojiKeyboardIcon(emojiButton, R.drawable.ic_action_keyboard);
+						}
+						
+						//else, open the text keyboard first and immediately after that show the emoji popup
+						else{
+							mTextMessage.setFocusableInTouchMode(true);
+							mTextMessage.requestFocus();
+							popup.showAtBottomPending();
+							final InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+							inputMethodManager.showSoftInput(mTextMessage, InputMethodManager.SHOW_IMPLICIT);
+							changeEmojiKeyboardIcon(emojiButton, R.drawable.ic_action_keyboard);
+						}
+					}
+					
+					//If popup is showing, simply dismiss it to show the undelying text keyboard 
+					else{
+						popup.dismiss();
+					}
+				}
+			});	
+
 			chatView = (ListView) rootView.findViewById(R.id.chatListView);
 			emptyView = (TextView) rootView.findViewById(android.R.id.empty);
 			chatView.setDivider(null);
@@ -339,7 +451,7 @@ public class ChatDetailFragment extends Fragment  {
 					.getItemMessages()));
 			getActivity().setTitle(mItem.toString());
 			dateView = (TextView) rootView.findViewById(R.id.dateTextView);
-			mTextMessage = (EditText) rootView.findViewById(R.id.chatEditText);
+			mTextMessage = (EmojiconEditText) rootView.findViewById(R.id.chatEditText);
 			mTextMessage.requestFocus(0);
 			chatView.setSelection(chatView.getAdapter().getCount() - 1);
 			mSendButton = (Button) rootView.findViewById(R.id.sendButton);
@@ -428,6 +540,15 @@ public class ChatDetailFragment extends Fragment  {
 				}
 			});
 		}
+		if(chatView != null) {
+			setScrollListener();
+		}
+		
+
+		return rootView;
+	}
+
+	private void setScrollListener() {
 		chatView.setOnScrollListener(new OnScrollListener() {
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
@@ -453,8 +574,12 @@ public class ChatDetailFragment extends Fragment  {
 			}
 
 		});
-
-		return rootView;
+	}
+	
+	private void changeEmojiKeyboardIcon(ImageView emojiButton,
+			int drawableResourceId) {
+		// TODO Auto-generated method stub
+		emojiButton.setImageResource(drawableResourceId);
 	}
 
 	private void loadChatItemMessagesFromDatabase() {

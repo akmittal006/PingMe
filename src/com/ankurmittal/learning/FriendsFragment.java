@@ -63,8 +63,7 @@ public class FriendsFragment extends ListFragment {
 		public void onItemSelected(String id) {
 		}
 	};
-	
-	
+
 	BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
 		@Override
@@ -72,7 +71,7 @@ public class FriendsFragment extends ListFragment {
 			// TODO Auto-generated method stub
 			adapter.refill(mFriendsDataSource.getAllFriends());
 		}
-		
+
 	};
 
 	@Override
@@ -93,10 +92,10 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
 		getActivity().registerReceiver(broadcastReceiver,
 				new IntentFilter("Custom target refresh"));
-		
+
 		// open frnds databse connection
 		Log.d("frinds frag", "on resume");
 		mFriends = new ArrayList<ParseUser>();
@@ -107,7 +106,6 @@ public class FriendsFragment extends ListFragment {
 				.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
 
 		getActivity().setProgressBarIndeterminateVisibility(true);
-		
 
 	}
 
@@ -135,7 +133,7 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		
+
 		((ChatListActivity) activity).onSectionAttached(2);
 
 		// Activities containing this fragment must implement its callbacks.
@@ -169,14 +167,14 @@ public class FriendsFragment extends ListFragment {
 		super.onListItemClick(l, v, i, id);
 		if (ChatContent.ITEM_MAP.containsKey(mFriends.get(i).getString(
 				ParseConstants.KEY_USER_ID))) {
-			
+
 			// Notify the active callbacks interface (the activity, if the
 			// fragment is attached to one) that an item has been selected.
 			mCallbacks.onItemSelected(mFriends.get(i).getString(
 					ParseConstants.KEY_USER_ID));
 		} else {
-			// add item 
-			
+			// add item
+
 			mChatItemDataSource.open();
 			addChatItem(mFriends.get(i).getString(ParseConstants.KEY_USER_ID),
 					mFriends.get(i).getUsername());
@@ -258,8 +256,6 @@ public class FriendsFragment extends ListFragment {
 													.getUrl());
 								}
 
-								// if(mFriendsDataSource.isFriendNew(friend).getCount()
-								// == 0) {
 								// not in database
 								mFriends.add(friend);
 								// add frnds to database
@@ -269,20 +265,17 @@ public class FriendsFragment extends ListFragment {
 							}
 
 							if (i >= friends.size()) {
-								
-								
+
 								mFriendsDataSource.close();
 								if (getActivity() != null) {
 									if (getListAdapter() == null) {
-										// Log.d("befor acll to frnds adapter",
-										// mFriends.get(1).getString(ParseConstants.KEY_PROFILE_IMAGE));
 										Log.d("Call to frnds adapter1",
 												friends.size() + "");
 										adapter = new FriendsAdapter(
 												getActivity(), mFriends);
 
 										getListView().setAdapter(adapter);
-										
+
 										updateFriendPics();
 									} else {
 										((FriendsAdapter) getListAdapter())
@@ -308,15 +301,14 @@ public class FriendsFragment extends ListFragment {
 							}
 
 						}
-						
+
 					}
 				});
 				Log.i("Friends frag", "updating profile pics");
-				//Fucking awsm
-				
+				// Fucking awsm
+
 			}
 
-			
 		});
 	}
 
@@ -328,30 +320,45 @@ public class FriendsFragment extends ListFragment {
 		mChatItemDataSource.insert(chatItem);
 		ChatContent.ITEM_MAP.put(chatItem.getId(), chatItem);
 	}
-	
-	
-	
-	private void updateFriendPics() {
-		ParseCloud.callFunctionInBackground("updateFriendsPics", new HashMap<String, String>() , new FunctionCallback<ArrayList<HashMap<String, String>>>() {
 
-			@Override
-			public void done(ArrayList<HashMap<String, String>> results, ParseException e) {
-				// TODO Auto-generated method stub
-				if(e ==null) {
-					if(results.size() >0) {
-						Log.e("frnds frag","updating pics successfull  " + results.get(0).get("img_url"));
-						if(!getActivity().isFinishing() && !getActivity().isDestroyed()) {
-							mFriendsDataSource.updateImageUrlFromId(getActivity(), results);
-							adapter.refill(mFriendsDataSource.getAllFriends());
+	private void updateFriendPics() {
+		ParseCloud.callFunctionInBackground("updateFriendsPics",
+				new HashMap<String, String>(),
+				new FunctionCallback<ArrayList<HashMap<String, String>>>() {
+
+					@Override
+					public void done(
+							ArrayList<HashMap<String, String>> results,
+							ParseException e) {
+						// TODO Auto-generated method stub
+						if (e == null) {
+							if (results.size() > 0) {
+								Log.e("frnds frag",
+										"updating pics successfull  "
+												+ results.get(0).get("img_url"));
+								if (!getActivity().isFinishing()
+										&& !getActivity().isDestroyed()) {
+									mFriendsDataSource.updateImageUrlFromId(
+											getActivity(), results);
+									adapter.refill(mFriendsDataSource
+											.getAllFriends());
+
+									// update chat Items
+									ChatItemDataSource chatDataSource = new ChatItemDataSource(
+											getActivity());
+									chatDataSource.updateImageUrlFromId(
+											getActivity(), results);
+								}
+
+							}
+
+						} else {
+							Log.e("frnds frag",
+									"ERROR updating pics successfull  "
+											+ e.getMessage());
 						}
-						
 					}
-					
-				} else {
-					Log.e("frnds frag","ERROR updating pics successfull  " + e.getMessage());
-				}
-			}
-		});
+				});
 	}
 
 }

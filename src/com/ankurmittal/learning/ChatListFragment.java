@@ -346,8 +346,6 @@ public class ChatListFragment extends ListFragment {
 		messagesQuery.include(ParseConstants.KEY_MESSAGE_SENDER);
 		messagesQuery.include(ParseConstants.KEY_CREATED_AT);
 		messagesQuery.addAscendingOrder(ParseConstants.KEY_CREATED_AT);
-		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_ID);
-		// messagesQuery.include(ParseConstants.KEY_MESSAGE_RECEIVER_NAME);
 		messagesQuery.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
@@ -360,37 +358,39 @@ public class ChatListFragment extends ListFragment {
 					Log.d("Retrieved messages", "NO. :-" + pTextMessages.size());
 					// hurray we received our messages
 					int i = 0;
-					for (ParseObject pTextMessage : pTextMessages) {
-						// create a text message and save it to database
-						TextMessage textmessage = createTextMessage(pTextMessage);
-						latestMessages.add(textmessage);
-						if (ParseUser.getCurrentUser() != null) {
-							mMessageDataSource.insert(textmessage);
+					if (ParseUser.getCurrentUser() != null) {
+						try {
+							for (ParseObject pTextMessage : pTextMessages) {
+								// create a text message and save it to database
+								TextMessage textmessage = createTextMessage(pTextMessage);
+								latestMessages.add(textmessage);
+								mMessageDataSource.insert(textmessage);
 
-							pTextMessage.pinInBackground(
-									ParseConstants.GROUP_MESSAGE_DELIVERED,
-									new SaveCallback() {
+								pTextMessage.pinInBackground(
+										ParseConstants.GROUP_MESSAGE_DELIVERED,
+										new SaveCallback() {
 
-										@Override
-										public void done(ParseException e) {
-											if (e == null) {
-												Log.i("cht list",
-														"to update Delivered msg pinned");
+											@Override
+											public void done(ParseException e) {
+												if (e == null) {
+													Log.i("cht list",
+															"to update Delivered msg pinned");
 
-											} else {
-												Log.i("cht list", "not  pinned");
+												} else {
+													Log.i("cht list",
+															"not  pinned");
+												}
+
 											}
-
-										}
-									});
+										});
+							}
+						} finally {
+							// sortMessagesFromDatabase();
+							updateChatItemsFromMessages(latestMessages);
+							updateView();
 						}
 					}
-					if (ParseUser.getCurrentUser() != null) {
-						// sortMessagesFromDatabase();
-						updateChatItemsFromMessages(latestMessages);
 
-						updateView();
-					}
 					if (getActivity() != null) {
 						updateDeliveredMessages();
 					}
@@ -404,10 +404,8 @@ public class ChatListFragment extends ListFragment {
 	}
 
 	private void updateChatItemsFromMessages(ArrayList<TextMessage> messages) {
-		Log.i("after receiving msgs", "updating chat items");
 		for (TextMessage message : messages) {
 			updateChatItem(message);
-
 		}
 		latestMessages.clear();
 	}
@@ -427,8 +425,11 @@ public class ChatListFragment extends ListFragment {
 		}
 
 		ChatItem chatItem = new ChatItem(id, content);
+		if(!ChatContent.ITEM_MAP.containsKey(chatItem.id)) {
+			ChatContent.ITEM_MAP.put(id, chatItem);
+		}
 		chatItem.setLastMessage(textmessage);
-
+		
 		mChatItemDataSource.insert(chatItem);
 
 	}

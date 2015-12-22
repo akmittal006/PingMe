@@ -118,16 +118,15 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerListView = (ListView) view.findViewById(R.id.navDrawerListView);
 
 		ParseUser currentUser = ParseUser.getCurrentUser();
-		if(currentUser != null){
+		if (currentUser != null
+				&& currentUser.getParseFile(ParseConstants.KEY_PROFILE_IMAGE) != null) {
 			Picasso.with(getActivity())
-			.load(currentUser.getParseFile(
-					ParseConstants.KEY_PROFILE_IMAGE).getUrl())
-			.placeholder(R.drawable.profile_empty).resize(300, 300)
-			.centerCrop().into(mDrawerProfilePicView);
+					.load(currentUser.getParseFile(
+							ParseConstants.KEY_PROFILE_IMAGE).getUrl())
+					.placeholder(R.drawable.profile_empty).resize(300, 300)
+					.centerCrop().into(mDrawerProfilePicView);
 			mDrawerUsernameView.setText(currentUser.getUsername());
 		}
-		
-		
 
 		mDrawerListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {

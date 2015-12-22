@@ -1,3 +1,6 @@
+# view res/layout/emojicons.xml #generated:108
+-keep class android.support.v4.view.ViewPager { <init>(...); }
+
 # view res/layout/activity_chat_list.xml #generated:2
 -keep class android.support.v4.widget.DrawerLayout { <init>(...); }
 
@@ -34,6 +37,15 @@
 # view AndroidManifest.xml #generated:32
 -keep class com.ankurmittal.learning.application.PingMeApplication { <init>(...); }
 
+# view res/layout/fragment_chat_detail.xml #generated:22
+-keep class com.ankurmittal.learning.emojicon.EmojiconEditText { <init>(...); }
+
+# view res/layout/chat_item.xml #generated:19
+# view res/layout/chat_item_neutral.xml #generated:9
+# view res/layout/chat_item_received.xml #generated:8
+# view res/layout/chat_item_sent.xml #generated:8
+-keep class com.ankurmittal.learning.emojicon.EmojiconTextView { <init>(...); }
+
 # view AndroidManifest.xml #generated:49
 -keep class com.ankurmittal.learning.picCropper.CropImage { <init>(...); }
 
@@ -60,4 +72,7 @@
 
 # view AndroidManifest.xml #generated:116
 -keep class com.parse.PushService { <init>(...); }
+
+# view res/layout/emojicon_item.xml #generated:23
+-keep class github.ankushsachdeva.emojicon.EmojiconTextView { <init>(...); }
 

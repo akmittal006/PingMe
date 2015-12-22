@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
-import com.ankurmittal.learning.storage.ChatContent;
+import com.ankurmittal.learning.emojicon.EmojiconTextView;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
@@ -67,7 +67,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 					.findViewById(R.id.sentStatusView);
 			holder.nameLabel = (TextView) convertView
 					.findViewById(R.id.usernameTextView);
-			holder.chatSubtitle = (TextView) convertView
+			holder.chatSubtitle = (EmojiconTextView) convertView
 					.findViewById(R.id.subtitleView);
 			holder.newMsgNumView = (TextView) convertView
 					.findViewById(R.id.newMessageNumView);
@@ -167,7 +167,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		ImageView userImageView;
 		ImageView chatSubtitleStatus;
 		TextView nameLabel;
-		TextView chatSubtitle;
+		EmojiconTextView chatSubtitle;
 		TextView newMsgNumView;
 	}
 

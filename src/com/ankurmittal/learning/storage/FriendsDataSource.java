@@ -231,48 +231,41 @@ public class FriendsDataSource {
 		}
 
 		Log.e("frnds data source", "updating picss ");
-		
-		
 
 		for (int i = 0; i < friends.size(); i++) {
 
 			final HashMap<String, String> frnd = friends.get(i);
-			
-					Log.e("frnds data source", "thread running" );
 
-					String whereClause = FriendsHelper.COLUMN_OBJECT_ID
-							+ " = ?";
-					ContentValues values = new ContentValues();
-					values.put(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS,
-							frnd.get("img_url"));
-					int res = mDatabase.update(FriendsHelper.TABLE_FRIENDS, // table
-							values, // column names
-							whereClause, // where clause
-							new String[] { frnd.get("id") });
-					if (res > 0) {
-						Log.e("frnds data ", "deleting and updating file");
-						String middlePath = frnd.get("img_url").substring(93, 116);
-						CustomTarget target = new CustomTarget(mContext);
-						// Log.d("frnds adpater",user.getString("UserId"));
-						target.setTargetHash(middlePath);
-						// target.deleteFile();
+			Log.e("frnds data source", "thread running");
 
-						// TODO Auto-generated method stub
-						Picasso.with(mContext).load(frnd.get("img_url"))
-								.memoryPolicy(MemoryPolicy.NO_CACHE)
-								.into(target);
+			String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
+			ContentValues values = new ContentValues();
+			values.put(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS,
+					frnd.get("img_url"));
+			int res = mDatabase.update(FriendsHelper.TABLE_FRIENDS, // table
+					values, // column names
+					whereClause, // where clause
+					new String[] { frnd.get("id") });
+			if (res > 0) {
+				Log.e("frnds data ", "deleting and updating file");
+				String middlePath = frnd.get("img_url").substring(93, 116);
+				CustomTarget target = new CustomTarget(mContext);
+				// Log.d("frnds adpater",user.getString("UserId"));
+				target.setTargetHash(middlePath);
+				// target.deleteFile();
 
-					}
-					Log.e("frnds data source", "updated rows- " + res);
-					// ans = ans + res;
-				}
-			
-		
-		
+				// TODO Auto-generated method stub
+				Picasso.with(mContext).load(frnd.get("img_url"))
+						.memoryPolicy(MemoryPolicy.NO_CACHE).into(target);
+
+			}
+			Log.e("frnds data source", "updated rows- " + res);
+			// ans = ans + res;
+		}
 
 		return ans;
 
-}
+	}
 
 	public ArrayList<ParseUser> getAllFriends() {
 		if (!mDatabase.isOpen()) {

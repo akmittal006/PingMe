@@ -1,6 +1,11 @@
 package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.ankurmittal.learning.util.CustomTarget;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -262,6 +267,48 @@ public class ChatItemDataSource {
 				new String[] { id } // where params
 				);
 		mDatabase.close();
+	}
+	
+	public int updateImageUrlFromId(Context context,
+			final ArrayList<HashMap<String, String>> friends) {
+
+		int ans = 0;
+		mChatItemHelper = new ChatItemHelper(context);
+		mDatabase = mChatItemHelper.getWritableDatabase();
+		if (!mDatabase.isOpen()) {
+			open();
+		}
+
+		Log.e("ChatItem data source", "updating picss ");
+
+		for (int i = 0; i < friends.size(); i++) {
+
+			final HashMap<String, String> frnd = friends.get(i);
+
+			String whereClause = ChatItemHelper.COLUMN_SENDER_ID + " = ?";
+			ContentValues values = new ContentValues();
+			values.put(ChatItemHelper.COLUMN_SENDER_IMG,
+					frnd.get("img_url"));
+			int res = mDatabase.update(ChatItemHelper.TABLE_CHAT_ITEMS, // table
+					values, // column names
+					whereClause, // where clause
+					new String[] { frnd.get("id") });
+			if (res > 0) {
+				Log.e("frnds data ", "deleting and updating file");
+				String middlePath = frnd.get("img_url").substring(93, 116);
+				CustomTarget target = new CustomTarget(mContext);
+				target.setTargetHash(middlePath);
+				// TODO Auto-generated method stub
+				Picasso.with(context).load(frnd.get("img_url"))
+						.memoryPolicy(MemoryPolicy.NO_CACHE).into(target);
+
+			}
+			Log.e("cht item data source", "updated rows- " + res);
+			// ans = ans + res;
+		}
+
+		return ans;
+
 	}
 
 }

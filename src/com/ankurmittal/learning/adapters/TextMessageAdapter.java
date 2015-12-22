@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
+import com.ankurmittal.learning.emojicon.EmojiconTextView;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.util.Constants;
 import com.parse.ParseUser;
@@ -48,7 +49,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item_neutral, null);
 			holder = new ViewHolder();
-			holder.messageView = (TextView) convertView
+			holder.messageView = (EmojiconTextView) convertView
 					.findViewById(R.id.messageTextView);
 			convertView.setTag(holder);
 			holder.messageView.setText(message.getMessage());
@@ -77,7 +78,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item_sent, null);
 			holder = new ViewHolder();
-			holder.messageView = (TextView) convertView
+			holder.messageView = (EmojiconTextView) convertView
 					.findViewById(R.id.messageTextView);
 			holder.timeLabel = (TextView) convertView
 					.findViewById(R.id.createdAtTextView);
@@ -108,7 +109,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item_received, null);
 			holder = new ViewHolder();
-			holder.messageView = (TextView) convertView
+			holder.messageView = (EmojiconTextView) convertView
 					.findViewById(R.id.messageTextView);
 			holder.timeLabel = (TextView) convertView
 					.findViewById(R.id.createdAtTextView);
@@ -121,12 +122,6 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			}
 			holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
 		}
-		// } else {
-		// Log.d("adapter", message.getSenderName());
-		// holder = (ViewHolder) convertView.getTag();
-		// }
-		
-
 
 
 		return convertView;
@@ -140,7 +135,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 	}
 
 	private static class ViewHolder {
-		TextView messageView;
+		EmojiconTextView messageView;
 		TextView timeLabel;
 		ImageView sentView;
 	}
