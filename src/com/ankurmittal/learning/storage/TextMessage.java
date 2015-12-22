@@ -7,7 +7,7 @@ import java.util.Locale;
 
 import android.util.Log;
 
-import com.parse.ParseObject;
+import com.ankurmittal.learning.util.Constants;
 
 public class TextMessage  {
 	
@@ -19,7 +19,7 @@ public class TextMessage  {
 	public String mMessageId;
 	public String mType;
 	public java.util.Date createdAt;
-	public boolean isSent = false;
+	public String mMessageStatus = Constants.MESSAGE_STATUS_PENDING;
 	public TextMessage() {
 		
 	}
@@ -39,11 +39,11 @@ public class TextMessage  {
 		return mMessageId;
 	}
 	
-	public boolean isSent() {
-		return isSent;
+	public String getMessageStatus() {
+		return mMessageStatus;
 	}
-	public void setSent(boolean isSent) {
-		this.isSent = isSent;
+	public void setMessageStatus(String messageStatus) {
+		this.mMessageStatus = messageStatus;
 	}
 	public void setMessageId(String mMessageId) {
 		this.mMessageId = mMessageId;

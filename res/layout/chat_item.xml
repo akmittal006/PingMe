@@ -11,23 +11,25 @@
         android:id="@+id/usernameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/userImageView"
+        android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/userImageView"
         android:text="Large Text"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
+    <com.ankurmittal.learning.emojicon.EmojiconTextView
         android:id="@+id/subtitleView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/usernameTextView"
         android:layout_below="@+id/usernameTextView"
-        android:text="No new Message" />
+        android:maxLines="1"
+        android:text="No new Message"
+        android:textStyle="bold" />
 
     <ImageView
         android:id="@+id/userImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="57dp"
+        android:layout_height="57dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:paddingRight="@dimen/activity_horizontal_margin"
@@ -37,7 +39,7 @@
         android:id="@+id/newMessageNumView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/subtitleView"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_marginRight="24dp"
        android:text="1"
@@ -47,5 +49,16 @@
        android:paddingRight="4dp"
        android:paddingTop="1dp"
        android:paddingBottom="1dp"/>
+    
+    <ImageView
+         android:id="@+id/sentStatusView"
+         android:layout_width="20dp"
+         android:layout_height="20dp"
+         android:layout_alignBottom="@+id/subtitleView"
+         android:layout_alignParentRight="true"
+         android:layout_marginRight="24dp"
+         android:src="@drawable/ic_action_read"
+        
+         />
 
 </RelativeLayout>

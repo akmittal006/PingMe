@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,7 +17,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
+import com.ankurmittal.learning.emojicon.EmojiconTextView;
 import com.ankurmittal.learning.storage.TextMessage;
+import com.ankurmittal.learning.util.Constants;
 import com.parse.ParseUser;
 
 public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
@@ -39,14 +42,14 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 		TextMessage message = mMessages.get(position);
 		// if (convertView == null) {
 
-		if (message.getReceiverName().equals("pingMe")) {
+		if (message.getReceiverName().equals("pingMe9872719390")) {
 			
 			//neutral message
 			
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item_neutral, null);
 			holder = new ViewHolder();
-			holder.messageView = (TextView) convertView
+			holder.messageView = (EmojiconTextView) convertView
 					.findViewById(R.id.messageTextView);
 			convertView.setTag(holder);
 			holder.messageView.setText(message.getMessage());
@@ -75,18 +78,28 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item_sent, null);
 			holder = new ViewHolder();
-			holder.messageView = (TextView) convertView
+			holder.messageView = (EmojiconTextView) convertView
 					.findViewById(R.id.messageTextView);
 			holder.timeLabel = (TextView) convertView
 					.findViewById(R.id.createdAtTextView);
 			holder.sentView = (ImageView) convertView.findViewById(R.id.sentStatusView);
 			convertView.setTag(holder);
+			CharSequence messageText = Html.fromHtml("&#128522;");
 			holder.messageView.setText(message.getMessage());
-			if (message.isSent) {
+			if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_SENT)) {
+				holder.messageView.setTypeface(null, Typeface.NORMAL);
+				holder.sentView.setImageResource(R.drawable.ic_action_delivered);
+			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
+				holder.messageView.setTypeface(null, Typeface.NORMAL);
+				holder.sentView.setImageResource(R.drawable.ic_action_sent);
+				//Log.e("Text MEssage Adapter", "Setting WHITE icon");
+			} else if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_READ)) {
+				//Log.e("Text MEssage Adapter", "Setting red icon");
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 				holder.sentView.setImageResource(R.drawable.ic_action_read);
 			} else {
 				holder.messageView.setTypeface(null, Typeface.ITALIC);
+				holder.sentView.setImageResource(R.drawable.ic_action_wait);
 			}
 			holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
 		} else {
@@ -96,25 +109,19 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item_received, null);
 			holder = new ViewHolder();
-			holder.messageView = (TextView) convertView
+			holder.messageView = (EmojiconTextView) convertView
 					.findViewById(R.id.messageTextView);
 			holder.timeLabel = (TextView) convertView
 					.findViewById(R.id.createdAtTextView);
 			convertView.setTag(holder);
 			holder.messageView.setText(message.getMessage());
-			if (message.isSent) {
+			if (message.mMessageStatus.equals(Constants.MESSAGE_STATUS_SENT)) {
 				holder.messageView.setTypeface(null, Typeface.NORMAL);
 			} else {
 				holder.messageView.setTypeface(null, Typeface.ITALIC);
 			}
 			holder.timeLabel.setText(getTimeFromDate(message.getCreatedAt()));
 		}
-		// } else {
-		// Log.d("adapter", message.getSenderName());
-		// holder = (ViewHolder) convertView.getTag();
-		// }
-		
-
 
 
 		return convertView;
@@ -128,7 +135,7 @@ public class TextMessageAdapter extends ArrayAdapter<TextMessage> {
 	}
 
 	private static class ViewHolder {
-		TextView messageView;
+		EmojiconTextView messageView;
 		TextView timeLabel;
 		ImageView sentView;
 	}

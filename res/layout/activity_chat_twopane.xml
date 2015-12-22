@@ -21,13 +21,11 @@
     http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
     -->
 
-    <fragment
-        android:id="@+id/chat_list"
-        android:name="com.ankurmittal.learning.ChatListFragment"
+    <FrameLayout
+        android:id="@+id/chat_list_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        tools:layout="@android:layout/list_content" />
+        android:layout_weight="1" />
 
     <FrameLayout
         android:id="@+id/chat_detail_container"

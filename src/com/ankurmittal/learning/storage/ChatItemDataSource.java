@@ -1,6 +1,11 @@
 package com.ankurmittal.learning.storage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.ankurmittal.learning.util.CustomTarget;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,6 +32,7 @@ public class ChatItemDataSource {
 	 */
 	public void open() throws SQLException {
 		mDatabase = mChatItemHelper.getWritableDatabase();
+
 		// Log.d("TEXT Databse check", "database opened");
 	}
 
@@ -34,7 +40,10 @@ public class ChatItemDataSource {
 	 * We always need to close our db connections
 	 */
 	public void close() {
-		mDatabase.close();
+		if (mDatabase != null) {
+			mDatabase.close();
+		}
+
 		// Log.d("TEXT Databse check", "database closed");
 	}
 
@@ -53,7 +62,8 @@ public class ChatItemDataSource {
 			String lastMessage;
 			frndsDataSource = new FriendsDataSource(mContext);
 			if (frndsDataSource.getImageUrlFromId(mContext, chatItem.getId()) != null) {
-				imgUrl = frndsDataSource.getImageUrlFromId(mContext, chatItem.getId());
+				imgUrl = frndsDataSource.getImageUrlFromId(mContext,
+						chatItem.getId());
 			} else {
 				imgUrl = "null";
 			}
@@ -71,13 +81,19 @@ public class ChatItemDataSource {
 				values.put(ChatItemHelper.COLUMN_SENDER_IMG, imgUrl);
 				// values.put(ChatItemHelper.COLUMN_SENDER_CONTACT,
 				// chatItem.getMessageId());
-				values.put(ChatItemHelper.COLUMN_LAST_MESSAGE, chatItem
-						.getLastMessage().getMessage());
+				if (chatItem.getLastMessage() != null) {
+					values.put(ChatItemHelper.COLUMN_LAST_MESSAGE, chatItem
+							.getLastMessage().getMessage());
+
+					Log.d("inseting", chatItem.getContent());
+
+					values.put(ChatItemHelper.COLUMN_CREATED_AT, chatItem
+							.getLastMessage().getCreatedAtString());
+				}
+
 				// values.put(ChatItemHelper.COLUMN_IS_SENT,
 				// chatItem.isSent() + "");
-				Log.d("inseting", chatItem.getContent());
-				values.put(ChatItemHelper.COLUMN_CREATED_AT, chatItem
-						.getLastMessage().getCreatedAtString());
+
 				// friend.setViewed(false);
 				mDatabase.insert(ChatItemHelper.TABLE_CHAT_ITEMS, null, values);
 				mDatabase.setTransactionSuccessful();
@@ -165,14 +181,30 @@ public class ChatItemDataSource {
 			int row = 0;
 			while (!cursor.isAfterLast()) {
 
+				TextMessageDataSource mMessageDataSource = new TextMessageDataSource(
+						mContext);
+				try {
+					mMessageDataSource.open();
+				} catch (Exception e) {
+					Log.e("Chat Item Data Source Line 184", "" + e.getMessage());
+				}
+				
 				ChatItem chatItem = new ChatItem();
+				
 				int i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_IMG);
 				chatItem.setImgUrl(cursor.getString(i));
+				Log.e("MChatItem data source", "url-" + cursor.getString(i));
 				// do stuff
 				mChatItems.add(chatItem);
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_ID);
 				mChatItems.get(row).setId(cursor.getString(i));
+				
+				if(chatItem.mMessages == null) {
+					chatItem.mMessages = new ArrayList<TextMessage>();
+				}
+				chatItem.mMessages.clear();
+				chatItem.mMessages = mMessageDataSource.getMessagesFrom(cursor.getString(i));
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_NAME);
 				mChatItems.get(row).setContent(cursor.getString(i));
@@ -186,10 +218,16 @@ public class ChatItemDataSource {
 				// mChatItems.get(row).setReceiverName(cursor.getString(i));
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_LAST_MESSAGE);
-				mChatItems.get(row).setLastMessage(cursor.getString(i));
+				if (cursor.getString(i) != null) {
+					Log.i("quick check", cursor.getString(i));
+					mChatItems.get(row).setLastMessage(cursor.getString(i));
+				}
 
 				i = cursor.getColumnIndex(ChatItemHelper.COLUMN_CREATED_AT);
-				mChatItems.get(row).setLastMessageCreatedAt(cursor.getString(i));
+				if (cursor.getString(i) != null) {
+					mChatItems.get(row).setLastMessageCreatedAt(
+							cursor.getString(i));
+				}
 
 				// i = cursor.getColumnIndex(ChatItemHelper.COLUMN_IS_SENT);
 				// boolean sent = false;
@@ -215,96 +253,62 @@ public class ChatItemDataSource {
 
 	}
 
-//	public ArrayList<TextMessage> getMessagesFrom(String senderId) {
-//
-//		String whereClause = TextMessageHelper.COLUMN_SENDER_ID + " = ? OR "
-//				+ TextMessageHelper.COLUMN_RECEIVER_ID + " = ?";
-//
-//		Cursor cursor;
-//		// check if database is open
-//		if (mDatabase.isOpen()) {
-//			cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
-//					new String[] { TextMessageHelper.COLUMN_SENDER_ID,
-//							TextMessageHelper.COLUMN_RECEIVER_ID,
-//							TextMessageHelper.COLUMN_SENDER_NAME,
-//							TextMessageHelper.COLUMN_RECEIVER_NAME,
-//							TextMessageHelper.COLUMN_MESSAGE_ID,
-//							TextMessageHelper.COLUMN_MESSAGE,
-//							TextMessageHelper.COLUMN_IS_SENT,
-//							TextMessageHelper.COLUMN_CREATED_AT }, // column
-//																	// names
-//					whereClause, // where clause
-//					new String[] { senderId, senderId }, // where params
-//					null, // groupby
-//					null, // having
-//					null // orderby
-//					);
-//		} else {
-//			open();
-//			cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
-//					new String[] { TextMessageHelper.COLUMN_SENDER_ID,
-//							TextMessageHelper.COLUMN_RECEIVER_ID,
-//							TextMessageHelper.COLUMN_SENDER_NAME,
-//							TextMessageHelper.COLUMN_RECEIVER_NAME,
-//							TextMessageHelper.COLUMN_MESSAGE_ID,
-//							TextMessageHelper.COLUMN_MESSAGE,
-//							TextMessageHelper.COLUMN_IS_SENT,
-//							TextMessageHelper.COLUMN_CREATED_AT }, // column
-//																	// names
-//					whereClause, // where clause
-//					new String[] { senderId, senderId }, // where params
-//					null, // groupby
-//					null, // having
-//					null // orderby
-//					);
-//		}
-//		ArrayList<TextMessage> mTextMessages = new ArrayList<TextMessage>();
-//
-//		if (cursor.getCount() == 0) {
-//			return null;
-//		} else {
-//			cursor.moveToFirst();
-//			int row = 0;
-//			while (!cursor.isAfterLast()) {
-//
-//				TextMessage textMessage = new TextMessage();
-//				int i = cursor
-//						.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE_ID);
-//				textMessage.setMessageId(cursor.getString(i));
-//				// do stuff
-//				mTextMessages.add(textMessage);
-//
-//				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_SENDER_ID);
-//				mTextMessages.get(row).setSenderId(cursor.getString(i));
-//
-//				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_SENDER_NAME);
-//				mTextMessages.get(row).setSenderName(cursor.getString(i));
-//
-//				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_RECEIVER_ID);
-//				mTextMessages.get(row).setReceiverId(cursor.getString(i));
-//
-//				i = cursor
-//						.getColumnIndex(TextMessageHelper.COLUMN_RECEIVER_NAME);
-//				mTextMessages.get(row).setReceiverName(cursor.getString(i));
-//
-//				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_MESSAGE);
-//				mTextMessages.get(row).setMessage(cursor.getString(i));
-//
-//				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_CREATED_AT);
-//				mTextMessages.get(row).setCreatedAt(cursor.getString(i));
-//
-//				i = cursor.getColumnIndex(TextMessageHelper.COLUMN_IS_SENT);
-//				boolean sent = false;
-//				if (cursor.getString(i).equals("true")) {
-//					sent = true;
-//				}
-//				// Log.i("SENT", "" + sent);
-//				mTextMessages.get(row).setSent(sent);
-//
-//				cursor.moveToNext();
-//				row++;
-//			}
-//			return mTextMessages;
-//		}
-//	}
+	public void upadteLastMessage(String id, TextMessage lastMessage) {
+		if (!mDatabase.isOpen()) {
+			open();
+		}
+		String whereClause = ChatItemHelper.COLUMN_SENDER_ID + " = ?";
+
+		ContentValues values = new ContentValues();
+		values.put(ChatItemHelper.COLUMN_LAST_MESSAGE, lastMessage.getMessage());
+		mDatabase.update(TextMessageHelper.TABLE_MESSAGES, // table
+				values, // values
+				whereClause, // where clause
+				new String[] { id } // where params
+				);
+		mDatabase.close();
+	}
+	
+	public int updateImageUrlFromId(Context context,
+			final ArrayList<HashMap<String, String>> friends) {
+
+		int ans = 0;
+		mChatItemHelper = new ChatItemHelper(context);
+		mDatabase = mChatItemHelper.getWritableDatabase();
+		if (!mDatabase.isOpen()) {
+			open();
+		}
+
+		Log.e("ChatItem data source", "updating picss ");
+
+		for (int i = 0; i < friends.size(); i++) {
+
+			final HashMap<String, String> frnd = friends.get(i);
+
+			String whereClause = ChatItemHelper.COLUMN_SENDER_ID + " = ?";
+			ContentValues values = new ContentValues();
+			values.put(ChatItemHelper.COLUMN_SENDER_IMG,
+					frnd.get("img_url"));
+			int res = mDatabase.update(ChatItemHelper.TABLE_CHAT_ITEMS, // table
+					values, // column names
+					whereClause, // where clause
+					new String[] { frnd.get("id") });
+			if (res > 0) {
+				Log.e("frnds data ", "deleting and updating file");
+				String middlePath = frnd.get("img_url").substring(93, 116);
+				CustomTarget target = new CustomTarget(mContext);
+				target.setTargetHash(middlePath);
+				// TODO Auto-generated method stub
+				Picasso.with(context).load(frnd.get("img_url"))
+						.memoryPolicy(MemoryPolicy.NO_CACHE).into(target);
+
+			}
+			Log.e("cht item data source", "updated rows- " + res);
+			// ans = ans + res;
+		}
+
+		return ans;
+
+	}
+
 }

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.storage.ChatContent;
+import com.ankurmittal.learning.storage.ChatItemDataSource;
 import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.ParseConstants;
@@ -165,6 +166,10 @@ public class MainActivity extends Activity implements FriendsFragment.Callbacks 
 			//prompt if they wanna logout
 			//TODO:do smthing
 			//if yes delete frnds database
+			ChatItemDataSource mChatItemDataSource = new ChatItemDataSource(this);
+			mChatItemDataSource.open();
+			mChatItemDataSource.deleteAll();
+			mChatItemDataSource.close();
 			FriendsDataSource mFriendsDataSource = new FriendsDataSource(this);
 			mFriendsDataSource.open();
 			Log.d("DATABASE CHECK",""+ mFriendsDataSource.selectAll().getCount());

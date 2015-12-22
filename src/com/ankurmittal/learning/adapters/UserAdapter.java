@@ -32,7 +32,7 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 		super(context, R.layout.user_item, users);
 		mContext = context;
 		mUsers = users;
-		
+
 	}
 
 	@Override
@@ -80,29 +80,29 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 					Log.i("IMPPPPPP", Uri.fromFile(file).toString());
 					Picasso.with(mContext).load(Uri.fromFile(file))
 							.placeholder(R.drawable.avatar_empty)
-							.resize(75, 75).centerCrop()
+							.resize(88, 88).centerInside()
 							.into(holder.userImageView);
 				} else {
 					Picasso.with(mContext).load(gravatarUrl)
 							.placeholder(R.drawable.avatar_empty)
-							.resize(75, 75).centerCrop()
+							.resize(88, 88).centerInside()
 							.into(holder.userImageView);
 				}
 			} else {
 				Picasso.with(mContext).load(gravatarUrl)
-						.placeholder(R.drawable.avatar_empty).resize(75, 75)
-						.centerCrop().into(holder.userImageView);
+						.placeholder(R.drawable.avatar_empty).resize(88, 88)
+						.centerInside().into(holder.userImageView);
 			}
 		}
 
 		holder.nameLabel.setText(user.getUsername());
 		holder.frndLabel.setText("");
 
-//		if (mIsFrndReqSentAndFriends.get(position) == 10) {
-//			holder.frndLabel.setText(R.string.friend_request_sent_label);
-//		} else if (mIsFrndReqSentAndFriends.get(position) == 01) {
-//			holder.frndLabel.setText(R.string.friends_label);
-//		}
+		// if (mIsFrndReqSentAndFriends.get(position) == 10) {
+		// holder.frndLabel.setText(R.string.friend_request_sent_label);
+		// } else if (mIsFrndReqSentAndFriends.get(position) == 01) {
+		// holder.frndLabel.setText(R.string.friends_label);
+		// }
 
 		return convertView;
 	}
@@ -111,6 +111,7 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 		ImageView userImageView;
 		TextView nameLabel;
 		TextView frndLabel;
+		
 	}
 
 	public void refill(List<ParseUser> users,

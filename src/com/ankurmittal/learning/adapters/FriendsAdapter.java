@@ -1,14 +1,10 @@
 package com.ankurmittal.learning.adapters;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -21,11 +17,10 @@ import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.util.CustomTarget;
-import com.ankurmittal.learning.util.MD5Util;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.ParseUser;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 
@@ -83,14 +78,16 @@ public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 			holder.userImageView.setImageResource(R.drawable.avatar_empty);
 			Log.i("frnds adapter", imgUrl + " img set - " + position);
 		} else if(imgUrl != null) {
+			//if the image is not null
 			Log.i("url check", imgUrl);
 			//hash = MD5Util.md5Hex(email);
 //			String gravatarUrl = "http://www.gravatar.com/avatar/" + hash
 //					+ "?s=204&d=404";
+			String middlePath = imgUrl.substring(93, 116);
 			Picasso.with(mContext).setIndicatorsEnabled(true);
-			CustomTarget target = new CustomTarget();
+			CustomTarget target = new CustomTarget(mContext);
 			//Log.d("frnds adpater",user.getString("UserId"));
-			target.setTargetHash(user.getString("UserId"));
+			target.setTargetHash(middlePath);
 			if (isExternalStorageAvailable()) {
 
 				// 1. Get the external storage directory
@@ -101,19 +98,21 @@ public class FriendsAdapter extends ArrayAdapter<ParseUser> {
 						appName);
 
 				String path = mediaStorageDir.getPath() + File.separator;
+				
+				//Log.e("middle Path", middlePath);
 
-				File file = new File(path + "/" + user.getString("UserId") + ".jpg");
+				File file = new File(path + "/" + middlePath + ".jpg");
 				if (file.exists()) {
 					Log.i("image loaded from mobile", Uri.fromFile(file).toString());
 					Picasso.with(mContext).load(Uri.fromFile(file))
 							.placeholder(R.drawable.avatar_empty)
-							.resize(75, 75).centerCrop()
+							.resize(88, 88).centerInside()
 							.into(holder.userImageView);
 				} else {
 					Log.i("image loaded from net", Uri.fromFile(file).toString());
 					Picasso.with(mContext).load(imgUrl)
 							.placeholder(R.drawable.avatar_empty)
-							.resize(75, 75).centerCrop()
+							.resize(88, 88).centerInside().memoryPolicy(MemoryPolicy.NO_CACHE)
 							.into(holder.userImageView);
 					Picasso.with(mContext).load(imgUrl).into(target);
 				}
