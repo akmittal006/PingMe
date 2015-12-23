@@ -17,5 +17,7 @@ public class Constants {
 	public static final String MESSAGE_STATUS_SENT = "sentPingMeMessage10123452";
 	public static final String MESSAGE_STATUS_DELIVERED = "deliveredPingMeMessage10123452";
 	public static final String MESSAGE_STATUS_READ = "readPingMeMessage10123452";
-
+	public static final String PREF_LOGIN_STATUS = "loginStatus";
+	public static final String LOGIN_STATUS_NEW = "newLogin";
+	public static final String LOGIN_STATUS_OLD = "oldLogin";
 }

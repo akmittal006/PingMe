@@ -1,10 +1,9 @@
 package com.ankurmittal.learning.adapters;
 
+import java.util.HashMap;
 import java.util.List;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,13 +18,12 @@ import android.widget.Toast;
 
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.util.MD5Util;
-import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.DeleteCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.squareup.picasso.Picasso;
 
 public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
@@ -35,6 +33,7 @@ public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
 	protected List<ParseObject> mReqs;
 	protected ParseUser currentUser;
 	protected ProgressBar mProgressBar;
+	protected ParseUser user;
 
 	public FrndReqAdapter(Context context, List<ParseUser> users,
 			List<ParseObject> reqs, ProgressBar progBar) {
@@ -66,7 +65,7 @@ public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		ParseUser user = mUsers.get(position);
+		user = mUsers.get(position);
 		currentUser = ParseUser.getCurrentUser();
 		String email = user.getEmail().toLowerCase();
 
@@ -82,97 +81,51 @@ public class FrndReqAdapter extends ArrayAdapter<ParseUser> {
 		}
 
 		holder.nameLabel.setText(user.getUsername());
-		
-		/////////if request is accepted/////////////
+
+		// ///////if request is accepted/////////////
 		holder.mAcceptButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				Log.d("clicked", "accepted " + position);
-				ParseRelation<ParseUser> frndRelation = currentUser
-						.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
-				frndRelation.add(mUsers.get(position));
-				currentUser.saveInBackground(new SaveCallback() {
+				//ParseObject frndReq = mReqs.get(position);
+				
+				HashMap<String, String> params = new HashMap<String, String>();
+				params.put("FrndReqSentBy", user.getObjectId());
+				params.put("reqObjId", mReqs.get(position).getObjectId());
+				ParseCloud.callFunctionInBackground("frndReqAccepted", params,
+						new FunctionCallback<String>() {
 
-					@Override
-					public void done(ParseException e) {
-						if (e == null) {
-							Toast.makeText(mContext, R.string.frnd_added,
-									Toast.LENGTH_SHORT).show();
-							// add current user as friend to sender
-							ParseObject friendRequestAccepts = new ParseObject(
-									ParseConstants.KEY_FRIENDS_REQUEST_ACCEPTS);
-							friendRequestAccepts.put(
-									ParseConstants.KEY_RECEIVER,
-									mUsers.get(position).getObjectId());
-							friendRequestAccepts.put(ParseConstants.KEY_REQUEST_SENDER,
-									ParseUser.getCurrentUser());
-							friendRequestAccepts.put(
-									ParseConstants.KEY_SENDER_NAME, ParseUser
-											.getCurrentUser().getUsername());
-							friendRequestAccepts
-									.saveInBackground(new SaveCallback() {
-
+							@Override
+							public void done(final String message, ParseException e) {
+								// TODO Auto-generated method stub
+								if(e==null) {
+									
+									mReqs.get(position).deleteInBackground(new DeleteCallback() {
+										
 										@Override
 										public void done(ParseException e) {
-
-											if (e == null) {
-												// friend request accept send
-												Log.d("accept sent", "sent!");
+											// TODO Auto-generated method stub
+											if(e == null) {
+												mUsers.remove(position);
+												mReqs.remove(position);
+												notifyDataSetChanged();
+												Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
 											} else {
-												// there was error
-												Toast.makeText(
-														mContext,
-														R.string.friend_request_error_label,
-														Toast.LENGTH_SHORT)
-														.show();
+												Toast.makeText(mContext, "frnd req " + e.getMessage(),  Toast.LENGTH_LONG).show();
 											}
-
 										}
 									});
-							//also remove the req form front end
-							mUsers.remove(position);
-							notifyDataSetChanged();
-							// remove at backend
-							mProgressBar.setVisibility(View.VISIBLE);
-							ParseObject req = mReqs.get(position);
-							req.deleteInBackground(new DeleteCallback() {
-
-								@Override
-								public void done(ParseException arg0) {
-									mProgressBar.setVisibility(View.INVISIBLE);
-									mReqs.remove(position);
-									Toast.makeText(mContext, "deleted",
-											Toast.LENGTH_SHORT).show();
-									Log.d("checking", "" + mUsers.size());
+								} else {
+									e.printStackTrace();
+									Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
 								}
-							});
-
-						} else {
-							// there was an error while adding frnd
-							AlertDialog.Builder builder = new AlertDialog.Builder(
-									mContext);
-							builder.setTitle(R.string.error_title);
-							builder.setMessage(e.getMessage());
-							builder.setPositiveButton(android.R.string.ok,
-									new DialogInterface.OnClickListener() {
-
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											dialog.dismiss();
-										}
-									});
-							AlertDialog dialog = builder.create();
-							dialog.show();
-						}
-					}
-				});
+							}
+						});
 
 			}
 		});
-		
+
 		// ///////if cancel button is pressed/////////////
 		holder.mCancelButton.setOnClickListener(new OnClickListener() {
 

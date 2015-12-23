@@ -2,6 +2,7 @@ package com.ankurmittal.learning.adapters;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
@@ -17,18 +18,19 @@ import android.widget.TextView;
 
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.util.MD5Util;
+import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.ParseUser;
 import com.squareup.picasso.Picasso;
 
-public class UserAdapter extends ArrayAdapter<ParseUser> {
+public class UserAdapter extends ArrayAdapter<HashMap<String, Object>> {
 
 	protected Context mContext;
-	protected List<ParseUser> mUsers;
+	protected List<HashMap<String, Object>> mUsers;
 	protected ArrayList<Integer> mIsFrndReqSentAndFriends;
 	protected ArrayList<String> mFrndsUsernames;
 	protected String hash;
 
-	public UserAdapter(Context context, List<ParseUser> users) {
+	public UserAdapter(Context context, List<HashMap<String, Object>> users) {
 		super(context, R.layout.user_item, users);
 		mContext = context;
 		mUsers = users;
@@ -54,7 +56,7 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		ParseUser user = mUsers.get(position);
+		ParseUser user = (ParseUser)mUsers.get(position).get(ParseConstants.KEY_USER);
 		String email = user.getEmail().toLowerCase();
 
 		if (email.equals("")) {
@@ -114,7 +116,7 @@ public class UserAdapter extends ArrayAdapter<ParseUser> {
 		
 	}
 
-	public void refill(List<ParseUser> users,
+	public void refill(List<HashMap<String, Object>> users,
 			ArrayList<Integer> isFrndReqSentAndFriends) {
 		mUsers.clear();
 		mUsers.addAll(users);

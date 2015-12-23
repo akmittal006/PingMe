@@ -54,11 +54,11 @@ public class FriendsDataSource {
 			mDatabase.beginTransaction();
 			try {
 				ContentValues values = new ContentValues();
-				values.put(FriendsHelper.COLUMN_NAME, friend.getUsername());
+				values.put(FriendsHelper.COLUMN_USERNAME, friend.getUsername());
 				values.put(FriendsHelper.COLUMN_OBJECT_ID, friend.getObjectId());
 				values.put(FriendsHelper.COLUMN_EMAIL, friend.getEmail());
-				// values.put(FriendsHelper.COLUMN_LAST_UPDATED,
-				// friend.getUpdatedAt().toString());
+				values.put(FriendsHelper.COLUMN_NAME,friend.getString(ParseConstants.KEY_NAME));
+				values.put(FriendsHelper.COLUMN_PHN_NUMBER,friend.getString(ParseConstants.KEY_PHN_NUM));
 				if (friend.getParseFile(ParseConstants.KEY_PROFILE_IMAGE) != null) {
 					values.put(
 							FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS,
@@ -82,61 +82,6 @@ public class FriendsDataSource {
 
 	}
 
-	// public void insertByMain(ParseUser friend) {
-	//
-	// Cursor cursor = isFriendNew(friend);
-	// if (cursor.getCount() == 0) {
-	// Log.d("DATA SOURCE", "INSERTING NEW ROW...");
-	//
-	// //sendNotification(friend);
-	//
-	// mDatabase.beginTransaction();
-	// try {
-	// ContentValues values = new ContentValues();
-	// values.put(FriendsHelper.COLUMN_DATE, friend.getDate());
-	// values.put(FriendsHelper.COLUMN_ORDER, friend.getOrder());
-	// values.put(FriendsHelper.COLUMN_SUBJECT, friend.getSubject());
-	// values.put(FriendsHelper.COLUMN_URL, friend.getUrl());
-	// friend.setViewed(false);
-	// mDatabase.insert(FriendsHelper.TABLE_POSTINGS, null, values);
-	// mDatabase.setTransactionSuccessful();
-	// Log.d("INSERTED" , "ROW ADDED");
-	// } finally {
-	// mDatabase.endTransaction();
-	// }
-	// }
-	// else{
-	//
-	// Log.d(" NOT INSERTED" , "ROW NOT ADDED");
-	// }
-	//
-	// }
-
-	// private void sendNotification(Post post) {
-	// Intent resultIntent = new Intent(mContext, MainActivity.class);
-	// // Because clicking the notification opens a new ("special") activity,
-	// // there's
-	// // no need to create an artificial back stack.
-	// PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext,
-	// 0,
-	// resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-	// NotificationCompat.Builder mBuilder = new
-	// NotificationCompat.Builder(mContext)
-	// .setSmallIcon(R.drawable.pspcl_logo)
-	// .setContentTitle("New Update")
-	// .setContentText(post.getDate());
-	//
-	//
-	// mBuilder.setContentIntent(resultPendingIntent);
-	// // Sets an ID for the notification
-	// int mNotificationId = 001;
-	// // Gets an instance of the NotificationManager service
-	// NotificationManager mNotifyMgr =
-	// (NotificationManager)
-	// mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-	// // Builds the notification and issues it.
-	// mNotifyMgr.notify(mNotificationId, mBuilder.build());
-	// }
 
 	public Cursor isFriendNew(ParseUser friend) {
 		if (!mDatabase.isOpen()) {
@@ -172,10 +117,12 @@ public class FriendsDataSource {
 		}
 
 		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
-				new String[] { FriendsHelper.COLUMN_NAME,
+				new String[] { FriendsHelper.COLUMN_USERNAME,
 						FriendsHelper.COLUMN_OBJECT_ID,
 						FriendsHelper.COLUMN_EMAIL,
-						FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS }, // column
+						FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS,
+						FriendsHelper.COLUMN_NAME,
+						FriendsHelper.COLUMN_PHN_NUMBER}, // column
 																		// names
 				null, // where clause
 				null, // where params
@@ -289,13 +236,21 @@ public class FriendsDataSource {
 				// Log.d("Database check", "to add :" + frnd.getObjectId());
 				// do stuff
 				mFriends.add(frnd);
-				i = cursor.getColumnIndex(FriendsHelper.COLUMN_NAME);
+				i = cursor.getColumnIndex(FriendsHelper.COLUMN_USERNAME);
 				mFriends.get(row).setUsername(cursor.getString(i));
 				i = cursor.getColumnIndex(FriendsHelper.COLUMN_EMAIL);
 				mFriends.get(row).setEmail(cursor.getString(i));
 				i = cursor
 						.getColumnIndex(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS);
 				mFriends.get(row).put(ParseConstants.KEY_PROFILE_IMAGE,
+						cursor.getString(i));
+				i = cursor
+						.getColumnIndex(FriendsHelper.COLUMN_PHN_NUMBER);
+				mFriends.get(row).put(ParseConstants.KEY_PHN_NUM,
+						cursor.getString(i));
+				i = cursor
+						.getColumnIndex(FriendsHelper.COLUMN_NAME);
+				mFriends.get(row).put(ParseConstants.KEY_NAME,
 						cursor.getString(i));
 				Log.d("frnds data source",
 						"profile url- " + cursor.getString(i));

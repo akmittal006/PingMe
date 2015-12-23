@@ -31,6 +31,8 @@ public class SignUpActivity extends Activity {
 	EditText mUsername;
 	EditText mEmail;
 	EditText mPassword;
+	EditText mName;
+	EditText mPhnNum;
 	TextView mLoginTextView;
 	Button mSignUpButton;
 	ScrollView mFormView;
@@ -45,25 +47,27 @@ public class SignUpActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sign_up);
 		getActionBar().hide();
-		
-		// handling signup text view
-				mLoginTextView = (TextView) findViewById(R.id.usernameTextView);
-				mLoginTextView.setOnClickListener(new OnClickListener() {
 
-					@Override
-					public void onClick(View arg0) {
-						Intent intent = new Intent(SignUpActivity.this,
-								LoginActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-						intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-						startActivity(intent);
-					}
-				});
+		// handling signup text view
+		mLoginTextView = (TextView) findViewById(R.id.usernameTextView);
+		mLoginTextView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent(SignUpActivity.this,
+						LoginActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			}
+		});
 
 		// handling main views
 		mUsername = (EditText) findViewById(R.id.usernameEditText);
 		mEmail = (EditText) findViewById(R.id.emailEditText);
 		mPassword = (EditText) findViewById(R.id.passwordEditText);
+		mName = (EditText) findViewById(R.id.nameEditText);
+		mPhnNum = (EditText) findViewById(R.id.phnNumEditText);
 		mSignUpButton = (Button) findViewById(R.id.loginButton);
 		mFormView = (ScrollView) findViewById(R.id.formView);
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
@@ -107,6 +111,8 @@ public class SignUpActivity extends Activity {
 		String email = mEmail.getText().toString();
 		String password = mPassword.getText().toString();
 		String username = mUsername.getText().toString();
+		String name = mName.getText().toString();
+		String phnNum = mPhnNum.getText().toString();
 
 		View focusView = mPassword;
 
@@ -139,6 +145,24 @@ public class SignUpActivity extends Activity {
 			mAuthTask = false;
 		}
 
+		// Check for valid name
+		if (TextUtils.isEmpty(name)) {
+			mName.setError(getString(R.string.error_field_required));
+			focusView = mName;
+			mAuthTask = false;
+		}
+
+		// Check for valid name
+		if (TextUtils.isEmpty(phnNum)) {
+			mPhnNum.setError(getString(R.string.error_field_required));
+			focusView = mPhnNum;
+			mAuthTask = false;
+		} else if(phnNum.length() < 10) {
+			mPhnNum.setError("Invalid Phone number");
+			focusView = mPhnNum;
+			mAuthTask = false;
+		}
+
 		Log.d(TAG, "" + mAuthTask);
 
 		if (mAuthTask) {
@@ -154,13 +178,14 @@ public class SignUpActivity extends Activity {
 			user.setEmail(email);
 
 			// other fields can be set just like with ParseObject
-			 user.put(ParseConstants.KEY_LOWER_USERNAME, username.toLowerCase());
+			user.put(ParseConstants.KEY_LOWER_USERNAME, username.toLowerCase());
+			user.put(ParseConstants.KEY_NAME, name);
+			user.put(ParseConstants.KEY_PHN_NUM, phnNum);
 
 			user.signUpInBackground(new SignUpCallback() {
 				public void done(ParseException e) {
 					showProgressBar(false);
 					if (e == null) {
-						// Hooray! Let them use the app now.
 						Log.d(TAG, "Sign upped");
 						Intent intent = new Intent(SignUpActivity.this,
 								LoginActivity.class);
@@ -171,13 +196,14 @@ public class SignUpActivity extends Activity {
 						// Sign up didn't succeed. Look at the ParseException
 						// to figure out what went wrong
 						Log.d(TAG, "Parse exception :" + e);
-						AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
+						AlertDialog.Builder builder = new AlertDialog.Builder(
+								SignUpActivity.this);
 						builder.setTitle(R.string.error_title);
 						builder.setMessage(e.getMessage());
 						builder.setPositiveButton(android.R.string.ok, null);
 						AlertDialog dialog = builder.create();
 						dialog.show();
-						
+
 					}
 				}
 			});

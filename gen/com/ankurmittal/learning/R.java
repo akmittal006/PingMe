@@ -80,7 +80,7 @@ containing a value of this type.
         public static final int chat_back=0x7f020008;
         public static final int chat_back2=0x7f020009;
         public static final int chat_back3=0x7f02000a;
-        public static final int com_facebook_picker_default_separator_color=0x7f0203b6;
+        public static final int com_facebook_picker_default_separator_color=0x7f0203b7;
         public static final int drawer_shadow=0x7f02000b;
         public static final int emoji_0023=0x7f02000c;
         public static final int emoji_0030=0x7f02000d;
@@ -961,140 +961,144 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020378;
         public static final int ic_rotate_left=0x7f020379;
         public static final int ic_rotate_right=0x7f02037a;
-        public static final int indicator_autocrop=0x7f02037b;
-        public static final int keyboard_background_holo=0x7f02037c;
-        public static final int nav_friends=0x7f02037d;
-        public static final int nav_friends_selected=0x7f02037e;
-        public static final int nav_msgs=0x7f02037f;
-        public static final int nav_msgs_selected=0x7f020380;
-        public static final int nav_profile=0x7f020381;
-        public static final int nav_profile_selected=0x7f020382;
-        public static final int orca_attach_camera_normal=0x7f020383;
-        public static final int orca_attach_camera_pressed=0x7f020384;
-        public static final int orca_attach_location_normal=0x7f020385;
-        public static final int orca_attach_location_pressed=0x7f020386;
-        public static final int orca_attach_photo_normal=0x7f020387;
-        public static final int orca_attach_photo_pressed=0x7f020388;
-        public static final int orca_attachments_arrow=0x7f020389;
-        public static final int orca_attachments_arrow_reversed=0x7f02038a;
-        public static final int orca_composer_attach_camera_button=0x7f02038b;
-        public static final int orca_composer_attach_location_button=0x7f02038c;
-        public static final int orca_composer_attach_photo_button=0x7f02038d;
-        public static final int orca_composer_divider_horizontal=0x7f02038e;
-        public static final int orca_composer_divider_vertical=0x7f02038f;
-        public static final int orca_composer_popup_active_normal=0x7f020390;
-        public static final int orca_composer_popup_active_pressed=0x7f020391;
-        public static final int orca_composer_popup_button=0x7f020392;
-        public static final int orca_composer_popup_button_active=0x7f020393;
-        public static final int orca_composer_popup_normal=0x7f020394;
-        public static final int orca_composer_popup_pressed=0x7f020395;
-        public static final int orca_composer_tab=0x7f020396;
-        public static final int orca_composer_tab_active=0x7f020397;
-        public static final int orca_composer_tab_dark=0x7f020398;
-        public static final int orca_composer_tab_pressed=0x7f020399;
-        public static final int orca_composer_top_divider=0x7f02039a;
-        public static final int orca_emoji_backspace_back_normal=0x7f02039b;
-        public static final int orca_emoji_backspace_front_button=0x7f02039c;
-        public static final int orca_emoji_backspace_front_normal=0x7f02039d;
-        public static final int orca_emoji_backspace_front_pressed=0x7f02039e;
-        public static final int orca_emoji_category_cars=0x7f02039f;
-        public static final int orca_emoji_category_nature=0x7f0203a0;
-        public static final int orca_emoji_category_objects=0x7f0203a1;
-        public static final int orca_emoji_category_people=0x7f0203a2;
-        public static final int orca_emoji_category_punctuation=0x7f0203a3;
-        public static final int orca_emoji_more_back_normal=0x7f0203a4;
-        public static final int orca_emoji_more_front_button=0x7f0203a5;
-        public static final int orca_emoji_more_front_normal=0x7f0203a6;
-        public static final int orca_emoji_more_front_pressed=0x7f0203a7;
-        public static final int orca_emoji_tab_background=0x7f0203a8;
-        public static final int orca_emoji_tab_dark_background=0x7f0203a9;
-        public static final int ping_logo=0x7f0203aa;
-        public static final int pingme_logo=0x7f0203ab;
-        public static final int profile_back=0x7f0203ac;
-        public static final int profile_back_new=0x7f0203ad;
-        public static final int profile_empty=0x7f0203ae;
-        public static final int rounded_square=0x7f0203af;
-        public static final int rounded_square_brown=0x7f0203b0;
-        public static final int rounded_square_pink=0x7f0203b1;
-        public static final int selector_crop_button=0x7f0203b2;
-        public static final int send_outline=0x7f0203b3;
-        public static final int smiley=0x7f0203b4;
-        public static final int sym_keyboard_delete_holo_dark=0x7f0203b5;
+        public static final int icon=0x7f02037b;
+        public static final int indicator_autocrop=0x7f02037c;
+        public static final int keyboard_background_holo=0x7f02037d;
+        public static final int nav_friends=0x7f02037e;
+        public static final int nav_friends_selected=0x7f02037f;
+        public static final int nav_msgs=0x7f020380;
+        public static final int nav_msgs_selected=0x7f020381;
+        public static final int nav_profile=0x7f020382;
+        public static final int nav_profile_selected=0x7f020383;
+        public static final int orca_attach_camera_normal=0x7f020384;
+        public static final int orca_attach_camera_pressed=0x7f020385;
+        public static final int orca_attach_location_normal=0x7f020386;
+        public static final int orca_attach_location_pressed=0x7f020387;
+        public static final int orca_attach_photo_normal=0x7f020388;
+        public static final int orca_attach_photo_pressed=0x7f020389;
+        public static final int orca_attachments_arrow=0x7f02038a;
+        public static final int orca_attachments_arrow_reversed=0x7f02038b;
+        public static final int orca_composer_attach_camera_button=0x7f02038c;
+        public static final int orca_composer_attach_location_button=0x7f02038d;
+        public static final int orca_composer_attach_photo_button=0x7f02038e;
+        public static final int orca_composer_divider_horizontal=0x7f02038f;
+        public static final int orca_composer_divider_vertical=0x7f020390;
+        public static final int orca_composer_popup_active_normal=0x7f020391;
+        public static final int orca_composer_popup_active_pressed=0x7f020392;
+        public static final int orca_composer_popup_button=0x7f020393;
+        public static final int orca_composer_popup_button_active=0x7f020394;
+        public static final int orca_composer_popup_normal=0x7f020395;
+        public static final int orca_composer_popup_pressed=0x7f020396;
+        public static final int orca_composer_tab=0x7f020397;
+        public static final int orca_composer_tab_active=0x7f020398;
+        public static final int orca_composer_tab_dark=0x7f020399;
+        public static final int orca_composer_tab_pressed=0x7f02039a;
+        public static final int orca_composer_top_divider=0x7f02039b;
+        public static final int orca_emoji_backspace_back_normal=0x7f02039c;
+        public static final int orca_emoji_backspace_front_button=0x7f02039d;
+        public static final int orca_emoji_backspace_front_normal=0x7f02039e;
+        public static final int orca_emoji_backspace_front_pressed=0x7f02039f;
+        public static final int orca_emoji_category_cars=0x7f0203a0;
+        public static final int orca_emoji_category_nature=0x7f0203a1;
+        public static final int orca_emoji_category_objects=0x7f0203a2;
+        public static final int orca_emoji_category_people=0x7f0203a3;
+        public static final int orca_emoji_category_punctuation=0x7f0203a4;
+        public static final int orca_emoji_more_back_normal=0x7f0203a5;
+        public static final int orca_emoji_more_front_button=0x7f0203a6;
+        public static final int orca_emoji_more_front_normal=0x7f0203a7;
+        public static final int orca_emoji_more_front_pressed=0x7f0203a8;
+        public static final int orca_emoji_tab_background=0x7f0203a9;
+        public static final int orca_emoji_tab_dark_background=0x7f0203aa;
+        public static final int ping_logo=0x7f0203ab;
+        public static final int pingme_logo=0x7f0203ac;
+        public static final int profile_back=0x7f0203ad;
+        public static final int profile_back_new=0x7f0203ae;
+        public static final int profile_empty=0x7f0203af;
+        public static final int rounded_square=0x7f0203b0;
+        public static final int rounded_square_brown=0x7f0203b1;
+        public static final int rounded_square_pink=0x7f0203b2;
+        public static final int selector_crop_button=0x7f0203b3;
+        public static final int send_outline=0x7f0203b4;
+        public static final int smiley=0x7f0203b5;
+        public static final int sym_keyboard_delete_holo_dark=0x7f0203b6;
     }
     public static final class id {
-        public static final int Emoji_GridView=0x7f0a0026;
-        public static final int accept_frnd_req_btn=0x7f0a0040;
-        public static final int action_settings=0x7f0a004b;
+        public static final int Emoji_GridView=0x7f0a0028;
+        public static final int accept_frnd_req_btn=0x7f0a0042;
+        public static final int action_settings=0x7f0a004e;
         public static final int actionbar_notifcation_textview=0x7f0a0001;
-        public static final int button1=0x7f0a0024;
-        public static final int button2=0x7f0a0025;
-        public static final int cancel_frnd_req_btn=0x7f0a003f;
-        public static final int chatEditText=0x7f0a0033;
-        public static final int chatList=0x7f0a0037;
-        public static final int chatListView=0x7f0a0035;
+        public static final int button1=0x7f0a0026;
+        public static final int button2=0x7f0a0027;
+        public static final int cancel_frnd_req_btn=0x7f0a0041;
+        public static final int chatEditText=0x7f0a0035;
+        public static final int chatList=0x7f0a0039;
+        public static final int chatListView=0x7f0a0037;
         public static final int chat_detail_container=0x7f0a0002;
         public static final int chat_list_container=0x7f0a0004;
-        public static final int copy=0x7f0a0046;
-        public static final int createdAtTextView=0x7f0a001c;
-        public static final int dateTextView=0x7f0a0036;
-        public static final int delete=0x7f0a0045;
-        public static final int discard=0x7f0a001e;
+        public static final int checkBox1=0x7f0a0046;
+        public static final int copy=0x7f0a0049;
+        public static final int createdAtTextView=0x7f0a001e;
+        public static final int dateTextView=0x7f0a0038;
+        public static final int delete=0x7f0a0048;
+        public static final int discard=0x7f0a0020;
         public static final int drawer_layout=0x7f0a0003;
         public static final int editProfileImageButton=0x7f0a0013;
         public static final int editTextLayout=0x7f0a0008;
-        public static final int emailEditText=0x7f0a0016;
-        public static final int emojiBtn=0x7f0a0032;
-        public static final int emojicon_icon=0x7f0a0027;
-        public static final int emojis_backspace=0x7f0a002f;
-        public static final int emojis_pager=0x7f0a0030;
-        public static final int emojis_tab=0x7f0a0028;
-        public static final int emojis_tab_0_recents=0x7f0a0029;
-        public static final int emojis_tab_1_people=0x7f0a002a;
-        public static final int emojis_tab_2_nature=0x7f0a002b;
-        public static final int emojis_tab_3_objects=0x7f0a002c;
-        public static final int emojis_tab_4_cars=0x7f0a002d;
-        public static final int emojis_tab_5_punctuation=0x7f0a002e;
+        public static final int emailEditText=0x7f0a0017;
+        public static final int emojiBtn=0x7f0a0034;
+        public static final int emojicon_icon=0x7f0a0029;
+        public static final int emojis_backspace=0x7f0a0031;
+        public static final int emojis_pager=0x7f0a0032;
+        public static final int emojis_tab=0x7f0a002a;
+        public static final int emojis_tab_0_recents=0x7f0a002b;
+        public static final int emojis_tab_1_people=0x7f0a002c;
+        public static final int emojis_tab_2_nature=0x7f0a002d;
+        public static final int emojis_tab_3_objects=0x7f0a002e;
+        public static final int emojis_tab_4_cars=0x7f0a002f;
+        public static final int emojis_tab_5_punctuation=0x7f0a0030;
         public static final int facebookLoginButton=0x7f0a000f;
         public static final int formView=0x7f0a0007;
-        public static final int friend_req=0x7f0a004a;
+        public static final int friend_req=0x7f0a004d;
         public static final int friends_container=0x7f0a0010;
-        public static final int frndReqSenderImageView=0x7f0a003d;
-        public static final int frndReqSenderTextView=0x7f0a003e;
-        public static final int frndStatus=0x7f0a0044;
+        public static final int frndReqSenderImageView=0x7f0a003f;
+        public static final int frndReqSenderTextView=0x7f0a0040;
+        public static final int frndStatus=0x7f0a0047;
         public static final int frnd_req_btn=0x7f0a0000;
-        public static final int image=0x7f0a001d;
-        public static final int imageView1=0x7f0a0022;
-        public static final int imageView2=0x7f0a0023;
+        public static final int image=0x7f0a001f;
+        public static final int imageView1=0x7f0a0024;
+        public static final int imageView2=0x7f0a0025;
         public static final int login=0x7f0a000b;
         public static final int loginButton=0x7f0a000c;
-        public static final int messageTextView=0x7f0a001b;
-        public static final int navDrawerListView=0x7f0a003c;
-        public static final int navIconView=0x7f0a0041;
-        public static final int navOptionNumView=0x7f0a0042;
-        public static final int navOptionView=0x7f0a0043;
-        public static final int navProfilePicView=0x7f0a003b;
-        public static final int navUsernameView=0x7f0a003a;
+        public static final int messageTextView=0x7f0a001d;
+        public static final int nameEditText=0x7f0a0016;
+        public static final int navDrawerListView=0x7f0a003e;
+        public static final int navIconView=0x7f0a0043;
+        public static final int navOptionNumView=0x7f0a0044;
+        public static final int navOptionView=0x7f0a0045;
+        public static final int navProfilePicView=0x7f0a003d;
+        public static final int navUsernameView=0x7f0a003c;
         public static final int navigation_drawer=0x7f0a0005;
-        public static final int newMessageNumView=0x7f0a0019;
+        public static final int newMessageNumView=0x7f0a001b;
         public static final int passwordEditText=0x7f0a000a;
-        public static final int profile=0x7f0a0048;
+        public static final int phnNumEditText=0x7f0a0018;
+        public static final int profile=0x7f0a004b;
         public static final int profileImageView=0x7f0a0011;
         public static final int progressBar1=0x7f0a0006;
-        public static final int relativeBack=0x7f0a0039;
-        public static final int rotateLeft=0x7f0a001f;
-        public static final int rotateRight=0x7f0a0020;
-        public static final int save=0x7f0a0021;
-        public static final int search=0x7f0a0047;
+        public static final int relativeBack=0x7f0a003b;
+        public static final int rotateLeft=0x7f0a0021;
+        public static final int rotateRight=0x7f0a0022;
+        public static final int save=0x7f0a0023;
+        public static final int search=0x7f0a004a;
         public static final int searchProgressBar=0x7f0a0015;
-        public static final int section_label=0x7f0a0038;
-        public static final int sendButton=0x7f0a0034;
-        public static final int sendMessageLayout=0x7f0a0031;
-        public static final int sentStatusView=0x7f0a001a;
-        public static final int sign_out=0x7f0a0049;
-        public static final int subtitleView=0x7f0a0018;
+        public static final int section_label=0x7f0a003a;
+        public static final int sendButton=0x7f0a0036;
+        public static final int sendMessageLayout=0x7f0a0033;
+        public static final int sentStatusView=0x7f0a001c;
+        public static final int sign_out=0x7f0a004c;
+        public static final int subtitleView=0x7f0a001a;
         public static final int textView1=0x7f0a000e;
         public static final int uploadPprogressBar=0x7f0a0014;
-        public static final int userImageView=0x7f0a0017;
+        public static final int userImageView=0x7f0a0019;
         public static final int usernameEditText=0x7f0a0009;
         public static final int usernameTextView=0x7f0a000d;
         public static final int usernameView=0x7f0a0012;
@@ -1145,7 +1149,8 @@ containing a value of this type.
         public static final int frnd_req_item=0x7f03001b;
         public static final int main=0x7f03001c;
         public static final int nav_drawer_item=0x7f03001d;
-        public static final int user_item=0x7f03001e;
+        public static final int quick_popup=0x7f03001e;
+        public static final int user_item=0x7f03001f;
     }
     public static final class menu {
         public static final int list_select_menu=0x7f090000;
@@ -1244,11 +1249,13 @@ containing a value of this type.
         /** 
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+
     
 
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
+
         
 
         Base application theme for API 11+. This theme completely replaces
@@ -1264,18 +1271,17 @@ containing a value of this type.
         public static final int AppBaseTheme=0x7f060001;
         /**  Application theme. 
  your theme inherits from the material theme 
- theme customizations 
-
          */
         public static final int AppTheme=0x7f060002;
         public static final int CropButton=0x7f060003;
         /**  the theme applied to the application or activity 
          */
-        public static final int CustomActionBarTheme=0x7f060005;
+        public static final int CustomActionBarTheme=0x7f060006;
         /**  ActionBar styles 
          */
-        public static final int MyActionBar=0x7f060006;
-        public static final int activated=0x7f060004;
+        public static final int MyActionBar=0x7f060007;
+        public static final int PopupAnimation=0x7f060004;
+        public static final int activated=0x7f060005;
         public static final int emojiDialog=0x7f060000;
     }
     public static final class xml {

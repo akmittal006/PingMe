@@ -43,23 +43,48 @@
 
                 <requestFocus />
             </EditText>
-
+            
+            
             <EditText
-                android:id="@+id/emailEditText"
+                android:id="@+id/nameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/usernameEditText"
                 android:layout_below="@+id/usernameEditText"
                 android:ems="10"
+                android:hint="Name"
+                android:inputType="text"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/emailEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/nameEditText"
+                android:layout_below="@+id/nameEditText"
+                android:ems="10"
                 android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
                 android:maxLines="1" />
+            
+            <EditText
+                android:id="@+id/phnNumEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/emailEditText"
+                android:layout_below="@+id/emailEditText"
+                android:ems="10"
+                android:hint="Phone Number"
+                android:inputType="number"
+                android:maxLines="1" />
+            
+            
 
             <EditText
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/emailEditText"
+                android:layout_below="@+id/phnNumEditText"
                 android:layout_centerHorizontal="true"
                 android:ems="10"
                 android:hint="@string/passsword_hint"

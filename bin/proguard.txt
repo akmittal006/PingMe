@@ -37,13 +37,14 @@
 # view AndroidManifest.xml #generated:32
 -keep class com.ankurmittal.learning.application.PingMeApplication { <init>(...); }
 
-# view res/layout/fragment_chat_detail.xml #generated:22
+# view res/layout/fragment_chat_detail.xml #generated:23
 -keep class com.ankurmittal.learning.emojicon.EmojiconEditText { <init>(...); }
 
 # view res/layout/chat_item.xml #generated:19
 # view res/layout/chat_item_neutral.xml #generated:9
 # view res/layout/chat_item_received.xml #generated:8
 # view res/layout/chat_item_sent.xml #generated:8
+# view res/layout/emojicon_item.xml #generated:23
 -keep class com.ankurmittal.learning.emojicon.EmojiconTextView { <init>(...); }
 
 # view AndroidManifest.xml #generated:49
@@ -72,7 +73,4 @@
 
 # view AndroidManifest.xml #generated:116
 -keep class com.parse.PushService { <init>(...); }
-
-# view res/layout/emojicon_item.xml #generated:23
--keep class github.ankushsachdeva.emojicon.EmojiconTextView { <init>(...); }
 

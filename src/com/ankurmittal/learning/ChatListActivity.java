@@ -9,6 +9,7 @@ import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -18,10 +19,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MenuItem.OnActionExpandListener;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +38,7 @@ import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.QuickAction;
 import com.ankurmittal.learning.util.TypefaceSpan;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
@@ -59,7 +64,8 @@ import com.parse.ParseUser;
  */
 public class ChatListActivity extends Activity implements
 		ChatListFragment.Callbacks,
-		NavigationDrawerFragment.NavigationDrawerCallbacks,FriendsFragment.Callbacks {
+		NavigationDrawerFragment.NavigationDrawerCallbacks,
+		FriendsFragment.Callbacks {
 
 	/**
 	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -69,7 +75,13 @@ public class ChatListActivity extends Activity implements
 	private ArrayList<ParseObject> friendRequests;
 	private ParseUser currentUser;
 	private Fragment fragment;
-	
+	private RelativeLayout customLayout;
+	private SearchView searchView;
+
+	private SharedPreferences sharedPrefs;
+	private SharedPreferences.Editor editor;
+	public static final String SHARED_PREF_KEY = "com.ankurmittal.learning.PREF_KEY";
+
 	private final MyActivityLifecycleCallbacks mCallbacks = new MyActivityLifecycleCallbacks();
 
 	/**
@@ -87,7 +99,8 @@ public class ChatListActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		 getApplication().registerActivityLifecycleCallbacks(mCallbacks);
+		getApplication().registerActivityLifecycleCallbacks(mCallbacks);
+
 		// TODO: set content view
 		setContentView(R.layout.activity_chat_list);
 
@@ -113,7 +126,8 @@ public class ChatListActivity extends Activity implements
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
-
+		customLayout = (RelativeLayout) getLayoutInflater().inflate(
+				R.layout.quick_popup, null);
 	}
 
 	@Override
@@ -126,14 +140,14 @@ public class ChatListActivity extends Activity implements
 			getFragmentManager().beginTransaction()
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
-			
+
 		case 1:
 			fragment = new FriendsFragment();
 			// fragment.setArguments(arguments);
 			getFragmentManager().beginTransaction()
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
-			
+
 		case 2:
 			Intent intent = new Intent(this, ProfileActivity.class);
 			startActivity(intent);
@@ -145,7 +159,7 @@ public class ChatListActivity extends Activity implements
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
 		}
-		//mNavigationDrawerFragment.selectItem(position);
+		// mNavigationDrawerFragment.selectItem(position);
 	}
 
 	public void onSectionAttached(int number) {
@@ -154,7 +168,7 @@ public class ChatListActivity extends Activity implements
 			mTitle = "Ping Me";
 			break;
 		case 2:
-			
+
 			mTitle = "Friends";
 			break;
 		case 3:
@@ -165,11 +179,11 @@ public class ChatListActivity extends Activity implements
 
 	public void restoreActionBar() {
 		ActionBar actionBar = getActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		// actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
 		SpannableString s = new SpannableString(mTitle);
-	    s.setSpan(new TypefaceSpan(this, "LOBSTERTWO-BOLD.OTF"), 0, s.length(),
-	            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		s.setSpan(new TypefaceSpan(this, "LOBSTERTWO-BOLD.OTF"), 0, s.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		actionBar.setTitle(s);
 	}
 
@@ -272,7 +286,7 @@ public class ChatListActivity extends Activity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main_menu, menu);
+		getMenuInflater().inflate(R.menu.options_menu, menu);
 
 		int count = getFriendRequestCount();
 		if (count > 0) {
@@ -303,17 +317,29 @@ public class ChatListActivity extends Activity implements
 			// if the drawer is not showing. Otherwise, let the drawer
 			// decide what to show in the action bar.
 			restoreActionBar();
-			return true;
+			// return true;
 		}
 
 		// Get the SearchView and set the searchable configuration
 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		final SearchView searchView = (SearchView) menu.findItem(R.id.search)
-				.getActionView();
+		searchView = (SearchView) menu.findItem(R.id.search).getActionView();
 		searchView.setSearchableInfo(searchManager
 				.getSearchableInfo(getComponentName()));
+		searchView.setQueryHint("Enter username to search");
+		
+		searchView.setOnSearchClickListener(new OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Log.e("DEBUG", "search clicked");
+				// TODO Auto-generated method stub
+				QuickAction quickPopup = new QuickAction(ChatListActivity.this,
+						R.style.PopupAnimation, customLayout, customLayout);
+				quickPopup.show(customLayout);
+			}
+		});
 		// Do not iconify the widget;expand it by default
 		searchView.setIconifiedByDefault(true);
 		searchView.setIconified(true);
@@ -334,7 +360,8 @@ public class ChatListActivity extends Activity implements
 					// frndReqSenders = new String[requests.size()];
 					friendRequests = new ArrayList<ParseObject>(requests);
 					// getActionBar().show();
-					ChatListActivity.this.invalidateOptionsMenu();
+						ChatListActivity.this.invalidateOptionsMenu();
+
 				} else {
 					Toast.makeText(ChatListActivity.this,
 							"Network not available!", Toast.LENGTH_SHORT)
@@ -348,12 +375,16 @@ public class ChatListActivity extends Activity implements
 
 		return friendRequests.size();
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		getApplication().unregisterActivityLifecycleCallbacks(mCallbacks);
 		super.onDestroy();
+	}
+
+	private void showPopup(MenuItem v) {
+		Log.e("DEBUG", "search clicked3");
 	}
 
 	@Override
@@ -362,10 +393,17 @@ public class ChatListActivity extends Activity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		Log.e("DEBUG", "search clicked3 " + id);
 		if (id == R.id.sign_out) {
 			// prompt if they wanna logout
 			// TODO:do smthing
 			// if yes delete frnds database
+			sharedPrefs = this.getSharedPreferences(SHARED_PREF_KEY,
+					Context.MODE_PRIVATE);
+			editor = sharedPrefs.edit();
+			editor.putString(Constants.PREF_LOGIN_STATUS,
+					Constants.LOGIN_STATUS_NEW);
+			editor.commit();
 			ChatItemDataSource mChatItemDataSource = new ChatItemDataSource(
 					this);
 			mChatItemDataSource.open();
@@ -441,6 +479,8 @@ public class ChatListActivity extends Activity implements
 			Intent intent = new Intent(ChatListActivity.this,
 					ProfileActivity.class);
 			startActivity(intent);
+		} else if (id == R.id.search) {
+
 		}
 
 		// Handle action bar item clicks here. The action bar will
@@ -488,9 +528,8 @@ public class ChatListActivity extends Activity implements
 		@Override
 		public void onAttach(Activity activity) {
 			super.onAttach(activity);
-			
+
 		}
 	}
 
 }
-

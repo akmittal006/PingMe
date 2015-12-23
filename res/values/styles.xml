@@ -2,20 +2,22 @@
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
+            backward-compatibility can go here.
         -->
     </style>
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">  </style>
+    <style name="AppTheme" parent="AppBaseTheme"></style>
+
     <color name="com_facebook_blue">#3B5998</color>
-  	<style name="CropButton">
+
+    <style name="CropButton">
         <item name="android:layout_margin">1dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">3dp</item>
@@ -24,6 +26,11 @@
         <item name="android:textSize">20sp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:background">@drawable/selector_crop_button</item>
+    </style>
+
+    <style name="PopupAnimation">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
 </resources>

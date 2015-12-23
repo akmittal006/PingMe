@@ -15,14 +15,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.DataSetObserver;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -77,6 +75,11 @@ public class ChatListFragment extends ListFragment {
 	 * implement. This mechanism allows activities to be notified of item
 	 * selections.
 	 */
+
+	private SharedPreferences sharedPrefs;
+	private SharedPreferences.Editor editor;
+	public static final String SHARED_PREF_KEY = "com.ankurmittal.learning.PREF_KEY";
+
 	public interface Callbacks {
 		/**
 		 * Callback for when an item has been selected.
@@ -118,6 +121,8 @@ public class ChatListFragment extends ListFragment {
 			retrieveMessages();
 			mChatItemDataSource = new ChatItemDataSource(getActivity());
 			mChatItemDataSource.open();
+			
+			
 		} else {
 			Intent intent2 = new Intent(getActivity(), LoginActivity.class);
 			intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -425,11 +430,11 @@ public class ChatListFragment extends ListFragment {
 		}
 
 		ChatItem chatItem = new ChatItem(id, content);
-		if(!ChatContent.ITEM_MAP.containsKey(chatItem.id)) {
+		if (!ChatContent.ITEM_MAP.containsKey(chatItem.id)) {
 			ChatContent.ITEM_MAP.put(id, chatItem);
 		}
 		chatItem.setLastMessage(textmessage);
-		
+
 		mChatItemDataSource.insert(chatItem);
 
 	}

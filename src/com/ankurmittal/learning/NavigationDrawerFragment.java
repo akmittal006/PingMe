@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ankurmittal.learning.adapters.NavListAdapter;
+import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.ankurmittal.learning.util.RoundedImageView;
 import com.parse.ParseUser;
@@ -38,6 +39,10 @@ import com.squareup.picasso.Picasso;
  * implemented here.
  */
 public class NavigationDrawerFragment extends Fragment {
+
+	private SharedPreferences sharedPrefs;
+	private SharedPreferences.Editor editor;
+	public static final String SHARED_PREF_KEY = "com.ankurmittal.learning.PREF_KEY";
 
 	/**
 	 * Remember the position of the selected item.
@@ -94,7 +99,23 @@ public class NavigationDrawerFragment extends Fragment {
 		}
 
 		// Select either the default item (0) or the last selected item.
-		selectItem(mCurrentSelectedPosition);
+
+		sharedPrefs = getActivity().getSharedPreferences(SHARED_PREF_KEY,
+				Context.MODE_PRIVATE);
+		String loginStatus = sharedPrefs.getString(Constants.PREF_LOGIN_STATUS,
+				Constants.LOGIN_STATUS_NEW);
+		if (loginStatus.equals(Constants.LOGIN_STATUS_NEW)) {
+			// new login update go to frnds fragment
+			mCurrentSelectedPosition = 1;
+			selectItem(mCurrentSelectedPosition);
+		} else {
+			selectItem(mCurrentSelectedPosition);
+		}
+		editor = sharedPrefs.edit();
+		editor.putString(Constants.PREF_LOGIN_STATUS,
+				Constants.LOGIN_STATUS_OLD);
+		editor.commit();
+
 	}
 
 	@Override
@@ -141,10 +162,29 @@ public class NavigationDrawerFragment extends Fragment {
 				});
 
 		options = new ArrayList<NavListItem>();
-		options.add(new NavListItem("Messages", true));
-		options.add(new NavListItem("Friends", false));
-		options.add(new NavListItem("Profile", false));
+		switch (mCurrentSelectedPosition) {
+		case 0:
+			options.add(new NavListItem("Messages", true));
+			options.add(new NavListItem("Friends", false));
+			options.add(new NavListItem("Profile", false));
+			break;
+		case 1:
+			options.add(new NavListItem("Messages", false));
+			options.add(new NavListItem("Friends", true));
+			options.add(new NavListItem("Profile", false));
+			break;
+		case 2:
+			options.add(new NavListItem("Messages", false));
+			options.add(new NavListItem("Friends", false));
+			options.add(new NavListItem("Profile", true));
+			break;
 
+		default:
+			options.add(new NavListItem("Messages", false));
+			options.add(new NavListItem("Friends", true));
+			options.add(new NavListItem("Profile", false));
+			break;
+		}
 		adapter = new NavListAdapter(getActivity(), options);
 
 		mDrawerListView.setAdapter(adapter);

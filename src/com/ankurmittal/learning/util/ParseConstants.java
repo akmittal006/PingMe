@@ -23,8 +23,11 @@ public class ParseConstants {
 	public static final String KEY_MESSAGE_ID = "messageId";
 	public static final String KEY_MESSAGE_RECEIVER_NAME = "messageReceiverName";
 	public static final String KEY_PROFILE_IMAGE="Profile_Image";
-
+	public static final String KEY_NAME = "Name";
+	public static final String KEY_PHN_NUM = "Phone_num";
+	public static final String KEY_IS_FRIENDS = "isFriends";
+	public static final String KEY_USER = "user";
 	public static final String KEY_LOWER_USERNAME = "lowercaseUsername";
-	
+	public static final String KEY_QUERY_TEXT = "queryText";
 	public static final String GROUP_MESSAGE_DELIVERED = "messageDelivered123156";
 }
