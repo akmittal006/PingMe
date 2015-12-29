@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
@@ -21,6 +22,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.KeyEvent;
@@ -35,10 +38,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.ChatDetailActivity;
@@ -122,8 +127,7 @@ public class ChatDetailFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		final PingMeApplication app = (PingMeApplication) getActivity().getApplicationContext();
-		mSocket = app.mSocket;
+		
 		//((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 		//Log.e("DEBUG", "" + ((AppCompatActivity)getActivity()).getSupportActionBar().isShowing());
 		try {
@@ -407,6 +411,41 @@ public class ChatDetailFragment extends Fragment {
 			mTextMessage.requestFocus(0);
 			chatView.setSelection(chatView.getAdapter().getCount() - 1);
 			mSendButton = (Button) rootView.findViewById(R.id.sendButton);
+			
+			
+			
+			//set onedit text listener
+			
+			((EditText)mTextMessage).addTextChangedListener(new TextWatcher() {
+				
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+					// TODO Auto-generated method stub
+					Log.e("DEBUG", "TYPING... " + mItem.id);
+					JSONObject typingObject = new JSONObject();
+					try {
+						
+						typingObject.put("sender", ParseUser.getCurrentUser().getObjectId());
+						typingObject.put("receiver" ,mItem.id);
+					} catch (JSONException e) {
+						//left blank
+					}
+					
+					mSocket.emit(Constants.EVENT_TYPING, typingObject);
+				}
+				
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count,
+						int after) {
+					// TODO Auto-generated method stub
+				}
+				
+				@Override
+				public void afterTextChanged(Editable s) {
+					// TODO Auto-generated method stub
+				}
+			});
+			
 			// if send button is clicked , save new message
 	
 			mSendButton.setOnClickListener(new OnClickListener() {
@@ -589,7 +628,7 @@ public class ChatDetailFragment extends Fragment {
 
 	@Override
 	public void onResume() {
-
+		mSocket = PingMeApplication.mSocket;
 		if (getArguments().containsKey(ARG_ITEM_ID)) {
 			// Load the dummy content specified by the fragment
 			// arguments. In a real-world scenario, use a Loader

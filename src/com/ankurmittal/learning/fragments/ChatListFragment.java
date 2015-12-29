@@ -1,5 +1,8 @@
 package com.ankurmittal.learning.fragments;
 
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter.Listener;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -22,6 +26,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +39,7 @@ import com.ankurmittal.learning.ChatListActivity;
 import com.ankurmittal.learning.LoginActivity;
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.adapters.ChatItemsAdapter;
+import com.ankurmittal.learning.application.PingMeApplication;
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.ChatItemDataSource;
@@ -122,15 +128,52 @@ public class ChatListFragment extends ListFragment {
 	private ArrayList<ChatItem> mChatItems;
 
 	private View rootView;
+	private Socket mSocket;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		if (ParseUser.getCurrentUser() != null) {
 			// throw new RuntimeException("Test Exception!");
 			retrieveMessages();
 			mChatItemDataSource = new ChatItemDataSource(getActivity());
 			mChatItemDataSource.open();
+			
+			mSocket = PingMeApplication.mSocket;
+			mSocket.on(Constants.EVENT_TYPING, new Listener() {
+
+				@Override
+				public void call(final Object... arg0) {
+					// TODO Auto-generated method stub
+					final String senderId;
+					JSONObject data = (JSONObject) arg0[0];
+					try {
+						 senderId = data.getString("sender");
+						
+						if(ChatContent.ITEM_MAP.containsKey(senderId)) {
+							Log.e("VERY BIG DEBUG **",
+									 " - - -" + mChatItems.indexOf(ChatContent.ITEM_MAP.get(senderId)));
+							((AppCompatActivity)getActivity()).runOnUiThread(new Runnable() {
+								
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									adapter.changeSubtitleToTyping(mChatItems.indexOf(ChatContent.ITEM_MAP.get(senderId)));
+								}
+							});
+						} else {
+							
+						}
+					} catch (JSONException e) {
+						Log.e("VERY BIG DEBUG ***", "" + e.getMessage() + " - - -"
+								+ data.toString());
+						return;
+					}
+					// add the message to view
+				}
+
+			});
 
 		} else {
 			Intent intent2 = new Intent(getActivity(), LoginActivity.class);

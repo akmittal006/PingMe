@@ -74,7 +74,10 @@ public class FriendsFragment extends ListFragment {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
-			adapter.refill(mFriendsDataSource.getAllFriends());
+			if(ParseUser.getCurrentUser() != null) {
+				adapter.refill(mFriendsDataSource.getAllFriends());
+			}
+			
 		}
 
 	};
@@ -94,6 +97,8 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		getActivity().registerReceiver(broadcastReceiver,
+				new IntentFilter("Custom target refresh"));
 
 		if (ParseUser.getCurrentUser() == null) {
 			// throw new RuntimeException("Test Exception!");
@@ -103,8 +108,7 @@ public class FriendsFragment extends ListFragment {
 			startActivity(intent2);
 
 		} else {
-			getActivity().registerReceiver(broadcastReceiver,
-					new IntentFilter("Custom target refresh"));
+			
 
 			// open frnds databse connection
 			Log.d("frinds frag", "on resume");
@@ -165,9 +169,7 @@ public class FriendsFragment extends ListFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		if(ParseUser.getCurrentUser() != null) {
-			getActivity().unregisterReceiver(broadcastReceiver);
-		}
+		getActivity().unregisterReceiver(broadcastReceiver);
 		// close frnds database connection
 		mChatItemDataSource.close();
 		mFriendsDataSource.close();

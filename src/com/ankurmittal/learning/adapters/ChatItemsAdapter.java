@@ -1,18 +1,16 @@
 package com.ankurmittal.learning.adapters;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.animation.Animator;
+import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +28,6 @@ import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.Utils;
-import com.squareup.picasso.Picasso;
 
 public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 
@@ -42,6 +39,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 	String[] usernames;
 	ArrayList<ChatItem> mChatItems;
 	ArrayList<TextMessage> mLastMessages;
+	ArrayList<Boolean> isTyping;
 	TextMessageDataSource textMessageDataSource;
 	TextMessage lastMessage = new TextMessage();
 	ViewHolder holder;
@@ -57,6 +55,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		mContext = context;
 		mChatItems = chatItems;
 		mLastMessages = new ArrayList<TextMessage>();
+		isTyping = new ArrayList<Boolean>();
 		textMessageDataSource = new TextMessageDataSource(mContext);
 		textMessageDataSource.open();
 		// getting last messages
@@ -135,55 +134,68 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 			lastMessage.setMessageStatus(Constants.MESSAGE_STATUS_DELIVERED);
 		}
 		// 4. subtitle status
-		if (!lastMessage.getSenderId().equals(chatItem.id)) {
-			// it is a sent message
-			Log.i("subtitle check", lastMessage.getMessageStatus());
-			if (lastMessage.getMessage().length() > 20) {
-				holder.chatSubtitle.setText("You: "
-						+ lastMessage.getMessage().substring(0, 20) + "...");
-			} else {
-				holder.chatSubtitle.setText("You: " + lastMessage.getMessage());
-			}
 
+		if (isTyping.get(position)) {
+			// add a holo green typing subtitle
+			holder.chatSubtitle.setText("Typing...");
+			holder.chatSubtitle.setTextColor(mContext.getResources().getColor(android.R.color.holo_green_light));
 			holder.newMsgNumView.setVisibility(View.INVISIBLE);
-			String status = lastMessage.getMessageStatus();
-			if (status.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
-				holder.chatSubtitleStatus
-						.setImageResource(R.drawable.ic_action_send_now);
-			} else if (status.equals(Constants.MESSAGE_STATUS_READ)) {
-				holder.chatSubtitleStatus
-						.setImageResource(R.drawable.ic_action_read);
-			} else if (status.equals(Constants.MESSAGE_STATUS_PENDING)) {
-				holder.chatSubtitleStatus
-						.setImageResource(R.drawable.ic_action_time);
+		} else {
+			// do other stuff
+			if (!lastMessage.getSenderId().equals(chatItem.id)) {
+				// it is a sent message
+				Log.i("subtitle check", lastMessage.getMessageStatus());
+				if (lastMessage.getMessage().length() > 20) {
+					holder.chatSubtitle
+							.setText("You: "
+									+ lastMessage.getMessage().substring(0, 20)
+									+ "...");
+				} else {
+					holder.chatSubtitle.setTextColor(mContext.getResources()
+							.getColor(android.R.color.black));
+					holder.chatSubtitle.setText("You: "
+							+ lastMessage.getMessage());
+				}
+
+				holder.newMsgNumView.setVisibility(View.INVISIBLE);
+				String status = lastMessage.getMessageStatus();
+				if (status.equals(Constants.MESSAGE_STATUS_DELIVERED)) {
+					holder.chatSubtitleStatus
+							.setImageResource(R.drawable.ic_action_send_now);
+				} else if (status.equals(Constants.MESSAGE_STATUS_READ)) {
+					holder.chatSubtitleStatus
+							.setImageResource(R.drawable.ic_action_read);
+				} else if (status.equals(Constants.MESSAGE_STATUS_PENDING)) {
+					holder.chatSubtitleStatus
+							.setImageResource(R.drawable.ic_action_time);
+				} else {
+					holder.chatSubtitleStatus.setVisibility(View.INVISIBLE);
+				}
+
 			} else {
+				// received message
+				holder.chatSubtitle.setTextColor(mContext.getResources()
+						.getColor(android.R.color.black));
+				if (lastMessage.getMessage().length() > 20) {
+					holder.chatSubtitle.setText(lastMessage.getMessage()
+							.substring(0, 20) + "...");
+				} else {
+					holder.chatSubtitle.setText(lastMessage.getMessage());
+				}
+				if (!lastMessage.getMessageStatus().equals(
+						Constants.MESSAGE_STATUS_READ)) {
+					holder.chatSubtitle.setTextColor(mContext.getResources()
+							.getColor(android.R.color.holo_green_dark));
+					holder.newMsgNumView.setText(chatItem.getNotReadMessages()
+							.size() + "");
+					holder.newMsgNumView.setVisibility(View.VISIBLE);
+				} else {
+					holder.newMsgNumView.setVisibility(View.INVISIBLE);
+				}
 				holder.chatSubtitleStatus.setVisibility(View.INVISIBLE);
 			}
-
-		} else {
-			// received message
-
-			if (lastMessage.getMessage().length() > 20) {
-				holder.chatSubtitle.setText(lastMessage.getMessage().substring(
-						0, 20)
-						+ "...");
-			} else {
-				holder.chatSubtitle.setText(lastMessage.getMessage());
-			}
-			if (!lastMessage.getMessageStatus().equals(
-					Constants.MESSAGE_STATUS_READ)) {
-				holder.chatSubtitle.setTextColor(mContext.getResources()
-						.getColor(android.R.color.holo_green_dark));
-				holder.newMsgNumView.setText(chatItem.getNotReadMessages()
-						.size() + "");
-				holder.newMsgNumView.setVisibility(View.VISIBLE);
-			} else {
-				holder.newMsgNumView.setVisibility(View.INVISIBLE);
-			}
-
-			holder.chatSubtitleStatus.setVisibility(View.INVISIBLE);
-
 		}
+
 		return convertView;
 	}
 
@@ -204,13 +216,14 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		} finally {
 			notifyDataSetChanged();
 		}
-		
+
 	}
 
 	private void refreshSubtitles() {
 		counter = 0;
 		if (mChatItems != null && mChatItems.size() > 0) {
 			for (ChatItem chatItem : mChatItems) {
+				isTyping.add(false);
 				mLastMessages.add(counter,
 						textMessageDataSource.getLastMessageFrom(chatItem.id));
 				counter++;
@@ -219,6 +232,35 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		if (counter == mChatItems.size()) {
 			textMessageDataSource.close();
 		}
+	}
+
+	public void changeSubtitleToTyping(final int index) {
+		
+		isTyping.set(index, true);
+		Thread t = new Thread() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+					// update TextView here!
+					isTyping.set(index, false);
+					((AppCompatActivity) mContext)
+							.runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									notifyDataSetChanged();
+								}
+							});
+				} catch (InterruptedException e) {
+					Log.e("DEBUG THREAD INTERRUPTED", e.getMessage());
+				}
+			}
+		};
+		notifyDataSetChanged();
+		t.start();
 	}
 
 }

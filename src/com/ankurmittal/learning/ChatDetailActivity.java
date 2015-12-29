@@ -30,7 +30,6 @@ import com.ankurmittal.learning.util.Utils;
 public class ChatDetailActivity extends AppCompatActivity {
 	private TextMessageDataSource mMessageDataSource;
 	private Toolbar toolbar;
-	private final MyActivityLifecycleCallbacks mCallbacks = new MyActivityLifecycleCallbacks();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +77,6 @@ public class ChatDetailActivity extends AppCompatActivity {
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		getApplication().unregisterActivityLifecycleCallbacks(mCallbacks);
 		super.onDestroy();
 	}
 

@@ -105,7 +105,7 @@
 # view AndroidManifest.xml #generated:47
 -keep class com.ankurmittal.learning.MainActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:158
+# view AndroidManifest.xml #generated:149
 -keep class com.ankurmittal.learning.ProfilePicDialogActivity { <init>(...); }
 
 # view AndroidManifest.xml #generated:67
@@ -120,7 +120,7 @@
 # view AndroidManifest.xml #generated:63
 -keep class com.ankurmittal.learning.SignUpActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:162
+# view AndroidManifest.xml #generated:153
 -keep class com.ankurmittal.learning.UserProfileActivity { <init>(...); }
 
 # view AndroidManifest.xml #generated:34
@@ -156,9 +156,6 @@
 
 # view AndroidManifest.xml #generated:114
 -keep class com.facebook.LoginActivity { <init>(...); }
-
-# view AndroidManifest.xml #generated:148
--keep class com.google.android.gms.gcm.GcmReceiver { <init>(...); }
 
 # view AndroidManifest.xml #generated:136
 -keep class com.parse.GcmBroadcastReceiver { <init>(...); }
