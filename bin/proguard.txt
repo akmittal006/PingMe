@@ -1,43 +1,132 @@
+# view res/layout/design_navigation_item.xml #generated:17
+-keep class android.support.design.internal.NavigationMenuItemView { <init>(...); }
+
+# view res/layout/design_navigation_menu.xml #generated:17
+-keep class android.support.design.internal.NavigationMenuView { <init>(...); }
+
+# view res/layout/activity_user_profile.xml #generated:10
+-keep class android.support.design.widget.AppBarLayout { <init>(...); }
+
+# view res/layout/activity_user_profile.xml #generated:17
+-keep class android.support.design.widget.CollapsingToolbarLayout { <init>(...); }
+
+# view res/layout/activity_chat_detail.xml #generated:2
+# view res/layout/activity_chat_list.xml #generated:2
+# view res/layout/activity_user_profile.xml #generated:2
+# view res/layout/fragment_chat_list.xml #generated:1
+-keep class android.support.design.widget.CoordinatorLayout { <init>(...); }
+
+# view res/layout/activity_user_profile.xml #generated:62
+-keep class android.support.design.widget.FloatingActionButton { <init>(...); }
+
+# view res/layout/design_layout_snackbar.xml #generated:18
+# view sw600dp-v13\res/layout-sw600dp-v13/design_layout_snackbar.xml #generated:18
+-keep class android.support.design.widget.Snackbar$SnackbarLayout { <init>(...); }
+
 # view res/layout/emojicons.xml #generated:108
 -keep class android.support.v4.view.ViewPager { <init>(...); }
 
-# view res/layout/activity_chat_list.xml #generated:2
+# view res/layout/activity_chat_list.xml #generated:9
 -keep class android.support.v4.widget.DrawerLayout { <init>(...); }
 
-# view AndroidManifest.xml #generated:103
+# view res/layout/abc_alert_dialog_material.xml #generated:75
+# view res/layout/activity_user_profile.xml #generated:48
+-keep class android.support.v4.widget.NestedScrollView { <init>(...); }
+
+# view res/layout/abc_alert_dialog_button_bar_material.xml #generated:40
+-keep class android.support.v4.widget.Space { <init>(...); }
+
+# view res/layout/abc_action_menu_item_layout.xml #generated:17
+-keep class android.support.v7.view.menu.ActionMenuItemView { <init>(...); }
+
+# view res/layout/abc_expanded_menu_layout.xml #generated:17
+-keep class android.support.v7.view.menu.ExpandedMenuView { <init>(...); }
+
+# view res/layout/abc_list_menu_item_layout.xml #generated:17
+# view res/layout/abc_popup_menu_item_layout.xml #generated:17
+-keep class android.support.v7.view.menu.ListMenuItemView { <init>(...); }
+
+# view res/layout/abc_screen_toolbar.xml #generated:27
+-keep class android.support.v7.widget.ActionBarContainer { <init>(...); }
+
+# view res/layout/abc_action_mode_bar.xml #generated:19
+# view res/layout/abc_screen_toolbar.xml #generated:43
+-keep class android.support.v7.widget.ActionBarContextView { <init>(...); }
+
+# view res/layout/abc_screen_toolbar.xml #generated:17
+-keep class android.support.v7.widget.ActionBarOverlayLayout { <init>(...); }
+
+# view res/layout/abc_action_menu_layout.xml #generated:17
+-keep class android.support.v7.widget.ActionMenuView { <init>(...); }
+
+# view res/layout/abc_activity_chooser_view.xml #generated:19
+-keep class android.support.v7.widget.ActivityChooserView$InnerLayout { <init>(...); }
+
+# view res/layout/abc_alert_dialog_button_bar_material.xml #generated:18
+-keep class android.support.v7.widget.ButtonBarLayout { <init>(...); }
+
+# view res/layout/abc_screen_content_include.xml #generated:19
+-keep class android.support.v7.widget.ContentFrameLayout { <init>(...); }
+
+# view res/layout/abc_alert_dialog_material.xml #generated:48
+-keep class android.support.v7.widget.DialogTitle { <init>(...); }
+
+# view res/layout/abc_screen_simple_overlay_action_mode.xml #generated:23
+-keep class android.support.v7.widget.FitWindowsFrameLayout { <init>(...); }
+
+# view res/layout/abc_dialog_title_material.xml #generated:22
+# view res/layout/abc_screen_simple.xml #generated:17
+-keep class android.support.v7.widget.FitWindowsLinearLayout { <init>(...); }
+
+# view res/layout/fragment_chat_list.xml #generated:16
+-keep class android.support.v7.widget.RecyclerView { <init>(...); }
+
+# view res/layout/abc_search_view.xml #generated:78
+-keep class android.support.v7.widget.SearchView$SearchAutoComplete { <init>(...); }
+
+# view res/layout/abc_screen_toolbar.xml #generated:36
+# view res/layout/activity_chat_detail.xml #generated:17
+# view res/layout/activity_user_profile.xml #generated:36
+-keep class android.support.v7.widget.Toolbar { <init>(...); }
+
+# view res/layout/abc_screen_simple.xml #generated:25
+# view res/layout/abc_screen_simple_overlay_action_mode.xml #generated:32
+-keep class android.support.v7.widget.ViewStubCompat { <init>(...); }
+
+# view AndroidManifest.xml #generated:105
 -keep class com.ankurmittal.learning.ChatDetailActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:94
+# view AndroidManifest.xml #generated:96
 -keep class com.ankurmittal.learning.ChatListActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:57
+# view AndroidManifest.xml #generated:59
 -keep class com.ankurmittal.learning.LoginActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:45
+# view AndroidManifest.xml #generated:47
 -keep class com.ankurmittal.learning.MainActivity { <init>(...); }
 
-# view res/layout/activity_chat_list.xml #generated:35
--keep class com.ankurmittal.learning.NavigationDrawerFragment { <init>(...); }
+# view AndroidManifest.xml #generated:158
+-keep class com.ankurmittal.learning.ProfilePicDialogActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:146
--keep class com.ankurmittal.learning.ProfileActivity { <init>(...); }
-
-# view AndroidManifest.xml #generated:65
+# view AndroidManifest.xml #generated:67
 -keep class com.ankurmittal.learning.SearchResultsActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:78
+# view AndroidManifest.xml #generated:80
 -keep class com.ankurmittal.learning.ShowFrndReqs { <init>(...); }
 
-# view AndroidManifest.xml #generated:86
+# view AndroidManifest.xml #generated:88
 -keep class com.ankurmittal.learning.ShowFrndReqsActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:61
+# view AndroidManifest.xml #generated:63
 -keep class com.ankurmittal.learning.SignUpActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:32
+# view AndroidManifest.xml #generated:162
+-keep class com.ankurmittal.learning.UserProfileActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:34
 -keep class com.ankurmittal.learning.application.PingMeApplication { <init>(...); }
 
-# view res/layout/fragment_chat_detail.xml #generated:23
+# view res/layout/fragment_chat_detail.xml #generated:26
 -keep class com.ankurmittal.learning.emojicon.EmojiconEditText { <init>(...); }
 
 # view res/layout/chat_item.xml #generated:19
@@ -47,30 +136,36 @@
 # view res/layout/emojicon_item.xml #generated:23
 -keep class com.ankurmittal.learning.emojicon.EmojiconTextView { <init>(...); }
 
-# view AndroidManifest.xml #generated:49
+# view res/layout/activity_chat_list.xml #generated:24
+-keep class com.ankurmittal.learning.fragments.NavigationDrawerFragment { <init>(...); }
+
+# view AndroidManifest.xml #generated:51
 -keep class com.ankurmittal.learning.picCropper.CropImage { <init>(...); }
 
 # view res/layout/cropimage.xml #generated:7
 -keep class com.ankurmittal.learning.picCropper.CropImageView { <init>(...); }
 
-# view AndroidManifest.xml #generated:53
+# view AndroidManifest.xml #generated:55
 -keep class com.ankurmittal.learning.picCropper.MonitoredActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:124
+# view AndroidManifest.xml #generated:127
 -keep class com.ankurmittal.learning.util.PushNotificationReceiver { <init>(...); }
 
 # view res/layout/fragment_navigation_drawer.xml #generated:29
 -keep class com.ankurmittal.learning.util.RoundedImageView { <init>(...); }
 
-# view AndroidManifest.xml #generated:111
+# view AndroidManifest.xml #generated:114
 -keep class com.facebook.LoginActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:133
+# view AndroidManifest.xml #generated:148
+-keep class com.google.android.gms.gcm.GcmReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:136
 -keep class com.parse.GcmBroadcastReceiver { <init>(...); }
 
-# view AndroidManifest.xml #generated:118
+# view AndroidManifest.xml #generated:121
 -keep class com.parse.ParseBroadcastReceiver { <init>(...); }
 
-# view AndroidManifest.xml #generated:116
+# view AndroidManifest.xml #generated:119
 -keep class com.parse.PushService { <init>(...); }
 

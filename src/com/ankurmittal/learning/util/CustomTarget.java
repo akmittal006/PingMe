@@ -41,32 +41,11 @@ public class CustomTarget implements Target {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				if (isExternalStorageAvailable()) {
+				if (Utils.isExternalStorageAvailable()) {
 					
 					Log.e("target thread ", "deleting and updating file");
-					//
-					//
-
 					// 1. Get the external storage directory
-					String appName = "PingMe";
-					File mediaStorageDir = new File(
-							Environment
-									.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-							appName);
-
-					// 2. Create our subdirectory
-					if (!mediaStorageDir.exists()) {
-						if (!mediaStorageDir.mkdirs()) {
-							Log.e("friends", "Failed to create directory. "
-									+ mediaStorageDir.toString());
-							// //return null;
-						}
-					}
-					// 3. Create a file name
-					// 4. Create the file
-					//File mediaFile;
-
-					String path = mediaStorageDir.getPath() + File.separator;
+					String path = Utils.getAppPath();
 
 					File file = new File(path + "/" + middlePath + ".jpg");
 //					if (file.exists()){
@@ -93,6 +72,7 @@ public class CustomTarget implements Target {
 				}
 
 			}
+
 		}).start();
 	}
 
@@ -109,27 +89,16 @@ public class CustomTarget implements Target {
 	}
 	
 
-	private boolean isExternalStorageAvailable() {
-		String state = Environment.getExternalStorageState();
-
-		if (state.equals(Environment.MEDIA_MOUNTED)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+	
 	
 	public void deleteFile () {
 		Log.e("custom target","deleting file...");
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				if (isExternalStorageAvailable()) {
+				if (Utils.isExternalStorageAvailable()) {
 					
 					Log.e("target ", "thread running");
-					//
-					//
-
 					// 1. Get the external storage directory
 					String appName = "PingMe";
 					File mediaStorageDir = new File(

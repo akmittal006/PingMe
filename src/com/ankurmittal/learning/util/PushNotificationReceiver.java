@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.ankurmittal.learning.ChatDetailFragment.TestInterface;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.ChatItemDataSource;
 import com.ankurmittal.learning.storage.TextMessage;
@@ -25,7 +24,7 @@ import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseUser;
 
 public class PushNotificationReceiver extends ParsePushBroadcastReceiver
-		implements com.ankurmittal.learning.ChatDetailFragment.TestInterface {
+		implements com.ankurmittal.learning.fragments.ChatDetailFragment.TestInterface {
 
 	private Context mContext;
 	private TextMessageDataSource mMessageDataSource;
@@ -81,7 +80,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver
 			// CASE -- 1. NEW MESSAGE
 			if (jsonMessage.getString("type").equals("message")) {
 
-				TextMessage receivedMessage = createTextMessageFromJsonData(jsonMessage);
+				TextMessage receivedMessage = Utils.createTextMessageFromJsonData(jsonMessage);
 				// Push type is message
 
 				// 1. saving new message in database
@@ -130,7 +129,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver
 						});
 
 				updateChatItem(context,
-						createTextMessageFromJsonData(jsonMessage));
+						Utils.createTextMessageFromJsonData(jsonMessage));
 
 				updateMyActivity(context, jsonData);
 			}
@@ -172,31 +171,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver
 		super.onReceive(context, intent);
 	}
 
-	private TextMessage createTextMessageFromJsonData(JSONObject message) {
-		TextMessage textMessage = new TextMessage();
-		try {
-			textMessage.setCreatedAt(message
-					.getString(ParseConstants.KEY_CREATED_AT));
-			textMessage.setMessage(message
-					.getString(ParseConstants.KEY_MESSAGE));
-			textMessage.setMessageId(message
-					.getString(ParseConstants.KEY_MESSAGE_ID));
-			textMessage.setReceiverId(message
-					.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
-			textMessage.setReceiverName(message
-					.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-			textMessage.setSenderId(message
-					.getString(ParseConstants.KEY_SENDER_ID));
-			textMessage.setSenderName(message
-					.getString(ParseConstants.KEY_SENDER_NAME));
-			textMessage.setMessageStatus(Constants.MESSAGE_STATUS_DELIVERED);
-			return textMessage;
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e("json error", "error creating message");
-		}
-		return null;
-	}
+	
 
 	private void updateChatItem(Context context, TextMessage textmessage) {
 		// TODO Auto-generated method stub

@@ -1,5 +1,10 @@
 package com.ankurmittal.learning.application;
 
+import io.socket.client.IO;
+import io.socket.client.Socket;
+
+import java.net.URISyntaxException;
+
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
@@ -13,10 +18,20 @@ import com.parse.ParseUser;
 
 public class PingMeApplication extends Application {
 	
+	
+	public Socket mSocket;
+	{
+		try {
+			mSocket = IO.socket("http://pingme-lbcqld-2172.herokuapp.com/user");
+		} catch (URISyntaxException e) {
+		}
+	}
+
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
+		 mSocket.connect();
 		// Enable Local Datastore.
 		Parse.enableLocalDatastore(this);
 		
@@ -26,6 +41,8 @@ public class PingMeApplication extends Application {
 		Parse.initialize(this, "lbCQLdZ8rXghMiZGCuEpIxvj88Pt5HhXqJ4D4PU0", "Yr8YMze4dltTmGbDTwBJ01iByOiaHC7OBnGHIz2e");
 
 		    ParseInstallation.getCurrentInstallation().saveInBackground();
+		    
+		   
 	}
 	public static void updateParseInstallation(ParseUser user) {
 		ParseInstallation installation = ParseInstallation.getCurrentInstallation();

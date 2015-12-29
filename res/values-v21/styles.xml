@@ -1,17 +1,35 @@
-<!-- res/values/styles.xml -->
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- your theme inherits from the material theme -->
-    <style name="AppTheme" parent="android:Theme.Material">
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
 
-        <!-- theme customizations -->
-        <!-- Main theme colors -->
-        <!-- your app branding color for the app bar -->
-        <item name="android:colorPrimary">#39BDB6</item>
-        <!-- darker variant for the status bar and contextual app bars -->
-        <item name="android:colorPrimaryDark">#2D9792</item>
-        <!-- theme UI controls like checkboxes and text fields -->
-        <item name="android:colorAccent">#33AAA4</item>
+
+    <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+    -->
+
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme"></style>
+
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>       
+        <item name="android:colorAccent">@color/ping_pink</item>
+        <item name="windowActionBar">true</item>
+    </style>
+    
+    
+    <style name="AppTheme.NoActionBar" parent="AppTheme.Base">
+         <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <!-- specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">@transition/slide_and_changebounds</item>
+        <item name="android:windowSharedElementExitTransition">@transition/slide_and_changebounds</item>
     </style>
 
 </resources>

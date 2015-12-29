@@ -78,10 +78,13 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
-	<string name="cancel">Cancel</string>
+    <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="saving_image">Saving image</string>
     <string name="preparing_card">Preparing card</string>
     <string name="no_storage_card">No storage card</string>
     <string name="not_enough_space">Not enough space</string>
+    <string name="title_activity_profile_pic_dialog">ProfilePicDialogActivity</string>
+    <string name="title_activity_user_profile">UserProfileActivity</string>
+
 </resources>

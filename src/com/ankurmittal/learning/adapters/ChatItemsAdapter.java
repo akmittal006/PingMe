@@ -1,29 +1,42 @@
 package com.ankurmittal.learning.adapters;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.animation.Animator;
+import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ankurmittal.learning.ProfilePicDialogActivity;
 import com.ankurmittal.learning.R;
 import com.ankurmittal.learning.emojicon.EmojiconTextView;
 import com.ankurmittal.learning.storage.ChatItem;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
+import com.ankurmittal.learning.util.Utils;
 import com.squareup.picasso.Picasso;
 
 public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 
 	private static final String TAG = "Chat Item Adapter";
+	Rect finalBounds;
+	Point globalOffset;
 
 	Context mContext;
 	String[] usernames;
@@ -32,6 +45,8 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 	TextMessageDataSource textMessageDataSource;
 	TextMessage lastMessage = new TextMessage();
 	ViewHolder holder;
+	String imgUrl;
+	View expandedImageView;
 	int counter = 0;
 	protected String userID;
 	int temp;
@@ -41,20 +56,19 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		super(context, R.layout.chat_item, chatItems);
 		mContext = context;
 		mChatItems = chatItems;
-
 		mLastMessages = new ArrayList<TextMessage>();
 		textMessageDataSource = new TextMessageDataSource(mContext);
 		textMessageDataSource.open();
-
 		// getting last messages
 		refreshSubtitles();
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView,
+			final ViewGroup parent) {
 
 		temp = position;
-
+		Log.e("ADAPTER PRE DEBUG", "clicked " + parent);
 		if (convertView == null) {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item, null);
@@ -80,7 +94,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		ChatItem chatItem = mChatItems.get(position);
 
 		// 1. Image View
-		String imgUrl = chatItem.getImgUrl();
+		imgUrl = chatItem.getImgUrl();
 		Log.d("chat item adapter", "img url- " + imgUrl);
 
 		if (imgUrl.equals("null")) {
@@ -88,17 +102,30 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 			Log.i(TAG, imgUrl + " img set - " + position);
 		} else if (imgUrl != null) {
 			Log.i("url check", imgUrl);
-
-			Picasso.with(mContext).setIndicatorsEnabled(true);
-			Picasso.with(mContext).load(imgUrl)
-					.placeholder(R.drawable.avatar_empty).resize(88, 88)
-					.centerInside().into(holder.userImageView);
-
+			Utils.loadUserImageByUrl(mContext, holder.userImageView, imgUrl);
 		}
 
+		holder.userImageView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// We can get the fragment manager
+				FragmentActivity activity = (FragmentActivity) getContext();
+				Intent i = new Intent(activity, ProfilePicDialogActivity.class);
+				i.putExtra("imgUrlFrmAdapter", mChatItems.get(position).imgUrl);
+				View sharedView = holder.userImageView;
+				String transitionName = "dialogTransition";
+
+				ActivityOptions transitionActivityOptions = ActivityOptions
+						.makeSceneTransitionAnimation(activity, sharedView,
+								transitionName);
+				activity.startActivity(i, transitionActivityOptions.toBundle());
+
+				Log.e("clicked", "clicked");
+			}
+		});
 		// 2. Username label
 		holder.nameLabel.setText(chatItem.getContent());
-
 		// 3. Subtitle label
 		lastMessage = mLastMessages.get(position);
 		if (lastMessage == null) {
@@ -107,12 +134,9 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 			lastMessage.setSenderId(chatItem.id);
 			lastMessage.setMessageStatus(Constants.MESSAGE_STATUS_DELIVERED);
 		}
-		// Log.e("DEBUG",chatItem.getContent() + " " +
-		// lastMessage.getMessage());
 		// 4. subtitle status
 		if (!lastMessage.getSenderId().equals(chatItem.id)) {
 			// it is a sent message
-
 			Log.i("subtitle check", lastMessage.getMessageStatus());
 			if (lastMessage.getMessage().length() > 20) {
 				holder.chatSubtitle.setText("You: "
@@ -175,35 +199,26 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		mChatItems.clear();
 		mChatItems.addAll(chatItems);
 		mLastMessages.clear();
-		// refreshing subtitles
-		refreshSubtitles();
-		notifyDataSetChanged();
-	}
-
-	private boolean isExternalStorageAvailable() {
-		String state = Environment.getExternalStorageState();
-
-		if (state.equals(Environment.MEDIA_MOUNTED)) {
-			return true;
-		} else {
-			return false;
+		try {
+			refreshSubtitles();
+		} finally {
+			notifyDataSetChanged();
 		}
+		
 	}
 
 	private void refreshSubtitles() {
 		counter = 0;
 		if (mChatItems != null && mChatItems.size() > 0) {
 			for (ChatItem chatItem : mChatItems) {
-
-				// usernames[i] = chatItem.;
 				mLastMessages.add(counter,
 						textMessageDataSource.getLastMessageFrom(chatItem.id));
 				counter++;
 			}
-
 		}
 		if (counter == mChatItems.size()) {
 			textMessageDataSource.close();
 		}
 	}
+
 }

@@ -15,7 +15,7 @@
 
     <!--
   IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
-  to match your app's package name + ".permission.C2D_MESSAGE".
+  to match your app's package name + ".permission.C2D_MESSAGE".
     -->
     <permission
         android:name="com.ankurmittal.learning.permission.C2D_MESSAGE"
@@ -25,14 +25,14 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="21" />
 
     <application
         android:name=".application.PingMeApplication"
         android:allowBackup="true"
         android:icon="@drawable/pingme_logo"
         android:label="@string/app_name"
-        android:theme="@style/CustomActionBarTheme" >
+        android:theme="@style/AppTheme.Base" >
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".SearchResultsActivity" />
@@ -45,11 +45,11 @@
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.ankurmittal.learning.picCropper.CropImage"
+            android:name=".picCropper.CropImage"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.ankurmittal.learning.picCropper.MonitoredActivity"
+            android:name=".picCropper.MonitoredActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
@@ -101,6 +101,7 @@
         <activity
             android:name=".ChatDetailActivity"
             android:label="@string/title_chat_detail"
+            android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".ChatListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -135,14 +136,29 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-<!--       IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
+                <!-- IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
                 <category android:name="com.ankurmittal.learning" />
+            </intent-filter>
+        </receiver>
+        
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.example.gcm" />
             </intent-filter>
         </receiver>
 
         <activity
-            android:name=".ProfileActivity"
-            android:label="@string/title_activity_profile"
+            android:name=".ProfilePicDialogActivity"
+            android:theme="@android:style/Theme.Holo.Dialog" >
+        </activity>
+        <activity
+            android:name=".UserProfileActivity"
+            android:label="@string/title_activity_user_profile"
+            android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".ChatListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

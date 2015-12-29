@@ -1,9 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="fill_parent"
-     >
-     
-        <TextView
+   android:id="@+id/listContainer" >
+    <TextView
         android:id="@android:id/empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -11,20 +10,22 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="@string/chat_detail_empty_text"
-        android:visibility="invisible" />
-   
-        <ListView
+         />
+
+    <ListView
         android:id="@+id/chatList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:background = "@drawable/chat_back3"
-         >
+        android:background="@drawable/chat_back3" >
     </ListView>
 
-
-
-
-
+    <ImageView
+        android:id="@+id/expanded_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="touch to zoom"
+        android:visibility="invisible" />
+    
 </FrameLayout>

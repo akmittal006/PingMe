@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+    <issue id="ContentDescription">
+        <ignore path="res/layout/activity_chat_detail.xml" />
+    </issue>
+    <issue id="RtlHardcoded">
+        <ignore path="res/layout/activity_chat_detail.xml" />
+    </issue>
 </lint>

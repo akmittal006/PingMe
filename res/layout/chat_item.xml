@@ -28,12 +28,14 @@
 
     <ImageView
         android:id="@+id/userImageView"
+        style="@style/MaterialAnimations"
         android:layout_width="57dp"
         android:layout_height="57dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:src="@android:drawable/ic_menu_gallery" />
+        android:src="@android:drawable/ic_menu_gallery"
+        android:transitionName="dialogTransition" />
 
     <TextView
         android:id="@+id/newMessageNumView"

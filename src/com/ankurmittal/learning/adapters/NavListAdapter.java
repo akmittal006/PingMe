@@ -13,8 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ankurmittal.learning.NavListItem;
 import com.ankurmittal.learning.R;
+import com.ankurmittal.learning.storage.NavListItem;
 import com.ankurmittal.learning.util.TypefaceSpan;
 
 public class NavListAdapter extends ArrayAdapter<NavListItem> {

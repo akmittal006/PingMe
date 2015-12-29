@@ -1,23 +1,40 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
+            backward-compatibility can go here.
         -->
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme"></style>
 
+    <style name="AppTheme.Base" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">true</item>
+    </style>
+
+    <style name="MaterialAnimations" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/explode</item>
+        <item name="android:windowExitTransition">@transition/explode</item>
+
+        <!-- specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">@transition/slide_and_changebounds</item>
+        <item name="android:windowSharedElementExitTransition">@transition/slide_and_changebounds</item>
+    </style>
+
     <color name="com_facebook_blue">#3B5998</color>
 
-    <style name="CropButton">
+    <style name="CropButton" parent="AppTheme.Base">
         <item name="android:layout_margin">1dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">3dp</item>

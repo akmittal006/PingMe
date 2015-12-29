@@ -3,12 +3,12 @@ package com.ankurmittal.learning;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -27,7 +27,7 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
 
 	EditText mUsername;
 	EditText mPassword;
@@ -44,7 +44,7 @@ public class LoginActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		getActionBar().hide();
+		getSupportActionBar().hide();
 
 		// handling signup text view
 		mSignUpTextView = (TextView) findViewById(R.id.usernameTextView);

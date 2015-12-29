@@ -57,8 +57,10 @@ public class FriendsDataSource {
 				values.put(FriendsHelper.COLUMN_USERNAME, friend.getUsername());
 				values.put(FriendsHelper.COLUMN_OBJECT_ID, friend.getObjectId());
 				values.put(FriendsHelper.COLUMN_EMAIL, friend.getEmail());
-				values.put(FriendsHelper.COLUMN_NAME,friend.getString(ParseConstants.KEY_NAME));
-				values.put(FriendsHelper.COLUMN_PHN_NUMBER,friend.getString(ParseConstants.KEY_PHN_NUM));
+				values.put(FriendsHelper.COLUMN_NAME,
+						friend.getString(ParseConstants.KEY_NAME));
+				values.put(FriendsHelper.COLUMN_PHN_NUMBER,
+						friend.getString(ParseConstants.KEY_PHN_NUM));
 				if (friend.getParseFile(ParseConstants.KEY_PROFILE_IMAGE) != null) {
 					values.put(
 							FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS,
@@ -81,7 +83,6 @@ public class FriendsDataSource {
 		}
 
 	}
-
 
 	public Cursor isFriendNew(ParseUser friend) {
 		if (!mDatabase.isOpen()) {
@@ -122,8 +123,8 @@ public class FriendsDataSource {
 						FriendsHelper.COLUMN_EMAIL,
 						FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS,
 						FriendsHelper.COLUMN_NAME,
-						FriendsHelper.COLUMN_PHN_NUMBER}, // column
-																		// names
+						FriendsHelper.COLUMN_PHN_NUMBER }, // column
+															// names
 				null, // where clause
 				null, // where params
 				null, // groupby
@@ -132,6 +133,39 @@ public class FriendsDataSource {
 				);
 
 		return cursor;
+	}
+
+	public String getNameFromId(Context context, String id) {
+		mFriendsHelper = new FriendsHelper(context);
+		mDatabase = mFriendsHelper.getWritableDatabase();
+		if (!mDatabase.isOpen()) {
+			open();
+		}
+		String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
+
+		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
+				new String[] { FriendsHelper.COLUMN_NAME }, // column
+																				// names
+				whereClause, // where clause
+				new String[] { id }, // where params
+				null, // groupby
+				null, // having
+				null // orderby
+				);
+		if (cursor.getCount() > 0) {
+			Log.i("frnds data source",
+					"getting img url from id ... cursor count- "
+							+ cursor.getCount());
+			cursor.moveToFirst();
+			return cursor
+					.getString(cursor
+							.getColumnIndex(FriendsHelper.COLUMN_NAME));
+		} else {
+			Log.i("frnds data source",
+					"getting img url from id ... cursor count- " + 0);
+			return null;
+		}
+
 	}
 
 	public String getImageUrlFromId(Context context, String id) {
@@ -196,14 +230,14 @@ public class FriendsDataSource {
 			if (res > 0) {
 				Log.e("frnds data ", "deleting and updating file");
 				String middlePath = frnd.get("img_url").substring(93, 116);
-				CustomTarget target = new CustomTarget(mContext);
-				// Log.d("frnds adpater",user.getString("UserId"));
-				target.setTargetHash(middlePath);
-				// target.deleteFile();
-
-				// TODO Auto-generated method stub
-				Picasso.with(mContext).load(frnd.get("img_url"))
-						.memoryPolicy(MemoryPolicy.NO_CACHE).into(target);
+				// CustomTarget target = new CustomTarget(mContext);
+				// // Log.d("frnds adpater",user.getString("UserId"));
+				// target.setTargetHash(middlePath);
+				// // target.deleteFile();
+				//
+				// // TODO Auto-generated method stub
+				// Picasso.with(mContext).load(frnd.get("img_url"))
+				// .memoryPolicy(MemoryPolicy.NO_CACHE).into(target);
 
 			}
 			Log.e("frnds data source", "updated rows- " + res);
@@ -244,12 +278,10 @@ public class FriendsDataSource {
 						.getColumnIndex(FriendsHelper.COLUMN_PROFILE_IMAGE_ADDRESS);
 				mFriends.get(row).put(ParseConstants.KEY_PROFILE_IMAGE,
 						cursor.getString(i));
-				i = cursor
-						.getColumnIndex(FriendsHelper.COLUMN_PHN_NUMBER);
+				i = cursor.getColumnIndex(FriendsHelper.COLUMN_PHN_NUMBER);
 				mFriends.get(row).put(ParseConstants.KEY_PHN_NUM,
 						cursor.getString(i));
-				i = cursor
-						.getColumnIndex(FriendsHelper.COLUMN_NAME);
+				i = cursor.getColumnIndex(FriendsHelper.COLUMN_NAME);
 				mFriends.get(row).put(ParseConstants.KEY_NAME,
 						cursor.getString(i));
 				Log.d("frnds data source",

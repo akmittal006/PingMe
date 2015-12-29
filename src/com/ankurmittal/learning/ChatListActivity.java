@@ -1,44 +1,53 @@
 package com.ankurmittal.learning;
 
+import io.socket.client.IO;
+import io.socket.client.Socket;
+
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.application.PingMeApplication;
 import com.ankurmittal.learning.application.PingMeApplication.MyActivityLifecycleCallbacks;
+import com.ankurmittal.learning.fragments.ChatDetailFragment;
+import com.ankurmittal.learning.fragments.ChatListFragment;
+import com.ankurmittal.learning.fragments.FriendsFragment;
+import com.ankurmittal.learning.fragments.NavigationDrawerFragment;
 import com.ankurmittal.learning.storage.ChatContent;
 import com.ankurmittal.learning.storage.ChatItemDataSource;
 import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.storage.TextMessageDataSource;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
-import com.ankurmittal.learning.util.QuickAction;
 import com.ankurmittal.learning.util.TypefaceSpan;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
@@ -62,7 +71,7 @@ import com.parse.ParseUser;
  * This activity also implements the required {@link ChatListFragment.Callbacks}
  * interface to listen for item selections.
  */
-public class ChatListActivity extends Activity implements
+public class ChatListActivity extends AppCompatActivity implements
 		ChatListFragment.Callbacks,
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
 		FriendsFragment.Callbacks {
@@ -75,7 +84,6 @@ public class ChatListActivity extends Activity implements
 	private ArrayList<ParseObject> friendRequests;
 	private ParseUser currentUser;
 	private Fragment fragment;
-	private RelativeLayout customLayout;
 	private SearchView searchView;
 
 	private SharedPreferences sharedPrefs;
@@ -95,17 +103,28 @@ public class ChatListActivity extends Activity implements
 	 * {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
+	private CoordinatorLayout coordinatorLayout;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (ParseUser.getCurrentUser() == null) {
+			Intent intent2 = new Intent(this, LoginActivity.class);
+			intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent2);
+		} else {
+		}
 		getApplication().registerActivityLifecycleCallbacks(mCallbacks);
 
 		// TODO: set content view
 		setContentView(R.layout.activity_chat_list);
+		coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
 
 		friendRequests = new ArrayList<ParseObject>();
-		getActionBar().setDisplayShowHomeEnabled(false);
+		getSupportActionBar().show();
+		getSupportActionBar().setDisplayShowHomeEnabled(false);
 
 		if (findViewById(R.id.chat_detail_container) != null) {
 			// The detail container view will be present only in the
@@ -116,18 +135,16 @@ public class ChatListActivity extends Activity implements
 
 			// In two-pane mode, list items should be given the
 			// 'activated' state when touched.
-			((ChatListFragment) fragment).setActivateOnItemClick(true);
+			// ((ChatListFragment) fragment).setActivateOnItemClick(true);
 		}
 
-		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager()
+		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
 
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
-		customLayout = (RelativeLayout) getLayoutInflater().inflate(
-				R.layout.quick_popup, null);
 	}
 
 	@Override
@@ -137,25 +154,25 @@ public class ChatListActivity extends Activity implements
 		case 0:
 			fragment = new ChatListFragment();
 			// fragment.setArguments(arguments);
-			getFragmentManager().beginTransaction()
+			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
 
 		case 1:
 			fragment = new FriendsFragment();
 			// fragment.setArguments(arguments);
-			getFragmentManager().beginTransaction()
+			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
 
 		case 2:
-			Intent intent = new Intent(this, ProfileActivity.class);
+			Intent intent = new Intent(this, UserProfileActivity.class);
 			startActivity(intent);
 
 		default:
 			fragment = new ChatListFragment();
 			// fragment.setArguments(arguments);
-			getFragmentManager().beginTransaction()
+			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.chat_list_container, fragment).commit();
 			break;
 		}
@@ -178,7 +195,7 @@ public class ChatListActivity extends Activity implements
 	}
 
 	public void restoreActionBar() {
-		ActionBar actionBar = getActionBar();
+		ActionBar actionBar = getSupportActionBar();
 		// actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
 		SpannableString s = new SpannableString(mTitle);
@@ -213,7 +230,7 @@ public class ChatListActivity extends Activity implements
 	 * the item with the given ID was selected.
 	 */
 	@Override
-	public void onItemSelected(String id) {
+	public void onItemSelected(String id, View sharedView) {
 		if (mTwoPane) {
 			// In two-pane mode, show the detail view in this activity by
 			// adding or replacing the detail fragment using a
@@ -222,7 +239,34 @@ public class ChatListActivity extends Activity implements
 			arguments.putString(ChatDetailFragment.ARG_ITEM_ID, id);
 			ChatDetailFragment fragment = new ChatDetailFragment();
 			fragment.setArguments(arguments);
-			getFragmentManager().beginTransaction()
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.chat_detail_container, fragment).commit();
+
+		} else {
+			// In single-pane mode, simply start the detail activity
+			// for the selected item ID.
+			Intent detailIntent = new Intent(this, ChatDetailActivity.class);
+			detailIntent.putExtra(ChatDetailFragment.ARG_ITEM_ID, id);
+			String transitionName = "dialogTransition";
+			ActivityOptions transitionActivityOptions = ActivityOptions
+					.makeSceneTransitionAnimation(this, sharedView,
+							transitionName);
+			startActivity(detailIntent, transitionActivityOptions.toBundle());
+		}
+	}
+
+	@Override
+	public void onItemSelected(String id) {
+		// TODO Auto-generated method stub
+		if (mTwoPane) {
+			// In two-pane mode, show the detail view in this activity by
+			// adding or replacing the detail fragment using a
+			// fragment transaction.
+			Bundle arguments = new Bundle();
+			arguments.putString(ChatDetailFragment.ARG_ITEM_ID, id);
+			ChatDetailFragment fragment = new ChatDetailFragment();
+			fragment.setArguments(arguments);
+			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.chat_detail_container, fragment).commit();
 
 		} else {
@@ -253,7 +297,7 @@ public class ChatListActivity extends Activity implements
 					s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 			// Update the action bar title with the TypefaceSpan instance
-			ActionBar actionBar = getActionBar();
+			ActionBar actionBar = getSupportActionBar();
 			actionBar.setTitle(s);
 			//
 			// ParseFacebookUtils.initialize(R.string.facebook_app_id + "");
@@ -323,26 +367,27 @@ public class ChatListActivity extends Activity implements
 		// Get the SearchView and set the searchable configuration
 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-		searchView.setSearchableInfo(searchManager
+		MenuItem searchMenuItem = menu.findItem(R.id.search);
+		SearchView searchViewAction = (SearchView) MenuItemCompat
+				.getActionView(searchMenuItem);
+
+		searchViewAction.setSearchableInfo(searchManager
 				.getSearchableInfo(getComponentName()));
-		searchView.setQueryHint("Enter username to search");
-		
-		searchView.setOnSearchClickListener(new OnClickListener() {
+		searchViewAction.setQueryHint("Enter username to search");
+		searchViewAction.setOnSearchClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				Log.e("DEBUG", "search clicked");
-				// TODO Auto-generated method stub
-				QuickAction quickPopup = new QuickAction(ChatListActivity.this,
-						R.style.PopupAnimation, customLayout, customLayout);
-				quickPopup.show(customLayout);
+				Snackbar snackbar = Snackbar.make(coordinatorLayout,
+						"Search by username", Snackbar.LENGTH_LONG);
+
+				snackbar.show();
 			}
 		});
 		// Do not iconify the widget;expand it by default
-		searchView.setIconifiedByDefault(true);
-		searchView.setIconified(true);
+		searchViewAction.setIconifiedByDefault(true);
+		searchViewAction.setIconified(true);
 		return true;
 	}
 
@@ -359,8 +404,8 @@ public class ChatListActivity extends Activity implements
 					// We found requests!
 					// frndReqSenders = new String[requests.size()];
 					friendRequests = new ArrayList<ParseObject>(requests);
-					// getActionBar().show();
-						ChatListActivity.this.invalidateOptionsMenu();
+					getSupportActionBar().show();
+					ChatListActivity.this.invalidateOptionsMenu();
 
 				} else {
 					Toast.makeText(ChatListActivity.this,
@@ -477,7 +522,7 @@ public class ChatListActivity extends Activity implements
 					Toast.LENGTH_SHORT).show();
 		} else if (id == R.id.profile) {
 			Intent intent = new Intent(ChatListActivity.this,
-					ProfileActivity.class);
+					UserProfileActivity.class);
 			startActivity(intent);
 		} else if (id == R.id.search) {
 
@@ -491,6 +536,10 @@ public class ChatListActivity extends Activity implements
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	public boolean getTwoPane() {
+		return mTwoPane;
 	}
 
 	/**

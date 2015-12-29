@@ -57,14 +57,14 @@ public class SearchResultsActivity extends ListActivity {
 				.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
 
 		// handleIntent(getIntent());
-		getActionBar().setDisplayShowHomeEnabled(false);
+		//getActionBar().setDisplayShowHomeEnabled(false);
 		SpannableString s = new SpannableString("Search People");
 		s.setSpan(new TypefaceSpan(this, "LOBSTERTWO-BOLD.OTF"), 0, s.length(),
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		// Update the action bar title with the TypefaceSpan instance
-		ActionBar actionBar = getActionBar();
-		actionBar.setTitle(s);
+//		ActionBar actionBar = getActionBar();
+//		actionBar.setTitle(s);
 		mUsers = new ArrayList<HashMap<String, Object>>();
 		adapter  = new UserAdapter(this, mUsers);
 		

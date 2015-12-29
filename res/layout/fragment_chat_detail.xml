@@ -1,24 +1,27 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="fill_parent" >
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chatDetail.relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+     >
+     
     <LinearLayout
         android:id="@+id/sendMessageLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:background="@android:color/white" >
+        android:background="@android:color/white"
+        android:gravity="bottom" >
 
         <ImageView
             android:id="@+id/emojiBtn"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/smiley"
             android:clickable="true"
             android:paddingTop="8dp"
-             />
+            android:src="@drawable/smiley" />
 
         <com.ankurmittal.learning.emojicon.EmojiconEditText
             android:id="@+id/chatEditText"
@@ -26,8 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:selectAllOnFocus="true"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:selectAllOnFocus="true" />
 
         <Button
             android:id="@+id/sendButton"
@@ -36,17 +39,32 @@
             android:layout_weight="1"
             android:background="@android:color/white"
             android:text="SEND" />
+        
+
+        
     </LinearLayout>
+
+   
 
     <ListView
         android:id="@+id/chatListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="400dp"
         android:layout_above="@id/sendMessageLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/chat_back3" >
     </ListView>
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/chat_detail_empty_text"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/dateTextView"
@@ -62,16 +80,6 @@
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="15sp"
-        android:visibility="invisible" />
-
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/chat_detail_empty_text"
         android:visibility="invisible" />
 
 </RelativeLayout>
