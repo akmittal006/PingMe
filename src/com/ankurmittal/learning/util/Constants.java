@@ -22,4 +22,5 @@ public class Constants {
 	public static final String LOGIN_STATUS_OLD = "oldLogin";
 	public static final String EVENT_TYPING = "typing";
 	public static final String EVENT_NEW_USER = "newUser";
+	public static final String EVENT_MESSAGE_SENT = "messageSent";
 }

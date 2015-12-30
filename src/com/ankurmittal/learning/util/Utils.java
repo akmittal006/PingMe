@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -135,12 +136,43 @@ public class Utils {
 	public static TextMessage createTextMessageFromJsonData(JSONObject message) {
 		TextMessage textMessage = new TextMessage();
 		try {
+			
 			textMessage.setCreatedAt(message
 					.getString(ParseConstants.KEY_CREATED_AT));
 			textMessage.setMessage(message
 					.getString(ParseConstants.KEY_MESSAGE));
 			textMessage.setMessageId(message
 					.getString(ParseConstants.KEY_MESSAGE_ID));
+			textMessage.setReceiverId(message
+					.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
+			textMessage.setReceiverName(message
+					.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
+			textMessage.setSenderId(message
+					.getString(ParseConstants.KEY_SENDER_ID));
+			textMessage.setSenderName(message
+					.getString(ParseConstants.KEY_SENDER_NAME));
+			textMessage.setMessageStatus(Constants.MESSAGE_STATUS_DELIVERED);
+			return textMessage;
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.e("json error", "error creating message");
+		}
+		return null;
+	}
+	
+	
+	public static TextMessage createTextMessageFromSocketData(JSONObject message) {
+		TextMessage textMessage = new TextMessage();
+		try {
+			Log.e("DATE DEBUG", "" + message);
+			Log.e("DATE DEBUG", "" + message
+					.getString(ParseConstants.KEY_CREATED_AT));
+//			textMessage.setCreatedAt(new Calendar(message
+//					.get(ParseConstants.KEY_CREATED_AT).toString()));
+			textMessage.setMessage(message
+					.getString(ParseConstants.KEY_MESSAGE));
+			textMessage.setMessageId(message
+					.getString("objectId"));
 			textMessage.setReceiverId(message
 					.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
 			textMessage.setReceiverName(message
@@ -244,8 +276,8 @@ public class Utils {
 			File file = new File(Utils.getAppPath() + "/"
 					+ imgUrl.substring(93, 116) + ".png");
 			if (file.exists()) {
-				Log.e("image loaded from mobile", Uri.fromFile(file)
-						.toString());
+//				Log.e("image loaded from mobile", Uri.fromFile(file)
+//						.toString());
 				//Picasso.with(mContext).invalidate(file);
 				Picasso.with(mContext).load(Uri.fromFile(file))
 						.placeholder(R.drawable.avatar_empty)

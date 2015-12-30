@@ -476,6 +476,7 @@ public class ChatDetailFragment extends Fragment {
 								mItem.content);
 						pTextMessage.put("isSent",
 								Constants.MESSAGE_STATUS_PENDING);
+						//pTextMessage.put(ParseConstants.KEY_CREATED_AT, new Date());
 						pTextMessage.pinInBackground(Constants.GROUP_NOT_SENT,
 								new SaveCallback() {
 									@Override
@@ -845,6 +846,7 @@ public class ChatDetailFragment extends Fragment {
 										} else {
 											// Reset the is draft flag locally
 											// to true
+											Log.e("SAVE DEUBG","" + e.getMessage());
 											message.put(
 													"isSent",
 													Constants.MESSAGE_STATUS_PENDING);

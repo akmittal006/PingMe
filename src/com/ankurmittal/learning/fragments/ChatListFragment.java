@@ -129,6 +129,18 @@ public class ChatListFragment extends ListFragment {
 
 	private View rootView;
 	private Socket mSocket;
+	private Listener messageSentEventListener = new Listener() {
+
+		@Override
+		public void call(Object... arg0) {
+			final String senderId;
+			JSONObject data = (JSONObject) arg0[0];
+			TextMessage messageReceived = new TextMessage();
+			messageReceived = Utils.createTextMessageFromSocketData(data);
+
+		}
+
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -139,7 +151,7 @@ public class ChatListFragment extends ListFragment {
 			retrieveMessages();
 			mChatItemDataSource = new ChatItemDataSource(getActivity());
 			mChatItemDataSource.open();
-			
+
 			mSocket = PingMeApplication.mSocket;
 			mSocket.on(Constants.EVENT_TYPING, new Listener() {
 
@@ -149,31 +161,40 @@ public class ChatListFragment extends ListFragment {
 					final String senderId;
 					JSONObject data = (JSONObject) arg0[0];
 					try {
-						 senderId = data.getString("sender");
-						
-						if(ChatContent.ITEM_MAP.containsKey(senderId)) {
-							Log.e("VERY BIG DEBUG **",
-									 " - - -" + mChatItems.indexOf(ChatContent.ITEM_MAP.get(senderId)));
-							((AppCompatActivity)getActivity()).runOnUiThread(new Runnable() {
-								
-								@Override
-								public void run() {
-									// TODO Auto-generated method stub
-									adapter.changeSubtitleToTyping(mChatItems.indexOf(ChatContent.ITEM_MAP.get(senderId)));
-								}
-							});
+						senderId = data.getString("sender");
+
+						if (ChatContent.ITEM_MAP.containsKey(senderId)
+								&& getActivity() != null) {
+							((AppCompatActivity) getActivity())
+									.runOnUiThread(new Runnable() {
+
+										@Override
+										public void run() {
+											// TODO Auto-generated method stub
+											if (mChatItems
+													.indexOf(ChatContent.ITEM_MAP
+															.get(senderId)) >= 0) {
+												adapter.changeSubtitleToTyping(mChatItems
+														.indexOf(ChatContent.ITEM_MAP
+																.get(senderId)));
+											}
+
+										}
+									});
 						} else {
-							
+
 						}
 					} catch (JSONException e) {
-						Log.e("VERY BIG DEBUG ***", "" + e.getMessage() + " - - -"
-								+ data.toString());
+						Log.e("VERY BIG DEBUG ***", "" + e.getMessage()
+								+ " - - -" + data.toString());
 						return;
 					}
 					// add the message to view
 				}
 
 			});
+
+			mSocket.on(Constants.EVENT_MESSAGE_SENT, messageSentEventListener);
 
 		} else {
 			Intent intent2 = new Intent(getActivity(), LoginActivity.class);

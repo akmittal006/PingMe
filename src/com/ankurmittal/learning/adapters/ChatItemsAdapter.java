@@ -67,7 +67,6 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 			final ViewGroup parent) {
 
 		temp = position;
-		Log.e("ADAPTER PRE DEBUG", "clicked " + parent);
 		if (convertView == null) {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.chat_item, null);
@@ -94,13 +93,11 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 
 		// 1. Image View
 		imgUrl = chatItem.getImgUrl();
-		Log.d("chat item adapter", "img url- " + imgUrl);
-
 		if (imgUrl.equals("null")) {
 			holder.userImageView.setImageResource(R.drawable.avatar_empty);
-			Log.i(TAG, imgUrl + " img set - " + position);
+//			Log.i(TAG, imgUrl + " img set - " + position);
 		} else if (imgUrl != null) {
-			Log.i("url check", imgUrl);
+//			Log.i("url check", imgUrl);
 			Utils.loadUserImageByUrl(mContext, holder.userImageView, imgUrl);
 		}
 
@@ -120,7 +117,6 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 								transitionName);
 				activity.startActivity(i, transitionActivityOptions.toBundle());
 
-				Log.e("clicked", "clicked");
 			}
 		});
 		// 2. Username label
@@ -144,7 +140,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 			// do other stuff
 			if (!lastMessage.getSenderId().equals(chatItem.id)) {
 				// it is a sent message
-				Log.i("subtitle check", lastMessage.getMessageStatus());
+//				Log.i("subtitle check", lastMessage.getMessageStatus());
 				if (lastMessage.getMessage().length() > 20) {
 					holder.chatSubtitle
 							.setText("You: "
@@ -247,7 +243,6 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 					isTyping.set(index, false);
 					((AppCompatActivity) mContext)
 							.runOnUiThread(new Runnable() {
-
 								@Override
 								public void run() {
 									// TODO Auto-generated method stub
