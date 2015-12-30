@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONObject;
 
@@ -20,6 +22,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.ankurmittal.learning.R;
+import com.ankurmittal.learning.storage.FriendsDataSource;
 import com.ankurmittal.learning.storage.TextMessage;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -82,7 +85,7 @@ public class Utils {
 					message.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME)
 							+ ": "
 							+ message.getString(ParseConstants.KEY_MESSAGE));
-			jsonMessage.put("priority","high");
+			jsonMessage.put("priority", "high");
 			jsonMessage.put(ParseConstants.KEY_MESSAGE,
 					message.getString(ParseConstants.KEY_MESSAGE));
 			jsonMessage.put(ParseConstants.KEY_MESSAGE_ID,
@@ -132,11 +135,11 @@ public class Utils {
 		strDate = dateFormat.format(date);
 		return strDate;
 	}
-	
+
 	public static TextMessage createTextMessageFromJsonData(JSONObject message) {
 		TextMessage textMessage = new TextMessage();
 		try {
-			
+
 			textMessage.setCreatedAt(message
 					.getString(ParseConstants.KEY_CREATED_AT));
 			textMessage.setMessage(message
@@ -159,29 +162,44 @@ public class Utils {
 		}
 		return null;
 	}
-	
-	
-	public static TextMessage createTextMessageFromSocketData(JSONObject message) {
+
+	public static TextMessage createTextMessageFromSocketData(Context context,
+			JSONObject message) {
 		TextMessage textMessage = new TextMessage();
 		try {
 			Log.e("DATE DEBUG", "" + message);
-			Log.e("DATE DEBUG", "" + message
-					.getString(ParseConstants.KEY_CREATED_AT));
-//			textMessage.setCreatedAt(new Calendar(message
-//					.get(ParseConstants.KEY_CREATED_AT).toString()));
+			if(message
+					.has(ParseConstants.KEY_CREATED_AT)) {
+				
+				Log.e("DATE DEBUG", "has created at");
+				String dateString = message
+						.getString(ParseConstants.KEY_CREATED_AT);
+				Date parsed = parseSocketStringDate(dateString);
+				textMessage.setCreatedAt(getDateTime(parsed));
+			} else {
+				Log.e("DATE DEBUG", "doesnot have created at");
+				textMessage.setCreatedAt(getDateTime(new Date()));
+			}
+			
 			textMessage.setMessage(message
 					.getString(ParseConstants.KEY_MESSAGE));
 			textMessage.setMessageId(message
-					.getString("objectId"));
+					.getString(ParseConstants.KEY_OBJECT_ID));
 			textMessage.setReceiverId(message
 					.getString(ParseConstants.KEY_MESSAGE_RECEIVER_ID));
 			textMessage.setReceiverName(message
 					.getString(ParseConstants.KEY_MESSAGE_RECEIVER_NAME));
-			textMessage.setSenderId(message
-					.getString(ParseConstants.KEY_SENDER_ID));
+			JSONObject senderObject = new JSONObject();
+
+			senderObject = message
+					.getJSONObject(ParseConstants.KEY_MESSAGE_SENDER);
+			String senderId = senderObject
+					.getString(ParseConstants.KEY_OBJECT_ID);
+			textMessage.setSenderId(senderId);
 			textMessage.setSenderName(message
 					.getString(ParseConstants.KEY_SENDER_NAME));
 			textMessage.setMessageStatus(Constants.MESSAGE_STATUS_DELIVERED);
+			Log.e("DEBUG" , "text msg created");
 			return textMessage;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -189,7 +207,30 @@ public class Utils {
 		}
 		return null;
 	}
-	
+
+	private static Date parseSocketStringDate(String dateString) {
+		Pattern p = Pattern.compile("T");
+		// get a matcher object
+		Matcher m = p.matcher(dateString);
+		dateString = m.replaceAll(" ");
+
+		p = Pattern.compile("Z");
+		dateString = p.matcher(dateString).replaceAll("");
+
+		Log.e("DATE STRING", "" + dateString);
+		Date parsed = new Date();
+		try {
+			SimpleDateFormat format = new SimpleDateFormat(
+					"yyyy-MM-dd HH:mm:ss");
+
+			parsed = format.parse(dateString);
+		} catch (ParseException pe) {
+			Log.e("DEBUG", "" + pe.getMessage());
+			throw new IllegalArgumentException();
+		}
+		return parsed;
+	}
+
 	public static boolean isExternalStorageAvailable() {
 		String state = Environment.getExternalStorageState();
 
@@ -199,7 +240,6 @@ public class Utils {
 			return false;
 		}
 	}
-	
 
 	public static String getAppPath() {
 		String appName = "PingMe";
@@ -218,33 +258,38 @@ public class Utils {
 		}
 		// 3. Create a file name
 		// 4. Create the file
-		//File mediaFile;
+		// File mediaFile;
 
 		String path = mediaStorageDir.getPath() + File.separator;
 		return path;
 	}
-	
 
-	public static void saveAndLoadProfilePic(Bitmap bitmap, String fileName, ImageView mProfilePicView) {
+	public static void saveAndLoadProfilePic(Bitmap bitmap, String fileName,
+			ImageView mProfilePicView) {
 		Log.e("DEBUG", "saving and loading pics for - file --" + fileName);
 		try {
 			if (Utils.isExternalStorageAvailable()) {
-				File file = new File(Utils.getAppPath() + "/" + fileName + ".png");
+				File file = new File(Utils.getAppPath() + "/" + fileName
+						+ ".png");
 				try {
-					if(file.createNewFile()) {
+					if (file.createNewFile()) {
 						Log.e("DEBUG", "new file created");
 						compressBitmapToFile(bitmap, file);
 					} else {
-						//delete file
-						if(file.delete()) {
+						// delete file
+						if (file.delete()) {
 							Log.e("DEBUG", "new file deleted");
-							if(file.createNewFile()) {
-								Log.e("DEBUG", "new file created after deleting + file-" + file.getCanonicalPath().toString());
+							if (file.createNewFile()) {
+								Log.e("DEBUG",
+										"new file created after deleting + file-"
+												+ file.getCanonicalPath()
+														.toString());
 								compressBitmapToFile(bitmap, file);
 							} else {
-								Log.e("DEBUG", "unable to create new file after deleting");
+								Log.e("DEBUG",
+										"unable to create new file after deleting");
 							}
-							
+
 						} else {
 							Log.e("DEBUG", "unable to delete pre existing file");
 						}
@@ -257,7 +302,7 @@ public class Utils {
 			}
 		} finally {
 			mProfilePicView.setImageBitmap(bitmap);
-			
+
 		}
 	}
 
@@ -267,22 +312,23 @@ public class Utils {
 		bitmap.compress(CompressFormat.PNG, 75, ostream);
 		ostream.close();
 	}
-	
-	public static void loadUserImageByUrl(Context mContext,ImageView iconView, String imgUrl) {
+
+	public static void loadUserImageByUrl(Context mContext, ImageView iconView,
+			String imgUrl) {
 		Picasso.with(mContext).setIndicatorsEnabled(true);
-		
+
 		if (Utils.isExternalStorageAvailable()) {
 
 			File file = new File(Utils.getAppPath() + "/"
 					+ imgUrl.substring(93, 116) + ".png");
 			if (file.exists()) {
-//				Log.e("image loaded from mobile", Uri.fromFile(file)
-//						.toString());
-				//Picasso.with(mContext).invalidate(file);
+				// Log.e("image loaded from mobile", Uri.fromFile(file)
+				// .toString());
+				// Picasso.with(mContext).invalidate(file);
 				Picasso.with(mContext).load(Uri.fromFile(file))
-						.placeholder(R.drawable.avatar_empty)
-						.resize(88, 88).centerInside().into(iconView);
-			} 
+						.placeholder(R.drawable.avatar_empty).resize(88, 88)
+						.centerInside().into(iconView);
+			}
 		}
 	}
 

@@ -105,7 +105,6 @@ public class ChatListActivity extends AppCompatActivity implements
 	private CharSequence mTitle;
 	private CoordinatorLayout coordinatorLayout;
 
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -438,7 +437,6 @@ public class ChatListActivity extends AppCompatActivity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		Log.e("DEBUG", "search clicked3 " + id);
 		if (id == R.id.sign_out) {
 			// prompt if they wanna logout
 			// TODO:do smthing
@@ -449,32 +447,29 @@ public class ChatListActivity extends AppCompatActivity implements
 			editor.putString(Constants.PREF_LOGIN_STATUS,
 					Constants.LOGIN_STATUS_NEW);
 			editor.commit();
-			ChatItemDataSource mChatItemDataSource = new ChatItemDataSource(
-					this);
-			mChatItemDataSource.open();
+			ChatItemDataSource mChatItemDataSource = ChatItemDataSource
+					.getInstance(this);
 			mChatItemDataSource.deleteAll();
-			mChatItemDataSource.close();
-			FriendsDataSource mFriendsDataSource = new FriendsDataSource(this);
-			mFriendsDataSource.open();
+//			mChatItemDataSource.close();
+			FriendsDataSource mFriendsDataSource = FriendsDataSource
+					.getInstance(this);
 			Log.d("DATABASE CHECK", ""
 					+ mFriendsDataSource.selectAll().getCount());
 			mFriendsDataSource.deleteAll();
 			Log.d("DATABASE CHECK", ""
 					+ mFriendsDataSource.selectAll().getCount());
-			mFriendsDataSource.close();
-			TextMessageDataSource mMessageSource = new TextMessageDataSource(
+			// mFriendsDataSource.close();
+			TextMessageDataSource mMessageSource = TextMessageDataSource.getInstance(
 					this);
-			mMessageSource.open();
 			Log.d("DATABASE CHECK", "" + mMessageSource.selectAll().getCount());
 			mMessageSource.deleteAll();
 			Log.d("DATABASE CHECK", "" + mMessageSource.selectAll().getCount());
-			mMessageSource.close();
+//			mMessageSource.close();
 			ChatContent.deleteAllItems();
 			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
 					ParseConstants.TEXT_MESSAGE);
 			query.fromPin(Constants.GROUP_NOT_SENT);
 			query.fromPin("Delete Messages");
-
 			query.findInBackground(new FindCallback<ParseObject>() {
 
 				@Override

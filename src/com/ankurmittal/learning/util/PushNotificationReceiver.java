@@ -24,7 +24,8 @@ import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseUser;
 
 public class PushNotificationReceiver extends ParsePushBroadcastReceiver
-		implements com.ankurmittal.learning.fragments.ChatDetailFragment.TestInterface {
+		implements
+		com.ankurmittal.learning.fragments.ChatDetailFragment.TestInterface {
 
 	private Context mContext;
 	private TextMessageDataSource mMessageDataSource;
@@ -73,19 +74,18 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver
 
 		try {
 			JSONObject jsonMessage = new JSONObject(jsonData);
-			mMessageDataSource = new TextMessageDataSource(context);
-
-			mMessageDataSource.open();
+			mMessageDataSource = TextMessageDataSource.getInstance(context);
 
 			// CASE -- 1. NEW MESSAGE
 			if (jsonMessage.getString("type").equals("message")) {
 
-				TextMessage receivedMessage = Utils.createTextMessageFromJsonData(jsonMessage);
+				TextMessage receivedMessage = Utils
+						.createTextMessageFromJsonData(jsonMessage);
 				// Push type is message
 
 				// 1. saving new message in database
 				mMessageDataSource.insert(receivedMessage);
-				mMessageDataSource.close();
+				// mMessageDataSource.close();
 
 				// 2. sending push back to update message status to delivered
 
@@ -171,8 +171,6 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver
 		super.onReceive(context, intent);
 	}
 
-	
-
 	private void updateChatItem(Context context, TextMessage textmessage) {
 		// TODO Auto-generated method stub
 		String id;
@@ -190,10 +188,11 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver
 		ChatItem chatItem = new ChatItem(id, content);
 		chatItem.setLastMessage(textmessage);
 
-		ChatItemDataSource mChatItemDataSource = new ChatItemDataSource(context);
-		mChatItemDataSource.open();
+		ChatItemDataSource mChatItemDataSource = ChatItemDataSource
+				.getInstance(context);
+		// mChatItemDataSource.open();
 		mChatItemDataSource.insert(chatItem);
-		mChatItemDataSource.close();
+		// mChatItemDataSource.close();
 
 	}
 
@@ -218,9 +217,8 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver
 							// "Yay it worked! " + arg0);
 							// update database
 
-							mMessageDataSource = new TextMessageDataSource(
-									mContext);
-							mMessageDataSource.open();
+							mMessageDataSource = TextMessageDataSource
+									.getInstance(mContext);
 							// Log.e("DEBUG", "" + mContext.toString());
 
 							// if (!mMessageDataSource.isOpen()) {

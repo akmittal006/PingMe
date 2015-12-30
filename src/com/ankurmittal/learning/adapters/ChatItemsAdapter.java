@@ -56,7 +56,7 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 		mChatItems = chatItems;
 		mLastMessages = new ArrayList<TextMessage>();
 		isTyping = new ArrayList<Boolean>();
-		textMessageDataSource = new TextMessageDataSource(mContext);
+		textMessageDataSource = TextMessageDataSource.getInstance(mContext);
 		textMessageDataSource.open();
 		// getting last messages
 		refreshSubtitles();
@@ -224,9 +224,6 @@ public class ChatItemsAdapter extends ArrayAdapter<ChatItem> {
 						textMessageDataSource.getLastMessageFrom(chatItem.id));
 				counter++;
 			}
-		}
-		if (counter == mChatItems.size()) {
-			textMessageDataSource.close();
 		}
 	}
 

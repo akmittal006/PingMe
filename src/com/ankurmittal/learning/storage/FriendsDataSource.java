@@ -10,6 +10,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.ankurmittal.learning.storage.helpers.FriendsHelper;
 import com.ankurmittal.learning.util.CustomTarget;
 import com.ankurmittal.learning.util.ParseConstants;
 import com.parse.ParseUser;
@@ -18,34 +19,45 @@ import com.squareup.picasso.Picasso;
 
 public class FriendsDataSource {
 	private SQLiteDatabase mDatabase; // The actual DB!
-	private FriendsHelper mFriendsHelper; // Helper class for creating and
+	private static FriendsHelper mFriendsHelper; // Helper class for creating and
 											// opening the DB
-	private Context mContext;
+	private static Context mContext;
+	
+	private static FriendsDataSource mInstance;
+	
+	public static synchronized FriendsDataSource getInstance(Context context) {
+		if (mInstance == null) {
+			mInstance = new FriendsDataSource(context.getApplicationContext());
+		}
+		return mInstance;
+	}
 
-	public FriendsDataSource(Context context) {
+	private FriendsDataSource(Context context) {
 		mContext = context;
-		mFriendsHelper = new FriendsHelper(mContext);
+		mFriendsHelper = FriendsHelper.getInstance(context);
+		open();
 	}
 
 	/*
 	 * Open the db. Will create if it doesn't exist
 	 */
 	public void open() throws SQLException {
+		Log.e("FRIENDS DATASOURCE", "OPEN");
 		mDatabase = mFriendsHelper.getWritableDatabase();
 	}
 
 	/*
 	 * We always need to close our db connections
 	 */
-	public void close() {
-		mDatabase.close();
-	}
+//	public void close() {
+//		mDatabase.close();
+//	}
 
 	// INSERT
 	public void insert(ParseUser friend) {
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 
 		Cursor cursor = isFriendNew(friend);
 		if (cursor.getCount() == 0) {
@@ -85,9 +97,9 @@ public class FriendsDataSource {
 	}
 
 	public Cursor isFriendNew(ParseUser friend) {
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 		String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
 
 		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
@@ -102,9 +114,9 @@ public class FriendsDataSource {
 	}
 
 	public void deleteAll() {
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 		mDatabase.delete(FriendsHelper.TABLE_FRIENDS, // table
 				null, // where clause
 				null // where params
@@ -113,8 +125,10 @@ public class FriendsDataSource {
 	}
 
 	public Cursor selectAll() {
-		if (!mDatabase.isOpen()) {
-			open();
+		if (mDatabase.isOpen()) {
+			Log.e("FRIENDS SELECT ALL","OPEN ALREADY");
+		} else {
+			Log.e("FRIENDS SELECT ALL","CLOSE ALREADY");
 		}
 
 		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
@@ -136,11 +150,11 @@ public class FriendsDataSource {
 	}
 
 	public String getNameFromId(Context context, String id) {
-		mFriendsHelper = new FriendsHelper(context);
-		mDatabase = mFriendsHelper.getWritableDatabase();
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		mFriendsHelper = FriendsHelper.getInstance(context);
+//		mDatabase = mFriendsHelper.getWritableDatabase();
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 		String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
 
 		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
@@ -167,13 +181,52 @@ public class FriendsDataSource {
 		}
 
 	}
+	
+
+	public String getUsernameFromId(Context context, String id) {
+		mFriendsHelper = FriendsHelper.getInstance(context);
+		if(mFriendsHelper == null) {
+			Log.e("DEBUG", "database null");
+		}
+//		mDatabase = mFriendsHelper.getWritableDatabase();
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
+		String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
+
+		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
+				new String[] { FriendsHelper.COLUMN_USERNAME }, // column
+																				// names
+				whereClause, // where clause
+				new String[] { id }, // where params
+				null, // groupby
+				null, // having
+				null // orderby
+				);
+		if (cursor.getCount() > 0) {
+			Log.i("frnds data source",
+					"getting img url from id ... cursor count- "
+							+ cursor.getCount());
+			cursor.moveToFirst();
+			//mDatabase.close();
+			return cursor
+					.getString(cursor
+							.getColumnIndex(FriendsHelper.COLUMN_USERNAME));
+		} else {
+			Log.i("frnds data source",
+					"getting img url from id ... cursor count- " + 0);
+			//mDatabase.close();
+			return null;
+		}
+		
+	}
 
 	public String getImageUrlFromId(Context context, String id) {
-		mFriendsHelper = new FriendsHelper(context);
-		mDatabase = mFriendsHelper.getWritableDatabase();
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		mFriendsHelper = FriendsHelper.getInstance(context);
+//		mDatabase = mFriendsHelper.getWritableDatabase();
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 		String whereClause = FriendsHelper.COLUMN_OBJECT_ID + " = ?";
 
 		Cursor cursor = mDatabase.query(FriendsHelper.TABLE_FRIENDS, // table
@@ -205,11 +258,11 @@ public class FriendsDataSource {
 			final ArrayList<HashMap<String, String>> friends) {
 
 		int ans = 0;
-		mFriendsHelper = new FriendsHelper(context);
-		mDatabase = mFriendsHelper.getWritableDatabase();
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		mFriendsHelper = FriendsHelper.getInstance(context);
+//		mDatabase = mFriendsHelper.getWritableDatabase();
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 
 		Log.e("frnds data source", "updating picss ");
 
@@ -249,9 +302,9 @@ public class FriendsDataSource {
 	}
 
 	public ArrayList<ParseUser> getAllFriends() {
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 		Cursor cursor = selectAll();
 		ArrayList<ParseUser> mFriends = new ArrayList<ParseUser>();
 
@@ -291,7 +344,7 @@ public class FriendsDataSource {
 				row++;
 
 			}
-			mDatabase.close();
+			//mDatabase.close();
 			return mFriends;
 		}
 

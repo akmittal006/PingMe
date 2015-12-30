@@ -129,18 +129,7 @@ public class ChatListFragment extends ListFragment {
 
 	private View rootView;
 	private Socket mSocket;
-	private Listener messageSentEventListener = new Listener() {
 
-		@Override
-		public void call(Object... arg0) {
-			final String senderId;
-			JSONObject data = (JSONObject) arg0[0];
-			TextMessage messageReceived = new TextMessage();
-			messageReceived = Utils.createTextMessageFromSocketData(data);
-
-		}
-
-	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -149,8 +138,8 @@ public class ChatListFragment extends ListFragment {
 		if (ParseUser.getCurrentUser() != null) {
 			// throw new RuntimeException("Test Exception!");
 			retrieveMessages();
-			mChatItemDataSource = new ChatItemDataSource(getActivity());
-			mChatItemDataSource.open();
+			mChatItemDataSource = ChatItemDataSource.getInstance(getActivity());
+//			mChatItemDataSource.open();
 
 			mSocket = PingMeApplication.mSocket;
 			mSocket.on(Constants.EVENT_TYPING, new Listener() {
@@ -194,7 +183,7 @@ public class ChatListFragment extends ListFragment {
 
 			});
 
-			mSocket.on(Constants.EVENT_MESSAGE_SENT, messageSentEventListener);
+			
 
 		} else {
 			Intent intent2 = new Intent(getActivity(), LoginActivity.class);
@@ -202,7 +191,7 @@ public class ChatListFragment extends ListFragment {
 			intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(intent2);
 		}
-		mMessageDataSource = new TextMessageDataSource(getActivity());
+		mMessageDataSource = TextMessageDataSource.getInstance(getActivity());
 		mChatItems = new ArrayList<ChatItem>();
 		latestMessages = new ArrayList<TextMessage>();
 		if (mChatItemDataSource != null) {
@@ -260,11 +249,10 @@ public class ChatListFragment extends ListFragment {
 
 			// open database connection
 			if (mMessageDataSource != null && mChatItemDataSource != null) {
-				mMessageDataSource.open();
-				mChatItemDataSource.open();
+//				mChatItemDataSource.open();
 			} else {
-				mMessageDataSource = new TextMessageDataSource(getActivity());
-				mChatItemDataSource = new ChatItemDataSource(getActivity());
+				mMessageDataSource = TextMessageDataSource.getInstance(getActivity());
+				mChatItemDataSource =ChatItemDataSource.getInstance(getActivity());
 			}
 			if (ParseUser.getCurrentUser() != null) {
 
@@ -288,7 +276,7 @@ public class ChatListFragment extends ListFragment {
 		// close database connection
 		// mMessageDataSource.close();
 		if (mMessageDataSource != null) {
-			mMessageDataSource.close();
+//			mMessageDataSource.close();
 		}
 
 	}
@@ -314,7 +302,7 @@ public class ChatListFragment extends ListFragment {
 		// Reset the active callbacks interface to the dummy implementation.
 		mCallbacks = sDummyCallbacks;
 		try {
-			mMessageDataSource.close();
+//			mMessageDataSource.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -379,7 +367,7 @@ public class ChatListFragment extends ListFragment {
 
 	@Override
 	public void onDestroy() {
-		mMessageDataSource.close();
+//		mMessageDataSource.close();
 		super.onDestroy();
 
 	}
@@ -402,15 +390,15 @@ public class ChatListFragment extends ListFragment {
 
 	private void updateChatListView() {
 		try {
-			mMessageDataSource.open();
-			mChatItemDataSource.open();
+//			mMessageDataSource.open();
+//			mChatItemDataSource.open();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 			if (mChatItemDataSource == null) {
-				mChatItemDataSource = new ChatItemDataSource(getActivity());
-				mChatItemDataSource.open();
+				mChatItemDataSource = ChatItemDataSource.getInstance(getActivity());
+//				mChatItemDataSource.open();
 			}
 			mChatItems = new ArrayList<ChatItem>();
 			mChatItems = mChatItemDataSource.getAllChatItems();
@@ -460,7 +448,7 @@ public class ChatListFragment extends ListFragment {
 		}
 
 		try {
-			mMessageDataSource.close();
+//			mMessageDataSource.close();
 		} catch (Exception e) {
 
 		}

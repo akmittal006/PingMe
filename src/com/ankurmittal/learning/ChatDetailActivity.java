@@ -53,18 +53,18 @@ public class ChatDetailActivity extends AppCompatActivity {
 			TextView titleView = (TextView) findViewById(R.id.chatDetail_toolbar_title);
 			String id = getIntent().getStringExtra(
 					ChatDetailFragment.ARG_ITEM_ID);
-			FriendsDataSource frndsDataSource = new FriendsDataSource(this);
-			frndsDataSource.open();
+			FriendsDataSource frndsDataSource = FriendsDataSource.getInstance(this);
+			//frndsDataSource.open();
 			String imgUrl = frndsDataSource.getImageUrlFromId(this, id);
 			String title = frndsDataSource.getNameFromId(this, id);
-			frndsDataSource.close();
+			//frndsDataSource.close();
 			titleView.setText(title);
 			if (imgUrl.equals("null")) {
 				iconView.setImageResource(R.drawable.avatar_empty);
 			} else if (imgUrl != null) {
 				Utils.loadUserImageByUrl(this, iconView, imgUrl);
 			}
-			mMessageDataSource = new TextMessageDataSource(this);
+			mMessageDataSource = TextMessageDataSource.getInstance(this);
 			arguments.putString(ChatDetailFragment.ARG_ITEM_ID, getIntent()
 					.getStringExtra(ChatDetailFragment.ARG_ITEM_ID));
 			ChatDetailFragment fragment = new ChatDetailFragment();
@@ -93,11 +93,6 @@ public class ChatDetailActivity extends AppCompatActivity {
 		// TODO Auto-generated method stub
 
 		super.onPause();
-
-		if (mMessageDataSource != null) {
-			mMessageDataSource.open();
-			mMessageDataSource.close();
-		}
 
 	}
 

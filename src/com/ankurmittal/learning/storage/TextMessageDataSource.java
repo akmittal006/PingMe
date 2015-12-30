@@ -9,6 +9,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.ankurmittal.learning.storage.helpers.TextMessageHelper;
 import com.ankurmittal.learning.util.Constants;
 import com.parse.ParseUser;
 
@@ -18,10 +19,25 @@ public class TextMessageDataSource {
 													// and
 	// opening the DB
 	private Context mContext;
+	private static TextMessageDataSource mInstance;
 
-	public TextMessageDataSource(Context context) {
+	public static synchronized TextMessageDataSource getInstance(Context context) {
+
+		// Use the application context, which will ensure that you
+		// don't accidentally leak an Activity's context.
+		// See this article for more information: http://bit.ly/6LRzfx
+		if (mInstance == null) {
+			Log.e("TEXT MESSAGE DEBUG","INSATANCE NULL OPENing...");
+			mInstance = new TextMessageDataSource(context.getApplicationContext());
+		}
+		Log.e("TEXT MESSAGE DEBUG","INSATANCE  NOT NULL OPENing...");
+		return mInstance;
+	}
+	
+	private TextMessageDataSource(Context context) {
 		mContext = context;
-		mTextMessageHelper = new TextMessageHelper(mContext);
+		mTextMessageHelper = TextMessageHelper.getInstance(mContext);
+		open();
 	}
 
 	/*
@@ -41,7 +57,6 @@ public class TextMessageDataSource {
 		if (mDatabase != null) {
 			mDatabase.close();
 		}
-
 	}
 
 	// INSERT
@@ -196,7 +211,6 @@ public class TextMessageDataSource {
 					);
 			return cursor;
 		} else {
-			open();
 			Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 					new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
 																			// names
@@ -234,7 +248,6 @@ public class TextMessageDataSource {
 					);
 			return cursor;
 		} else {
-			open();
 			Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 					new String[] { TextMessageHelper.COLUMN_MESSAGE_ID }, // column
 																			// names
@@ -266,11 +279,11 @@ public class TextMessageDataSource {
 	}
 
 	public Cursor selectAll() {
-
-		if (!mDatabase.isOpen()) {
-			Log.i("text msg data source", "opening before select all method");
-			open();
-		}
+//
+//		if (!mDatabase.isOpen()) {
+//			Log.i("text msg data source", "opening before select all method");
+//			open();
+//		}
 		Cursor cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
 						TextMessageHelper.COLUMN_RECEIVER_ID,
@@ -351,15 +364,22 @@ public class TextMessageDataSource {
 
 	// get messages for
 	public ArrayList<TextMessage> getMessagesFrom(String senderId) {
+		
+		if(mDatabase.isOpen()) {
+			Log.e("TEXT MESSAGE DEBUG", "GET MSGS FRM ALREADY OPEN");
+		} else {
+			Log.e("TEXT MESSAGE DEBUG", "GET MSGS FRM ALREADY CLOSED");
+		}
+		
 
 		String whereClause = TextMessageHelper.COLUMN_SENDER_ID + " = ? OR "
 				+ TextMessageHelper.COLUMN_RECEIVER_ID + " = ?";
 
 		Cursor cursor;
 		// check if database is open
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 		cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
 						TextMessageHelper.COLUMN_RECEIVER_ID,
@@ -423,12 +443,11 @@ public class TextMessageDataSource {
 	}
 
 	public int updateMessageStatus(String messageId, String mMsgStatus) {
-		if (!mDatabase.isOpen()) {
-			Log.i("text msg data source", "opening before select all method");
-			open();
-		}
-		
-		
+//		if (!mDatabase.isOpen()) {
+//			Log.i("text msg data source", "opening before select all method");
+//			open();
+//		}
+
 		Cursor cursor = getMessageCursor(messageId);
 		cursor.moveToFirst();
 		
@@ -455,7 +474,6 @@ public class TextMessageDataSource {
 				new String[] { messageId } // where params
 				);
 
-		mDatabase.close();
 		Log.e("text msg data source", "updating message status");
 
 		return rowsUpdated;
@@ -463,10 +481,10 @@ public class TextMessageDataSource {
 	}
 	
 	public int updatePendingMessage(String message, String mMsgId) {
-		if (!mDatabase.isOpen()) {
-			Log.i("text msg data source", "opening before select all method");
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			Log.i("text msg data source", "opening before select all method");
+//			open();
+//		}
 		String whereClause = TextMessageHelper.COLUMN_IS_SENT + " = ? AND " + TextMessageHelper.COLUMN_MESSAGE + " = ?";
 
 		ContentValues values = new ContentValues();
@@ -480,7 +498,6 @@ public class TextMessageDataSource {
 				new String[] { Constants.MESSAGE_STATUS_PENDING, message } // where params
 				);
 
-		mDatabase.close();
 		Log.e("text msg data source", "updating PENDING msg to sent");
 
 		return rowsUpdated;
@@ -498,9 +515,9 @@ public class TextMessageDataSource {
 
 		Cursor cursor;
 		// check if database is open
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			open();
+//		}
 		cursor = mDatabase.query(TextMessageHelper.TABLE_MESSAGES, // table
 				new String[] { TextMessageHelper.COLUMN_SENDER_ID,
 						TextMessageHelper.COLUMN_RECEIVER_ID,
@@ -562,10 +579,10 @@ public class TextMessageDataSource {
 	}
 	
 	public void updatePrevMsgStatToRead() {
-		if (!mDatabase.isOpen()) {
-			//Log.i("text msg data source", "opening before select all method");
-			open();
-		}
+//		if (!mDatabase.isOpen()) {
+//			//Log.i("text msg data source", "opening before select all method");
+//			open();
+//		}
 		
 		//get prev unread sent msgs
 		String whereClause = TextMessageHelper.COLUMN_IS_SENT + " != ? AND " + TextMessageHelper.COLUMN_SENDER_ID + " = ?";

@@ -74,10 +74,10 @@ public class FriendsFragment extends ListFragment {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
-			if(ParseUser.getCurrentUser() != null) {
+			if (ParseUser.getCurrentUser() != null) {
 				adapter.refill(mFriendsDataSource.getAllFriends());
 			}
-			
+
 		}
 
 	};
@@ -88,8 +88,7 @@ public class FriendsFragment extends ListFragment {
 		View rootView = inflater.inflate(R.layout.fragment_friends, container,
 				false);
 
-		mFriendsDataSource = new FriendsDataSource(getActivity());
-		mChatItemDataSource = new ChatItemDataSource(getActivity());
+		mChatItemDataSource = ChatItemDataSource.getInstance(getActivity());
 
 		return rootView;
 	}
@@ -108,7 +107,6 @@ public class FriendsFragment extends ListFragment {
 			startActivity(intent2);
 
 		} else {
-			
 
 			// open frnds databse connection
 			Log.d("frinds frag", "on resume");
@@ -116,6 +114,7 @@ public class FriendsFragment extends ListFragment {
 			mCurrentUser = ParseUser.getCurrentUser();
 			mFriendsRelation = mCurrentUser
 					.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
+			mFriendsDataSource = FriendsDataSource.getInstance(getActivity());
 			loadFromDatabase();
 			loadFriends();
 			getActivity().setProgressBarIndeterminateVisibility(true);
@@ -124,14 +123,12 @@ public class FriendsFragment extends ListFragment {
 	}
 
 	private void loadFromDatabase() {
-		mFriendsDataSource.open();
+		// mFriendsDataSource.open();
 		// check if database has data
 		if (mFriendsDataSource.selectAll().getCount() > 0) {
 			if (getListAdapter() == null) {
-
 				// mFriends = new
 				// ArrayList<ParseUser>(mFriendsDataSource.getAllFriends());
-
 				mFriends.clear();
 				mFriends.addAll(mFriendsDataSource.getAllFriends());
 				adapter = new FriendsAdapter(getActivity(), mFriends);
@@ -171,8 +168,8 @@ public class FriendsFragment extends ListFragment {
 		super.onPause();
 		getActivity().unregisterReceiver(broadcastReceiver);
 		// close frnds database connection
-		mChatItemDataSource.close();
-		mFriendsDataSource.close();
+		// mChatItemDataSource.close();
+		// mFriendsDataSource.close();
 
 	}
 
@@ -189,7 +186,7 @@ public class FriendsFragment extends ListFragment {
 		} else {
 			// add item
 
-			mChatItemDataSource.open();
+			// mChatItemDataSource.open();
 			addChatItem(mFriends.get(i).getString(ParseConstants.KEY_USER_ID),
 					mFriends.get(i).getUsername());
 			mCallbacks.onItemSelected(mFriends.get(i).getString(
@@ -218,19 +215,20 @@ public class FriendsFragment extends ListFragment {
 							mFriendsDataSource.insert(friend);
 						}
 					} finally {
-						mFriendsDataSource.close();
+						// mFriendsDataSource.close();
 						if (getActivity() != null) {
 							if (getListAdapter() == null) {
 								Log.d("Call to frnds adapter1", friends.size()
 										+ "");
-								if(adapter != null) {
+								if (adapter != null) {
 									adapter.refill(mFriendsDataSource
 											.getAllFriends());
 								} else {
-									adapter = new FriendsAdapter(getActivity(), mFriendsDataSource.getAllFriends());
+									adapter = new FriendsAdapter(getActivity(),
+											mFriendsDataSource.getAllFriends());
 									setListAdapter(adapter);
 								}
-								
+
 								updateFriendPics();
 							}
 						}
@@ -246,7 +244,7 @@ public class FriendsFragment extends ListFragment {
 								.setPositiveButton(android.R.string.ok, null);
 						AlertDialog dialog = builder.create();
 						dialog.show();
-						mFriendsDataSource.close();
+						// mFriendsDataSource.close();
 					}
 
 				}
@@ -287,8 +285,8 @@ public class FriendsFragment extends ListFragment {
 											.getAllFriends());
 
 									// update chat Items
-									ChatItemDataSource chatDataSource = new ChatItemDataSource(
-											getActivity());
+									ChatItemDataSource chatDataSource = ChatItemDataSource
+											.getInstance(getActivity());
 									chatDataSource.updateImageUrlFromId(
 											getActivity(), results);
 								}
@@ -303,5 +301,4 @@ public class FriendsFragment extends ListFragment {
 					}
 				});
 	}
-
 }

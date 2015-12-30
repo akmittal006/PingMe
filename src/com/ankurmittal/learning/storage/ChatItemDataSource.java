@@ -10,21 +10,33 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.ankurmittal.learning.util.CustomTarget;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
+import com.ankurmittal.learning.storage.helpers.ChatItemHelper;
+import com.ankurmittal.learning.storage.helpers.TextMessageHelper;
 
 public class ChatItemDataSource {
 	private SQLiteDatabase mDatabase; // The actual DB!
 	private ChatItemHelper mChatItemHelper; // Helper class for creating
 	private FriendsDataSource frndsDataSource;
+	private static ChatItemDataSource mInstance;
 	// and
 	// opening the DB
 	private Context mContext;
 
-	public ChatItemDataSource(Context context) {
+	public static synchronized ChatItemDataSource getInstance(Context context) {
+
+		// Use the application context, which will ensure that you
+		// don't accidentally leak an Activity's context.
+		// See this article for more information: http://bit.ly/6LRzfx
+		if (mInstance == null) {
+			mInstance = new ChatItemDataSource(context.getApplicationContext());
+		}
+		return mInstance;
+	}
+
+	private ChatItemDataSource(Context context) {
 		mContext = context;
-		mChatItemHelper = new ChatItemHelper(mContext);
+		mChatItemHelper = ChatItemHelper.getInstance(mContext);
+		open();
 	}
 
 	/*
@@ -32,8 +44,6 @@ public class ChatItemDataSource {
 	 */
 	public void open() throws SQLException {
 		mDatabase = mChatItemHelper.getWritableDatabase();
-
-		// Log.d("TEXT Databse check", "database opened");
 	}
 
 	/*
@@ -43,16 +53,15 @@ public class ChatItemDataSource {
 		if (mDatabase != null) {
 			mDatabase.close();
 		}
-
-		// Log.d("TEXT Databse check", "database closed");
+		Log.e("Chat ItemDatabse check", "database closed");
 	}
 
 	// INSERT
 	public void insert(ChatItem chatItem) {
-
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+		//
+		// if (!mDatabase.isOpen()) {
+		// open();
+		// }
 
 		Cursor cursor = isChatItemNew(chatItem);
 		if (cursor.getCount() == 0) {
@@ -60,7 +69,7 @@ public class ChatItemDataSource {
 			Log.d("DATA SOURCE", "INSERTING NEW ChatItem" + chatItem);
 			String imgUrl;
 			String lastMessage;
-			frndsDataSource = new FriendsDataSource(mContext);
+			frndsDataSource = FriendsDataSource.getInstance(mContext);
 			if (frndsDataSource.getImageUrlFromId(mContext, chatItem.getId()) != null) {
 				imgUrl = frndsDataSource.getImageUrlFromId(mContext,
 						chatItem.getId());
@@ -111,10 +120,10 @@ public class ChatItemDataSource {
 	public Cursor isChatItemNew(ChatItem chatItem) {
 
 		String whereClause = ChatItemHelper.COLUMN_SENDER_ID + " = ?";
-
-		if (mDatabase.isOpen()) {
-			open();
-		}
+		//
+		// if (mDatabase.isOpen()) {
+		// open();
+		// }
 		Cursor cursor = mDatabase.query(ChatItemHelper.TABLE_CHAT_ITEMS, // table
 				new String[] { ChatItemHelper.COLUMN_SENDER_ID }, // column
 																	// names
@@ -130,10 +139,10 @@ public class ChatItemDataSource {
 
 	public ChatItem getChatItemFromId(String id) {
 		String whereClause = ChatItemHelper.COLUMN_SENDER_ID + " = ?";
-
-		if (mDatabase.isOpen()) {
-			open();
-		}
+		//
+		// if (mDatabase.isOpen()) {
+		// open();
+		// }
 		Cursor cursor = mDatabase.query(ChatItemHelper.TABLE_CHAT_ITEMS, // table
 				new String[] { ChatItemHelper.COLUMN_SENDER_ID,
 						ChatItemHelper.COLUMN_ID,
@@ -150,26 +159,21 @@ public class ChatItemDataSource {
 				null, // having
 				null // orderby
 				);
-		
+
 		cursor.moveToFirst();
 
 		ChatItem chatItem = new ChatItem();
 
-//		int i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_IMG);
-//		chatItem.setImgUrl(cursor.getString(i));
-//		Log.e("MChatItem data source", "url-" + cursor.getString(i));
+		// int i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_IMG);
+		// chatItem.setImgUrl(cursor.getString(i));
+		// Log.e("MChatItem data source", "url-" + cursor.getString(i));
 		// do stuff
 
 		int i = cursor.getColumnIndex(ChatItemHelper.COLUMN_SENDER_ID);
 		chatItem.setId(cursor.getString(i));
-		
-		
-		TextMessageDataSource mMessageDataSource = new TextMessageDataSource(mContext);
-		try{
-			mMessageDataSource.open();
-		} catch(Exception e) {
-			Log.e("Receiving chat messages in item data source","database problem");
-		}
+
+		TextMessageDataSource mMessageDataSource = TextMessageDataSource
+				.getInstance(mContext);
 		if (chatItem.mMessages == null) {
 			chatItem.mMessages = new ArrayList<TextMessage>();
 		}
@@ -188,20 +192,19 @@ public class ChatItemDataSource {
 		// .getColumnIndex(ChatItemHelper.COLUMN_SENDER_CONTACT);
 		// mChatItems.get(row).setReceiverName(cursor.getString(i));
 
-//		i = cursor.getColumnIndex(ChatItemHelper.COLUMN_LAST_MESSAGE);
-//		if (cursor.getString(i) != null) {
-//			Log.i("quick check", cursor.getString(i));
-//			chatItem.setLastMessage(cursor.getString(i));
-//		}
-//
-//		i = cursor.getColumnIndex(ChatItemHelper.COLUMN_CREATED_AT);
-//		if (cursor.getString(i) != null) {
-//			chatItem.setLastMessageCreatedAt(cursor.getString(i));
-//		}
+		// i = cursor.getColumnIndex(ChatItemHelper.COLUMN_LAST_MESSAGE);
+		// if (cursor.getString(i) != null) {
+		// Log.i("quick check", cursor.getString(i));
+		// chatItem.setLastMessage(cursor.getString(i));
+		// }
+		//
+		// i = cursor.getColumnIndex(ChatItemHelper.COLUMN_CREATED_AT);
+		// if (cursor.getString(i) != null) {
+		// chatItem.setLastMessageCreatedAt(cursor.getString(i));
+		// }
 		// update chat items map also
 		if (ChatContent.ITEM_MAP.containsKey(chatItem.id)) {
-			ChatContent.ITEM_MAP.put(chatItem.id,
-					chatItem);
+			ChatContent.ITEM_MAP.put(chatItem.id, chatItem);
 		}
 
 		return chatItem;
@@ -225,10 +228,10 @@ public class ChatItemDataSource {
 
 	public Cursor selectAll() {
 
-		if (!mDatabase.isOpen()) {
-			Log.i("chat item data source", "opening before select all method");
-			open();
-		}
+		// if (!mDatabase.isOpen()) {
+		// Log.i("chat item data source", "opening before select all method");
+		// open();
+		// }
 		Cursor cursor = mDatabase.query(ChatItemHelper.TABLE_CHAT_ITEMS, // table
 				new String[] { ChatItemHelper.COLUMN_SENDER_ID,
 						ChatItemHelper.COLUMN_ID,
@@ -251,7 +254,7 @@ public class ChatItemDataSource {
 	public ArrayList<ChatItem> getAllChatItems() {
 
 		Cursor cursor = selectAll();
-		//ChatContent.ITEM_MAP.clear();
+		// ChatContent.ITEM_MAP.clear();
 		ArrayList<ChatItem> mChatItems = new ArrayList<ChatItem>();
 
 		if (cursor.getCount() == 0) {
@@ -261,13 +264,8 @@ public class ChatItemDataSource {
 			int row = 0;
 			while (!cursor.isAfterLast()) {
 
-				TextMessageDataSource mMessageDataSource = new TextMessageDataSource(
-						mContext);
-				try {
-					mMessageDataSource.open();
-				} catch (Exception e) {
-					Log.e("Chat Item Data Source Line 184", "" + e.getMessage());
-				}
+				TextMessageDataSource mMessageDataSource = TextMessageDataSource
+						.getInstance(mContext);
 
 				ChatItem chatItem = new ChatItem();
 
@@ -333,9 +331,9 @@ public class ChatItemDataSource {
 	}
 
 	public void upadteLastMessage(String id, TextMessage lastMessage) {
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+		// if (!mDatabase.isOpen()) {
+		// open();
+		// }
 		String whereClause = ChatItemHelper.COLUMN_SENDER_ID + " = ?";
 
 		ContentValues values = new ContentValues();
@@ -345,18 +343,18 @@ public class ChatItemDataSource {
 				whereClause, // where clause
 				new String[] { id } // where params
 				);
-		mDatabase.close();
+		// mDatabase.close();
 	}
 
 	public int updateImageUrlFromId(Context context,
 			final ArrayList<HashMap<String, String>> friends) {
 
 		int ans = 0;
-		mChatItemHelper = new ChatItemHelper(context);
-		mDatabase = mChatItemHelper.getWritableDatabase();
-		if (!mDatabase.isOpen()) {
-			open();
-		}
+		// mChatItemHelper = ChatItemHelper.getInstance(context);
+		// mDatabase = mChatItemHelper.getWritableDatabase();
+		// if (!mDatabase.isOpen()) {
+		// open();
+		// }
 
 		Log.e("ChatItem data source", "updating picss ");
 
@@ -373,12 +371,12 @@ public class ChatItemDataSource {
 					new String[] { frnd.get("id") });
 			if (res > 0) {
 				Log.e("frnds data ", "deleting and updating file");
-//				String middlePath = frnd.get("img_url").substring(93, 116);
-//				CustomTarget target = new CustomTarget(mContext);
-//				target.setTargetHash(middlePath);
-//				// TODO Auto-generated method stub
-//				Picasso.with(context).load(frnd.get("img_url"))
-//						.memoryPolicy(MemoryPolicy.NO_CACHE).into(target);
+				// String middlePath = frnd.get("img_url").substring(93, 116);
+				// CustomTarget target = new CustomTarget(mContext);
+				// target.setTargetHash(middlePath);
+				// // TODO Auto-generated method stub
+				// Picasso.with(context).load(frnd.get("img_url"))
+				// .memoryPolicy(MemoryPolicy.NO_CACHE).into(target);
 
 			}
 			Log.e("cht item data source", "updated rows- " + res);

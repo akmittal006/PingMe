@@ -3,7 +3,6 @@ package com.ankurmittal.learning;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
@@ -21,7 +20,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 
 import com.ankurmittal.learning.adapters.UserAdapter;
@@ -55,7 +53,7 @@ public class SearchResultsActivity extends ListActivity {
 		ParseUser currentUser = ParseUser.getCurrentUser();
 		friendsRel = currentUser
 				.getRelation(ParseConstants.KEY_FRIENDS_RELATION);
-
+		//getSupportActionBar().show();
 		// handleIntent(getIntent());
 		//getActionBar().setDisplayShowHomeEnabled(false);
 		SpannableString s = new SpannableString("Search People");

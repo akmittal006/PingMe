@@ -30,4 +30,5 @@ public class ParseConstants {
 	public static final String KEY_LOWER_USERNAME = "lowercaseUsername";
 	public static final String KEY_QUERY_TEXT = "queryText";
 	public static final String GROUP_MESSAGE_DELIVERED = "messageDelivered123156";
+	public static final String KEY_OBJECT_ID = "objectId";
 }

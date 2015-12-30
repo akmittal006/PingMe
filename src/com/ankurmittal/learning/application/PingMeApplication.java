@@ -2,8 +2,11 @@ package com.ankurmittal.learning.application;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter.Listener;
 
 import java.net.URISyntaxException;
+
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Application;
@@ -12,8 +15,10 @@ import android.util.Log;
 
 import com.ankurmittal.learning.ChatDetailActivity;
 import com.ankurmittal.learning.ChatListActivity;
+import com.ankurmittal.learning.storage.TextMessage;
 import com.ankurmittal.learning.util.Constants;
 import com.ankurmittal.learning.util.ParseConstants;
+import com.ankurmittal.learning.util.Utils;
 import com.parse.Parse;
 import com.parse.ParseCrashReporting;
 import com.parse.ParseInstallation;
@@ -22,12 +27,11 @@ import com.parse.ParseUser;
 public class PingMeApplication extends Application {
 
 	public static Socket mSocket;
-	
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
+
 		Parse.enableLocalDatastore(this);
 
 		// Enable Crash Reporting
@@ -37,18 +41,13 @@ public class PingMeApplication extends Application {
 				"Yr8YMze4dltTmGbDTwBJ01iByOiaHC7OBnGHIz2e");
 
 		ParseInstallation.getCurrentInstallation().saveInBackground();
-			Log.e("APP DEBUG", "USER NOT NULL");
-			try {
-				mSocket = IO.socket("http://pingme-lbcqld-2172.herokuapp.com/");
-			} catch (URISyntaxException e) {
-			}
-			
-
-		
+		Log.e("APP DEBUG", "USER NOT NULL");
+		try {
+			mSocket = IO.socket("http://pingme-lbcqld-2172.herokuapp.com/");
+		} catch (URISyntaxException e) {
+		}
 		// Enable Local Datastore.
 	}
-	
-	
 
 	public static void updateParseInstallation(ParseUser user) {
 		ParseInstallation installation = ParseInstallation
@@ -72,16 +71,20 @@ public class PingMeApplication extends Application {
 		}
 
 		@Override
-		public void onActivityResumed(Activity activity) {
+		public void onActivityResumed(final Activity activity) {
 			Log.i(activity.getClass().getSimpleName(), "onResume()");
 			String activityName = activity.getClass().getSimpleName();
-			if(activityName.equals(ChatListActivity.class.getSimpleName()) || activityName.equals(ChatDetailActivity.class.getSimpleName())) {
-				if(ParseUser.getCurrentUser() != null) {
+			if (activityName.equals(ChatListActivity.class.getSimpleName())
+					|| activityName.equals(ChatDetailActivity.class
+							.getSimpleName())) {
+				if (ParseUser.getCurrentUser() != null) {
 					Log.e("DEBUG", "Socket connected");
 					mSocket.connect();
-					mSocket.emit(Constants.EVENT_NEW_USER, ParseUser.getCurrentUser().getObjectId());
+					mSocket.emit(Constants.EVENT_NEW_USER, ParseUser
+							.getCurrentUser().getObjectId());
+					setOnMessageSentEvent(activity);
 				}
-				
+
 			}
 		}
 
@@ -89,12 +92,14 @@ public class PingMeApplication extends Application {
 		public void onActivityPaused(Activity activity) {
 			Log.i(activity.getClass().getSimpleName(), "onPause()");
 			String activityName = activity.getClass().getSimpleName();
-			if(activityName.equals(ChatListActivity.class.getSimpleName()) || activityName.equals(ChatDetailActivity.class.getSimpleName())) {
-				if(ParseUser.getCurrentUser() != null) {
+			if (activityName.equals(ChatListActivity.class.getSimpleName())
+					|| activityName.equals(ChatDetailActivity.class
+							.getSimpleName())) {
+				if (ParseUser.getCurrentUser() != null) {
 					Log.e("DEBUG", "Socket DISconnected");
 					mSocket.disconnect();
 				}
-				
+
 			}
 		}
 
@@ -113,6 +118,19 @@ public class PingMeApplication extends Application {
 		@Override
 		public void onActivityDestroyed(Activity activity) {
 			Log.i(activity.getClass().getSimpleName(), "onDestroy()");
+		}
+
+		private void setOnMessageSentEvent(final Activity activity) {
+			mSocket.on(Constants.EVENT_MESSAGE_SENT, new Listener() {
+				@Override
+				public void call(Object... arg0) {
+					final String senderId;
+					JSONObject data = (JSONObject) arg0[0];
+					TextMessage messageReceived = new TextMessage();
+					messageReceived = Utils.createTextMessageFromSocketData(
+							activity, data);
+				}
+			});
 		}
 	}
 

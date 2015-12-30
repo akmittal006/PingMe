@@ -131,9 +131,9 @@ public class ChatDetailFragment extends Fragment {
 		//((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 		//Log.e("DEBUG", "" + ((AppCompatActivity)getActivity()).getSupportActionBar().isShowing());
 		try {
-			ChatItemDataSource mChatItemDataSource = new ChatItemDataSource(
+			ChatItemDataSource mChatItemDataSource = ChatItemDataSource.getInstance(
 					getActivity());
-			mChatItemDataSource.open();
+//			mChatItemDataSource.open();
 			mItem = mChatItemDataSource.getChatItemFromId(getArguments()
 					.getString(ARG_ITEM_ID));
 			if (ChatContent.ITEM_MAP.containsKey((getArguments()
@@ -147,7 +147,7 @@ public class ChatDetailFragment extends Fragment {
 			mItem = ChatContent.ITEM_MAP.get(getArguments().getString(
 					ARG_ITEM_ID));
 		}
-		mMessageDataSource = new TextMessageDataSource(getActivity());
+		mMessageDataSource = TextMessageDataSource.getInstance(getActivity());
 		notReadMessages = new ArrayList<TextMessage>();
 
 		PushNotificationReceiver mReceiver = new PushNotificationReceiver();
@@ -474,6 +474,10 @@ public class ChatDetailFragment extends Fragment {
 						pTextMessage.put(
 								ParseConstants.KEY_MESSAGE_RECEIVER_NAME,
 								mItem.content);
+						pTextMessage.put(
+								ParseConstants.KEY_SENDER_NAME,
+								ParseUser.getCurrentUser().getUsername());
+						
 						pTextMessage.put("isSent",
 								Constants.MESSAGE_STATUS_PENDING);
 						//pTextMessage.put(ParseConstants.KEY_CREATED_AT, new Date());
@@ -492,7 +496,6 @@ public class ChatDetailFragment extends Fragment {
 												mMessageDataSource
 														.insert(message);
 											} else {
-												mMessageDataSource.open();
 												mMessageDataSource
 														.insert(message);
 											}
@@ -618,7 +621,7 @@ public class ChatDetailFragment extends Fragment {
 	public void onPause() {
 		getActivity().unregisterReceiver(notificationMessageReceiver);
 		getActivity().unregisterReceiver(notificationCheckReceiver);
-		mMessageDataSource.close();
+//		mMessageDataSource.close();
 		super.onPause();
 	}
 
@@ -638,9 +641,9 @@ public class ChatDetailFragment extends Fragment {
 			// ChatContent.ITEM_MAP.get(getArguments().getString(
 			// ARG_ITEM_ID)).id);
 			try {
-				ChatItemDataSource mChatItemDataSource = new ChatItemDataSource(
+				ChatItemDataSource mChatItemDataSource = ChatItemDataSource.getInstance(
 						getActivity());
-				mChatItemDataSource.open();
+//				mChatItemDataSource.open();
 				mItem = mChatItemDataSource.getChatItemFromId(getArguments()
 						.getString(ARG_ITEM_ID));
 				Log.e("DEUBUG IN ON RESUME", "initail size- "
@@ -672,7 +675,7 @@ public class ChatDetailFragment extends Fragment {
 
 		getActivity().registerReceiver(notificationCheckReceiver,
 				new IntentFilter(Constants.PUSH_TO_CHECK));
-		mMessageDataSource.open();
+//		mMessageDataSource.open();
 		loadChatItemMessagesFromDatabase();
 		updateReadMessages();
 		syncMsgsToParse();
